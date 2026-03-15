@@ -1,0 +1,10 @@
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\bin\Debug\netstandard2.1\AjedrezLogica.deps.json
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\bin\Debug\netstandard2.1\AjedrezLogica.dll
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\bin\Debug\netstandard2.1\AjedrezLogica.pdb
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.csproj.AssemblyReference.cache
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.GeneratedMSBuildEditorConfig.editorconfig
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.AssemblyInfoInputs.cache
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.AssemblyInfo.cs
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.csproj.CoreCompileInputs.cache
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.dll
+D:\AndroidStudio\AjedrezLogica\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.pdb

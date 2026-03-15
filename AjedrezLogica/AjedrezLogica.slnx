@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AjedrezLogica/AjedrezLogica.csproj" />
+  <Project Path="AjedrezPruebas/AjedrezPruebas.csproj" Id="c10bd0c3-005d-426b-80d5-09dbf2e3decf" />
+</Solution>
