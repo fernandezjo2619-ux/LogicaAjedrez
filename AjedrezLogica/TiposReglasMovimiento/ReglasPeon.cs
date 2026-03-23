@@ -1,23 +1,22 @@
 ﻿using AjedrezLogica.Recursos;
+using System;
 using System.Collections.Generic;
 
 namespace AjedrezLogica.TiposReglasMovimiento
 {
     internal class ReglasPeon
     {
-        public List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, Habilidad habilidad, Tablero tablero)
+        internal static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
         {
-            switch (habilidad)
-            {
-                case :
-                    break;
-                default:
+            //switch (habilidad)
+            //{
+            //    default:
                     return Basicas(posicion, bando, tablero);
-                    break;
-            }
+            //        break;
+            //}
         }
 
-        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
+        internal static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
         {
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             int direccion = bando == ColorPieza.Blanco ? 1 : -1;

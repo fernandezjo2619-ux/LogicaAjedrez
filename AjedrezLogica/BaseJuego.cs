@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 
 namespace AjedrezLogica
@@ -23,12 +24,12 @@ namespace AjedrezLogica
             inicializaciones();
         }
 
-        public void IniciarPieza(TipoPieza tipo, ColorPieza color, TipoHabilidad tipoHabilidad = TipoHabilidad.vacio, int x, int y, Tablero tablero)
+        public void IniciarPieza(TipoPieza tipo, ColorPieza color, int x, int y, Tablero tablero, TipoHabilidad tipoHabilidad = TipoHabilidad.vacio)
         {
             Pieza pieza = new Pieza();
             pieza.Tipo = tipo;
             pieza.Color = color;
-            pieza.Habilidad = ListaHabilidades.where(e => e.TipoHabilidad == tipoHabilidad && e.TipoPieza == tipo).FirstOrDefault();
+            pieza.Habilidad = ListaHabilidades.Where(e => e.TipoHabilidad == tipoHabilidad && e.TipoPieza == tipo).FirstOrDefault();
 
             pieza.Posicion = (x, y);
             tablero.Grid[x, y].Ocupante = pieza;
@@ -39,8 +40,8 @@ namespace AjedrezLogica
         private void InicializarHabilidades(TipoPieza tipoPieza, TipoHabilidad tipoHabilidad)
         {
             Habilidad habilidad = new Habilidad();
-            habilidad.TipoHabilidad = TipoHabilidad;
-            habilidad.TipoPieza = tipoPieza:
+            habilidad.TipoHabilidad = tipoHabilidad;
+            habilidad.TipoPieza = tipoPieza;
             ListaHabilidades.Add(habilidad);
         }
 

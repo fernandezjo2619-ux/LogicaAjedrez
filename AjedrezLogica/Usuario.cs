@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AjedrezLogica.Recursos;
+using System;
 
 namespace AjedrezLogica
 {
@@ -19,11 +20,11 @@ namespace AjedrezLogica
             {
                 if (color == ColorPieza.Blanco)
                 {
-                    BaseJuego.IniciarPieza(TipoPieza.Peon, ColorPieza.Blanco, habilidadAleatoriaPeon, 1, col, Tablero);
+                    baseJuego.IniciarPieza(TipoPieza.Peon, ColorPieza.Blanco, 1, col, baseJuego.Tablero, habilidadAleatoriaPeon);
                 }
                 else
                 {
-                    BaseJuego.IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, habilidadAleatoriaPeon, 6, col, Tablero);
+                    baseJuego.IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, 6, col, baseJuego.Tablero, habilidadAleatoriaPeon);
                 }
 
             }
@@ -31,34 +32,34 @@ namespace AjedrezLogica
             if (color == ColorPieza.Blanco)
             {
                 // Torres
-                BaseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, habilidadAleatoriaTorre, 0, 0, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, habilidadAleatoriaTorre, 0, 7, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 0, baseJuego.Tablero, habilidadAleatoriaTorre);
+                baseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 7, baseJuego.Tablero, habilidadAleatoriaTorre);
                 // Caballos
-                BaseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, habilidadAleatoriaCaballo, 0, 1, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, habilidadAleatoriaCaballo, 0, 6, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 1, baseJuego.Tablero, habilidadAleatoriaCaballo);
+                baseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 6, baseJuego.Tablero, habilidadAleatoriaCaballo);
                 // Alfiles
-                BaseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, habilidadAleatoriaAlfil, 0, 2, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, habilidadAleatoriaAlfil, 0, 5, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 2, baseJuego.Tablero, habilidadAleatoriaAlfil);
+                baseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 5, baseJuego.Tablero, habilidadAleatoriaAlfil);
                 // Damas
-                BaseJuego.IniciarPieza(TipoPieza.Dama, ColorPieza.Blanco, habilidadAleatoriaDama, 0, 3, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Dama, ColorPieza.Blanco, 0, 3, baseJuego.Tablero, habilidadAleatoriaDama);
                 // Reyes
-                BaseJuego.IniciarPieza(TipoPieza.Rey, ColorPieza.Blanco, habilidadAleatoriaRey, 0, 4, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Rey, ColorPieza.Blanco, 0, 4, baseJuego.Tablero, habilidadAleatoriaRey);
             }
             else
             {
                 // Torres
-                BaseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, habilidadAleatoriaTorre, 7, 0, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, habilidadAleatoriaTorre, 7, 7, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 0, baseJuego.Tablero, habilidadAleatoriaTorre);
+                baseJuego.IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 7, baseJuego.Tablero, habilidadAleatoriaTorre);
                 // Caballos
-                BaseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, habilidadAleatoriaCaballo, 7, 1, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, habilidadAleatoriaCaballo, 7, 6, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 1, baseJuego.Tablero, habilidadAleatoriaCaballo);
+                baseJuego.IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 6, baseJuego.Tablero, habilidadAleatoriaCaballo);
                 // Alfiles
-                BaseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, habilidadAleatoriaAlfil, 7, 2, Tablero);
-                BaseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, habilidadAleatoriaAlfil, 7, 5, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 2, baseJuego.Tablero, habilidadAleatoriaAlfil);
+                baseJuego.IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 5, baseJuego.Tablero, habilidadAleatoriaAlfil);
                 // Damas
-                BaseJuego.IniciarPieza(TipoPieza.Dama, ColorPieza.Negro, habilidadAleatoriaDama, 7, 3, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Dama, ColorPieza.Negro, 7, 3, baseJuego.Tablero, habilidadAleatoriaDama);
                 // Reyes
-                BaseJuego.IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, habilidadAleatoriaRey, 7, 4, Tablero);
+                baseJuego.IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, 7, 4, baseJuego.Tablero, habilidadAleatoriaRey);
             }
         }
     }
