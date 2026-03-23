@@ -6,6 +6,6 @@ namespace AjedrezLogica.Recursos
 {
     public enum TipoHabilidad
     {
-       
+       vacio = 1
     }
 }

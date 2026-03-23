@@ -7,6 +7,18 @@ namespace AjedrezLogica.TiposReglasMovimiento
 {
     internal class ReglasTorre
     {
+        public List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, Habilidad habilidad, Tablero tablero)
+        {
+            switch (habilidad)
+            {
+                case :
+                    break;
+                default:
+                    return Basicas(posicion, bando, tablero);
+                    break;
+            }
+        }
+
         public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
         {   
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();

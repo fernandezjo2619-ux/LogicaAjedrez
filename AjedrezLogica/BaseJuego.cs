@@ -11,6 +11,7 @@ namespace AjedrezLogica
         public Tablero Tablero { get; private set; }
         public ColorPieza TurnoActual { get; private set; } = ColorPieza.Blanco;
         public List<Pieza> ListaPiezas { get; private set; } = new List<Pieza>();
+        public List<Habilidad> ListaHabilidades { get; private set; } = new List<Habilidad>();
 
         public void CambiarTurno()
         {
@@ -22,48 +23,65 @@ namespace AjedrezLogica
             inicializaciones();
         }
 
-        public void IniciarPieza(TipoPieza tipo, ColorPieza color, int x, int y, Tablero tablero)
+        public void IniciarPieza(TipoPieza tipo, ColorPieza color, TipoHabilidad tipoHabilidad = TipoHabilidad.vacio, int x, int y, Tablero tablero)
         {
             Pieza pieza = new Pieza();
             pieza.Tipo = tipo;
             pieza.Color = color;
+            pieza.Habilidad = ListaHabilidades.where(e => e.TipoHabilidad == tipoHabilidad && e.TipoPieza == tipo).FirstOrDefault();
+
             pieza.Posicion = (x, y);
             tablero.Grid[x, y].Ocupante = pieza;
 
             ListaPiezas.Add(pieza);
         }
 
+        private void InicializarHabilidades(TipoPieza tipoPieza, TipoHabilidad tipoHabilidad)
+        {
+            Habilidad habilidad = new Habilidad();
+            habilidad.TipoHabilidad = TipoHabilidad;
+            habilidad.TipoPieza = tipoPieza:
+            ListaHabilidades.Add(habilidad);
+        }
+
         public void inicializaciones()
         {
             Tablero = new Tablero(8, 8);
 
-            for (int col = 0; col < 8; col++)
-            {
-                IniciarPieza(TipoPieza.Peon, ColorPieza.Blanco, 1, col, Tablero);
-                IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, 6, col, Tablero);
-            }
+            InicializarHabilidades(TipoPieza.Peon, TipoHabilidad.vacio);
+            InicializarHabilidades(TipoPieza.Torre, TipoHabilidad.vacio);
+            InicializarHabilidades(TipoPieza.Alfil, TipoHabilidad.vacio);
+            InicializarHabilidades(TipoPieza.Caballo, TipoHabilidad.vacio);
+            InicializarHabilidades(TipoPieza.Dama, TipoHabilidad.vacio);
+            InicializarHabilidades(TipoPieza.Rey, TipoHabilidad.vacio);
 
-            // Torres
-            IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 0, Tablero);
-            IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 7, Tablero);
-            IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 0, Tablero);
-            IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 7, Tablero);
-            // Caballos
-            IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 1, Tablero);
-            IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 6, Tablero);
-            IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 1, Tablero);
-            IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 6, Tablero);
-            // Alfiles
-            IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 2, Tablero);
-            IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 5, Tablero);
-            IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 2, Tablero);
-            IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 5, Tablero);
-            // Damas
-            IniciarPieza(TipoPieza.Dama, ColorPieza.Blanco, 0, 3, Tablero);
-            IniciarPieza(TipoPieza.Dama, ColorPieza.Negro, 7, 3, Tablero);
-            // Reyes
-            IniciarPieza(TipoPieza.Rey, ColorPieza.Blanco, 0, 4, Tablero);
-            IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, 7, 4, Tablero);
+            //for (int col = 0; col < 8; col++)
+            //{
+            //    IniciarPieza(TipoPieza.Peon, ColorPieza.Blanco, 1, col, Tablero);
+            //    IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, 6, col, Tablero);
+            //}
+
+            //// Torres
+            //IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 0, Tablero);
+            //IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 7, Tablero);
+            //IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 0, Tablero);
+            //IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 7, Tablero);
+            //// Caballos
+            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 1, Tablero);
+            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 6, Tablero);
+            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 1, Tablero);
+            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 6, Tablero);
+            //// Alfiles
+            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 2, Tablero);
+            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 5, Tablero);
+            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 2, Tablero);
+            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 5, Tablero);
+            //// Damas
+            //IniciarPieza(TipoPieza.Dama, ColorPieza.Blanco, 0, 3, Tablero);
+            //IniciarPieza(TipoPieza.Dama, ColorPieza.Negro, 7, 3, Tablero);
+            //// Reyes
+            //IniciarPieza(TipoPieza.Rey, ColorPieza.Blanco, 0, 4, Tablero);
+            //IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, 7, 4, Tablero);
 
         }
 
@@ -100,7 +118,7 @@ namespace AjedrezLogica
 
         public List<(Pieza pieza, List<(int X, int Y)>)> MovimientosPosiblesBando(ColorPieza Color)
         {
-            List<(Pieza pieza, List<(int X, int Y)>)> movimientosPosiblesbando = new List<(Pieza pieza, List<(int X, int Y)>)>(); 
+            List<(Pieza pieza, List<(int X, int Y)>)> movimientosPosiblesbando = new List<(Pieza pieza, List<(int X, int Y)>)>();
             foreach (Pieza pieza in ListaPiezas)
             {
                 if (pieza.Color.Equals(Color))
