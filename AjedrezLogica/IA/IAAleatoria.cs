@@ -1,5 +1,6 @@
 ﻿using AjedrezLogica.Recursos;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AjedrezLogica.IA
@@ -7,11 +8,21 @@ namespace AjedrezLogica.IA
     public class IAAleatoria : IMotorIA
     {
         private Random random = new Random();
-        public void ElegirHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
-        {
-            Array valores = Enum.GetValues(typeof(TipoHabilidad));
-            TipoHabilidad habilidadAleatoriaPeon = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
 
+        private TipoHabilidad ObtenerHabilidadAleatoria(TipoPieza tipoPieza, List<Habilidad> habilidades)
+        {
+            var habilidadesDeTipo = habilidades.Where(h => h.TipoPieza == tipoPieza).ToList();
+            int indice = random.Next(0, habilidadesDeTipo.Count);
+            return habilidadesDeTipo[indice].TipoHabilidad;
+        }
+        public void ElegirHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
+        {        
+            TipoHabilidad habilidadAleatoriaPeon = ObtenerHabilidadAleatoria(TipoPieza.Peon, baseJuego.ListaHabilidades);
+            TipoHabilidad habilidadAleatoriaTorre = ObtenerHabilidadAleatoria(TipoPieza.Torre, baseJuego.ListaHabilidades);
+            TipoHabilidad habilidadAleatoriaCaballo = ObtenerHabilidadAleatoria(TipoPieza.Caballo, baseJuego.ListaHabilidades);
+            TipoHabilidad habilidadAleatoriaAlfil = ObtenerHabilidadAleatoria(TipoPieza.Alfil, baseJuego.ListaHabilidades);
+            TipoHabilidad habilidadAleatoriaDama = ObtenerHabilidadAleatoria(TipoPieza.Dama, baseJuego.ListaHabilidades);
+            TipoHabilidad habilidadAleatoriaRey = ObtenerHabilidadAleatoria(TipoPieza.Rey, baseJuego.ListaHabilidades);
             // Peones
             for (int col = 0; col < 8; col++)
             {
@@ -25,12 +36,6 @@ namespace AjedrezLogica.IA
                 }
                 
             }
-
-            TipoHabilidad habilidadAleatoriaTorre = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
-            TipoHabilidad habilidadAleatoriaCaballo = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
-            TipoHabilidad habilidadAleatoriaAlfil = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
-            TipoHabilidad habilidadAleatoriaDama = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
-            TipoHabilidad habilidadAleatoriaRey = (TipoHabilidad)valores.GetValue(random.Next(valores.Length));
 
             if (color == ColorPieza.Blanco)
             {

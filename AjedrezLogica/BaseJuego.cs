@@ -48,13 +48,28 @@ namespace AjedrezLogica
         public void inicializaciones()
         {
             Tablero = new Tablero(8, 8);
+            foreach (TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
+            {
+                InicializarHabilidades(tipoPieza, TipoHabilidad.vacio);
+            }
+            foreach (TipoHabilidad tipoHabilidad in Enum.GetValues(typeof(TipoHabilidad)))
+            {
+                int valor = (int)tipoHabilidad;
+                if (valor <= 0) { }
+                else if (valor <= 4)
+                    InicializarHabilidades(TipoPieza.Peon, tipoHabilidad);
+                else if (valor <= 6)
+                    InicializarHabilidades(TipoPieza.Torre, tipoHabilidad);
+                else if (valor <= 8)
+                    InicializarHabilidades(TipoPieza.Alfil, tipoHabilidad);
+                else if (valor <= 10)
+                    InicializarHabilidades(TipoPieza.Caballo, tipoHabilidad);
+                else if (valor <= 12)
+                    InicializarHabilidades(TipoPieza.Dama, tipoHabilidad);
+                else if (valor <= 14)
+                    InicializarHabilidades(TipoPieza.Rey, tipoHabilidad);
 
-            InicializarHabilidades(TipoPieza.Peon, TipoHabilidad.vacio);
-            InicializarHabilidades(TipoPieza.Torre, TipoHabilidad.vacio);
-            InicializarHabilidades(TipoPieza.Alfil, TipoHabilidad.vacio);
-            InicializarHabilidades(TipoPieza.Caballo, TipoHabilidad.vacio);
-            InicializarHabilidades(TipoPieza.Dama, TipoHabilidad.vacio);
-            InicializarHabilidades(TipoPieza.Rey, TipoHabilidad.vacio);
+            }
 
             //for (int col = 0; col < 8; col++)
             //{
