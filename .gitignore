@@ -74,7 +74,7 @@ StyleCopReport.xml
 *_p.c
 *_h.h
 *.ilk
-*.meta
+#*.meta
 *.obj
 *.iobj
 *.pch
@@ -360,4 +360,22 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+
+# ─── UNITY ───────────────────────────────────────
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Bb]uild/
+[Bb]uilds/
+[Uu]ser[Ss]ettings/
+
+*.pidb
+*.booproj
+*.unityproj
+*.unitypackage
+*.tmp
+sysinfo.txt
+crashlytics-build.properties
 FodyWeavers.xsd
