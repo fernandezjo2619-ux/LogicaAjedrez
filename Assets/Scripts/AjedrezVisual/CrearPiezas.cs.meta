@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 06cb82ebb2bda3f42b9b7b8663360c87
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - peonPrefab: {fileID: 1370123813961375733, guid: cb5395c17979db844b40d4a0656ce427, type: 3}
+  - torrePrefab: {fileID: 762467824056644408, guid: 9f0118c326bfc1b43ae0639e4065accb, type: 3}
+  - caballoPrefab: {fileID: 49508788711499475, guid: 2a9d2cbd1d5aea342afff5e9932ce902, type: 3}
+  - alfilPrefab: {fileID: 3127331826585453526, guid: 2616eedfb957f5844b13de51d98f5f69, type: 3}
+  - damaPrefab: {fileID: 3679691652383651845, guid: 9d8278c148876894582ffbe5ea59ef60, type: 3}
+  - reyPrefab: {fileID: 3389719676536736125, guid: 620102b070db1384baf9e1217ff31f0b, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
