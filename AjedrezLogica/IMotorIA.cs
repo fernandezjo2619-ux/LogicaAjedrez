@@ -7,6 +7,7 @@ namespace AjedrezLogica
 {
     public interface IMotorIA
     {
+        void ElegirHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color);
         (Pieza pieza, int xFin, int yFin) ElegirMovimiento(BaseJuego baseJuego, ColorPieza color);
     }
 }

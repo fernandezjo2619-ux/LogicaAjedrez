@@ -11,17 +11,17 @@ namespace AjedrezLogica
             switch (pieza.Tipo)
             {
                 case TipoPieza.Peon:
-                    return ReglasPeon.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasPeon.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Torre:
-                    return ReglasTorre.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasTorre.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Alfil:
-                    return ReglasAlfil.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasAlfil.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Caballo:
-                    return ReglasCaballo.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasCaballo.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Dama:
-                    return ReglasDama.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasDama.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Rey:
-                    return ReglasRey.Basicas(pieza.Posicion, pieza.Color, tablero);
+                    return ReglasRey.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 default:
                     return new List<(int X, int Y)> { (0, 0) };
             }

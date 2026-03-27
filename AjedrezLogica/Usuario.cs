@@ -1,28 +1,20 @@
 ﻿using AjedrezLogica.Recursos;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace AjedrezLogica.IA
+namespace AjedrezLogica
 {
-    public class IAAleatoria : IMotorIA
+    public class Usuario
     {
-        private Random random = new Random();
-
-        private TipoHabilidad ObtenerHabilidadAleatoria(TipoPieza tipoPieza, List<Habilidad> habilidades)
+        public void RecogerHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
         {
-            var habilidadesDeTipo = habilidades.Where(h => h.TipoPieza == tipoPieza).ToList();
-            int indice = random.Next(0, habilidadesDeTipo.Count);
-            return habilidadesDeTipo[indice].TipoHabilidad;
-        }
-        public void ElegirHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
-        {        
-            TipoHabilidad habilidadAleatoriaPeon = ObtenerHabilidadAleatoria(TipoPieza.Peon, baseJuego.ListaHabilidades);
-            TipoHabilidad habilidadAleatoriaTorre = ObtenerHabilidadAleatoria(TipoPieza.Torre, baseJuego.ListaHabilidades);
-            TipoHabilidad habilidadAleatoriaCaballo = ObtenerHabilidadAleatoria(TipoPieza.Caballo, baseJuego.ListaHabilidades);
-            TipoHabilidad habilidadAleatoriaAlfil = ObtenerHabilidadAleatoria(TipoPieza.Alfil, baseJuego.ListaHabilidades);
-            TipoHabilidad habilidadAleatoriaDama = ObtenerHabilidadAleatoria(TipoPieza.Dama, baseJuego.ListaHabilidades);
-            TipoHabilidad habilidadAleatoriaRey = ObtenerHabilidadAleatoria(TipoPieza.Rey, baseJuego.ListaHabilidades);
+            // Recoger las habilidades de cada pieza por la base de datos, del usuario
+            TipoHabilidad habilidadAleatoriaPeon = default;
+            TipoHabilidad habilidadAleatoriaTorre = default;
+            TipoHabilidad habilidadAleatoriaCaballo = default;
+            TipoHabilidad habilidadAleatoriaAlfil = default;
+            TipoHabilidad habilidadAleatoriaDama = default;
+            TipoHabilidad habilidadAleatoriaRey = default;
+            
             // Peones
             for (int col = 0; col < 8; col++)
             {
@@ -34,7 +26,7 @@ namespace AjedrezLogica.IA
                 {
                     baseJuego.IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, 6, col, baseJuego.Tablero, habilidadAleatoriaPeon);
                 }
-                
+
             }
 
             if (color == ColorPieza.Blanco)
@@ -69,20 +61,6 @@ namespace AjedrezLogica.IA
                 // Reyes
                 baseJuego.IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, 7, 4, baseJuego.Tablero, habilidadAleatoriaRey);
             }
-        }
-
-        public (Pieza pieza, int xFin, int yFin) ElegirMovimiento(BaseJuego baseJuego, ColorPieza color)
-        {
-            var MovimientosAElegir = baseJuego.MovimientosPosiblesBando(color).Where(m => m.Item2.Count > 0).ToList();
-
-
-            int indicePieza = random.Next(0, MovimientosAElegir.Count);
-            var (pieza, destinos) = MovimientosAElegir[indicePieza];
-
-            int indiceDestinos = random.Next(0, destinos.Count);
-            var (xfin, yfin) = destinos[indiceDestinos];
-
-            return (pieza, xfin, yfin);
         }
     }
 }

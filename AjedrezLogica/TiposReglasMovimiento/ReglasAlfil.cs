@@ -6,8 +6,18 @@ using System.Text;
 namespace AjedrezLogica.TiposReglasMovimiento
 {
     internal class ReglasAlfil
-    { 
-        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
+    {
+        internal static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
+        {
+            //switch (habilidad)
+            //{
+            //    default:
+                    return Basicas(posicion, bando, tablero);
+            //        break;
+            //}
+        }
+
+        internal static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
         {   
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             (int dx, int dy)[] direcciones = { (1, 1), (-1, 1), (1, -1), (-1, -1) };
