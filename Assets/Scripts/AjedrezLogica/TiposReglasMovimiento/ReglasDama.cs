@@ -5,9 +5,9 @@ using System.Text;
 
 namespace AjedrezLogica.TiposReglasMovimiento
 {
-    internal class ReglasDama
+    public class ReglasDama
     {
-        internal static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
+        public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
         {
             //switch (habilidad)
             //{
@@ -17,7 +17,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
             //}
         }
 
-        internal static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
+        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
         {   
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1) };

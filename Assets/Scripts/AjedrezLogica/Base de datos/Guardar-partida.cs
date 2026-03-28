@@ -54,13 +54,13 @@ public class SupabaseRPC : MonoBehaviour
     IEnumerator GuardarPartida(int idJugador1, int idJugador2, string estado = "EN_CURSO", int? idGanador = null)
     {
         string url = baseUrl + "/guardar_partida";
-        
+
         // Construir JSON con los parametros de la funcion SQL
         string jsonBody = "{" +
             "\"p_id_jugador_1\": " + idJugador1 + ", " +
             "\"p_id_jugador_2\": " + idJugador2 + ", " +
             "\"p_estado\": \"" + estado + "\"";
-        
+
         if (idGanador.HasValue)
         {
             jsonBody += ", \"p_id_ganador\": " + idGanador.Value;
@@ -69,7 +69,7 @@ public class SupabaseRPC : MonoBehaviour
         {
             jsonBody += ", \"p_id_ganador\": null";
         }
-        
+
         jsonBody += "}";
 
         UnityWebRequest request = new UnityWebRequest(url, "POST");
@@ -95,3 +95,4 @@ public class SupabaseRPC : MonoBehaviour
             Debug.LogError(request.downloadHandler.text);
         }
     }
+}

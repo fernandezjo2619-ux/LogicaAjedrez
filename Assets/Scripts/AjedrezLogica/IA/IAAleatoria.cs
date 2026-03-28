@@ -15,7 +15,7 @@ namespace AjedrezLogica.IA
             int indice = random.Next(0, habilidadesDeTipo.Count);
             return habilidadesDeTipo[indice].TipoHabilidad;
         }
-        public void ElegirHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
+        public void InicializarPiezasDeIA(BaseJuego baseJuego, ColorPieza color)
         {        
             TipoHabilidad habilidadAleatoriaPeon = ObtenerHabilidadAleatoria(TipoPieza.Peon, baseJuego.ListaHabilidades);
             TipoHabilidad habilidadAleatoriaTorre = ObtenerHabilidadAleatoria(TipoPieza.Torre, baseJuego.ListaHabilidades);

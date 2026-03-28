@@ -6,7 +6,8 @@ namespace AjedrezLogica
     {
         public TipoPieza Tipo { get; set; }
         public ColorPieza Color { get; set; }
-        public Habilidad Habilidad { get { return field.TipoPieza == Tipo ? field : null; } set { field = value; } }
+        private Habilidad? _habilidad;
+        public Habilidad? Habilidad { get { return _habilidad; } set { _habilidad = value?.TipoPieza == Tipo ? value : null; } }
 
         public (int X, int Y) Posicion { get; set; }
 

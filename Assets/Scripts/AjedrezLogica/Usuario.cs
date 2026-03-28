@@ -5,7 +5,7 @@ namespace AjedrezLogica
 {
     public class Usuario
     {
-        public void RecogerHabilidadesDePiezas(BaseJuego baseJuego, ColorPieza color)
+        public void InicializarPiezasDeUsuario(BaseJuego baseJuego, ColorPieza color, int IdNombreUsuario)
         {
             // Recoger las habilidades de cada pieza por la base de datos, del usuario
             TipoHabilidad habilidadAleatoriaPeon = default;

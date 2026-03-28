@@ -71,34 +71,6 @@ namespace AjedrezLogica
 
             }
 
-            //for (int col = 0; col < 8; col++)
-            //{
-            //    IniciarPieza(TipoPieza.Peon, ColorPieza.Blanco, 1, col, Tablero);
-            //    IniciarPieza(TipoPieza.Peon, ColorPieza.Negro, 6, col, Tablero);
-            //}
-
-            //// Torres
-            //IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 0, Tablero);
-            //IniciarPieza(TipoPieza.Torre, ColorPieza.Blanco, 0, 7, Tablero);
-            //IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 0, Tablero);
-            //IniciarPieza(TipoPieza.Torre, ColorPieza.Negro, 7, 7, Tablero);
-            //// Caballos
-            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 1, Tablero);
-            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Blanco, 0, 6, Tablero);
-            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 1, Tablero);
-            //IniciarPieza(TipoPieza.Caballo, ColorPieza.Negro, 7, 6, Tablero);
-            //// Alfiles
-            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 2, Tablero);
-            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Blanco, 0, 5, Tablero);
-            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 2, Tablero);
-            //IniciarPieza(TipoPieza.Alfil, ColorPieza.Negro, 7, 5, Tablero);
-            //// Damas
-            //IniciarPieza(TipoPieza.Dama, ColorPieza.Blanco, 0, 3, Tablero);
-            //IniciarPieza(TipoPieza.Dama, ColorPieza.Negro, 7, 3, Tablero);
-            //// Reyes
-            //IniciarPieza(TipoPieza.Rey, ColorPieza.Blanco, 0, 4, Tablero);
-            //IniciarPieza(TipoPieza.Rey, ColorPieza.Negro, 7, 4, Tablero);
-
         }
 
         public void RealizarMovimiento(int xOrigen, int yOrigen, int xFin, int yFin)

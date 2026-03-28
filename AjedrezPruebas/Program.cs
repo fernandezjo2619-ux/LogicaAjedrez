@@ -6,8 +6,8 @@ using AjedrezLogica.Recursos;
 BaseJuego juego = new BaseJuego();
 IMotorIA ia = new IAAleatoria();
 
-ia.ElegirHabilidadesDePiezas(juego, ColorPieza.Blanco);
-ia.ElegirHabilidadesDePiezas(juego, ColorPieza.Negro);
+ia.InicializarPiezasDeIA(juego, ColorPieza.Blanco);
+ia.InicializarPiezasDeIA(juego, ColorPieza.Negro);
 
 while (true)
 {

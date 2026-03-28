@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace AjedrezLogica.TiposReglasMovimiento
 {
-    internal class ReglasPeon
+    public class ReglasPeon
     {
-        internal static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
+        public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
         {
             switch (tipohabilidad)
             {
@@ -15,28 +15,23 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     // Se transforma en la pieza que come
                     // Reglas de movimiento iguales
                     return Basicas(posicion, bando, tablero);
-                    break;
                 case TipoHabilidad.Reverso:
                     // Esta habilidad se tiene que valorar en el tablero
                     // La pieza que se lo come se transforma el peon, exceptuando la dama y el rey
                     // Reglas de movimiento iguales
                     return Basicas(posicion, bando, tablero);
-                    break;
                 case TipoHabilidad.PasoForzado:
                     // Doble Movimiento
                     return Basicas(posicion, bando, tablero, true);
-                    break;
                 case TipoHabilidad.MovimientoCruzado:
                     // Se puede mover lateralmente incluso si no hay pieza que pueda eliminar
                     return Basicas(posicion, bando, tablero, false , true);
-                    break;
                 default:
                     return Basicas(posicion, bando, tablero);
-                    break;
             }
         }
 
-        private static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, bool doblepaso = false, bool movimientocruzado = false)
+        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, bool doblepaso = false, bool movimientocruzado = false)
         {
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             int direccion = bando == ColorPieza.Blanco ? 1 : -1;
