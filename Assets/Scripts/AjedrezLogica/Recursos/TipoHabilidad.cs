@@ -12,6 +12,26 @@ namespace AjedrezLogica.Recursos
         Mimico = 1,
         Reverso = 2,
         PasoForzado = 3,
-        MovimientoCruzado = 4
+        MovimientoCruzado = 4,
+
+        // Torre
+        JustaDefensa = 5,
+        MuroImpenetrable = 6,
+
+        // Caballo
+        PuraSangre = 7,
+        CozParalizante = 8,
+
+        // Alfil
+        Estratega = 9,
+        AnuladorDeHabilidad = 10,
+
+        // Dama
+        DesplazamientoImperial = 11,
+        EmbestidaReal = 12,
+
+        // Rey
+        DecretoReal = 13,
+        ReclutamientoForzado = 14
     }
 }

@@ -9,22 +9,37 @@ namespace AjedrezLogica.TiposReglasMovimiento
     {
         public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
         {
-            //switch (habilidad)
-            //{
-            //    default:
+            switch (tipohabilidad)
+            {
+                case TipoHabilidad.Estratega:
+                    return Basicas(posicion, bando, tablero, true);
+                case TipoHabilidad.AnuladorDeHabilidad:
                     return Basicas(posicion, bando, tablero);
-            //        break;
-            //}
+                default:
+                    return Basicas(posicion, bando, tablero);
+            }
         }
 
-        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
-        {   
+        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, bool reposicionamiento = false)
+        {
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             (int dx, int dy)[] direcciones = { (1, 1), (-1, 1), (1, -1), (-1, -1) };
 
             foreach (var (dx, dy) in direcciones)
             {
                 MovimientosHelp.AgregarDireccion(MovimientosPosibles, posicion, dx, dy, bando, tablero);
+            }
+
+            if (reposicionamiento)
+            {
+                (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+                foreach (var (dx, dy) in direcciones)
+                {
+                    if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].EstaOcupado)
+                    {
+                        MovimientosPosibles.Add((posicion.x + dx, posicion.y + dy));
+                    }
+                }
             }
 
             return MovimientosPosibles;

@@ -12,14 +12,25 @@ namespace AjedrezLogica.TiposReglasMovimiento
             (int x, int y) posicion,
             int dx, int dy,
             ColorPieza bando,
-            Tablero tablero)
+            Tablero tablero, bool saltaPieza = false)
         {
             int i = 1;
 
-            while (tablero.EsDentroDelTablero(posicion.x + dx * i, posicion.y + dy * i)
-             && (!tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].EstaOcupado
-             || !tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].Ocupante.Color.Equals(bando)))
+            while (tablero.EsDentroDelTablero(posicion.x + dx * i, posicion.y + dy * i))
             {
+                if (tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].EstaOcupado)
+                {
+                    if (saltaPieza && tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].Ocupante.Color.Equals(bando))
+                    {
+                        i++;
+                        continue;
+                    }
+                    if (!tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].Ocupante.Color.Equals(bando))
+                    {
+                        movimientos.Add((posicion.x + dx * i, posicion.y + dy * i));
+                    } 
+                    break;
+                }
                 movimientos.Add((posicion.x + dx * i, posicion.y + dy * i));
                 i++;
             }

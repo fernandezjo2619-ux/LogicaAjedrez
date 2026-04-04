@@ -9,16 +9,19 @@ namespace AjedrezLogica.TiposReglasMovimiento
     {
         public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
         {
-            //switch (habilidad)
-            //{
-            //    default:
+            switch (tipohabilidad)
+            {
+                case TipoHabilidad.JustaDefensa:
                     return Basicas(posicion, bando, tablero);
-            //        break;
-            //}
+                case TipoHabilidad.MuroImpenetrable:
+                    return Basicas(posicion, bando, tablero);
+                default:
+                    return Basicas(posicion, bando, tablero);
+            }
         }
 
         public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero)
-        {   
+        {
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 

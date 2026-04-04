@@ -1,4 +1,5 @@
 ﻿using AjedrezLogica.Recursos;
+using AjedrezLogica.TiposReglasMovimiento;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,18 +72,50 @@ namespace AjedrezLogica.IA
             }
         }
 
-        public (Pieza pieza, int xFin, int yFin) ElegirMovimiento(BaseJuego baseJuego, ColorPieza color)
+        /**
+         * Antes de usar, es necesario hacer una valoracion sobre TipoAccion:
+         *      Si == Movimiento llamar a juego.RealizarMovimiento
+         *      Si == Empujon llamar a juego.EjecutarEmpujon
+         */
+        public Accion ElegirMovimiento(BaseJuego baseJuego, ColorPieza color)
         {
-            var MovimientosAElegir = baseJuego.MovimientosPosiblesBando(color).Where(m => m.Item2.Count > 0).ToList();
+            List<Accion> opciones = new List<Accion>();
 
+            // Añadir movimientos normales
+            foreach (var (pieza, destinos) in baseJuego.MovimientosPosiblesBando(color))
+            {
+                foreach (var (x, y) in destinos)
+                {
+                    opciones.Add(new Accion
+                    {
+                        Tipo = TipoAccion.Movimiento,
+                        Pieza = pieza,
+                        XFin = x,
+                        YFin = y
+                    });
+                }
+            }
 
-            int indicePieza = random.Next(0, MovimientosAElegir.Count);
-            var (pieza, destinos) = MovimientosAElegir[indicePieza];
+            // Añadir empujones de piezas con habilidad
+            foreach (Pieza pieza in baseJuego.ListaPiezas
+                .Where(p => p.Color == color &&
+                       p.Habilidad?.TipoHabilidad == TipoHabilidad.EmbestidaReal))
+            {
+                foreach (var (empujada, xd, yd) in ReglasDama.EmpujonesDisponibles(pieza.Posicion, color, baseJuego.Tablero))
+                {
+                    opciones.Add(new Accion
+                    {
+                        Tipo = TipoAccion.Empujon,
+                        Pieza = pieza,
+                        PiezaEmpujada = empujada,
+                        XFin = xd,
+                        YFin = yd
+                    });
+                }
+            }
 
-            int indiceDestinos = random.Next(0, destinos.Count);
-            var (xfin, yfin) = destinos[indiceDestinos];
-
-            return (pieza, xfin, yfin);
+            // Elegir al azar
+            return opciones[random.Next(opciones.Count)];
         }
     }
 }
