@@ -17,6 +17,7 @@ namespace AjedrezLogica
         public (Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin, Pieza piezaEn = null, int xOrigenEn = null, int yOrigenEn = null, int xFinEn = null, int yFinEn = null)? UltimoMovimiento { get; private set; }
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
+        
 
         public void CambiarTurno()
         {
@@ -77,6 +78,11 @@ namespace AjedrezLogica
 
         }
 
+        public List<(int x, int y)> movimientos (Pieza pieza) 
+        {
+            return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDéjaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color));
+        }
+
         public void RealizarMovimiento(int xOrigen, int yOrigen, int xFin, int yFin)
         {
             if (!Tablero.Grid[xOrigen, yOrigen].EstaOcupado) { return; }
@@ -84,13 +90,19 @@ namespace AjedrezLogica
 
             if (!pieza.Color.Equals(TurnoActual) || pieza.EstaParalizada) { return; }
 
-            List<(int x, int y)> movimientos = ReglasMovimiento.MovimientosValidos(pieza, Tablero, this);
+            movimientos(pieza);
 
             if (movimientos.Contains((xFin, yFin)))
             {
                 // Estado antes del movimiento
-                Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
-                (int X, int Y) posicionOriginal = pieza.Posicion;
+                //Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
+                //(int X, int Y) posicionOriginal = pieza.Posicion;
+                ColorPieza ColorEnemigo = color == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
+                if (EstaEnJaque(ColorEnemigo)) 
+                {
+                    Console.WriteLine("Jaque a: {0}", ColorEnemigo);
+                    return;
+                }
 
                 if (Tablero.Grid[xFin, yFin].EstaOcupado && Tablero.Grid[xFin, yFin].Ocupante.Tipo.Equals(TipoPieza.Rey))
                 {
@@ -101,15 +113,15 @@ namespace AjedrezLogica
                 pieza.Posicion = (xFin, yFin);
                 Tablero.Grid[xFin, yFin].Ocupante = pieza;
 
-                // Valorar que el jugador no mueva una pieza que descubre el jaque
-                if (EstaEnJaque(TurnoActual))
-                {
-                    pieza.Posicion = posicionOriginal;
-                    Tablero.Grid[posicionOriginal.X, posicionOriginal.Y].Ocupante = pieza;
-                    Tablero.Grid[xFin, yFin].Ocupante = piezaCapturada;
-                    if (piezaCapturada != null) { piezaCapturada.Posicion = (xFin, yFin); }
-                    return;
-                }
+                //// Valorar que el jugador no mueva una pieza que descubre el jaque
+                //if (EstaEnJaque(TurnoActual))
+                //{
+                //    pieza.Posicion = posicionOriginal;
+                //    Tablero.Grid[posicionOriginal.X, posicionOriginal.Y].Ocupante = pieza;
+                //    Tablero.Grid[xFin, yFin].Ocupante = piezaCapturada;
+                //    if (piezaCapturada != null) { piezaCapturada.Posicion = (xFin, yFin); }
+                //    return;
+                //}
 
                 if (!pieza.SeHaMovido) { pieza.SeHaMovido = true; }
                 // Añadir esto a la base de datos
@@ -117,6 +129,7 @@ namespace AjedrezLogica
 
                 ReglasEspeciales(pieza, xOrigen, yOrigen, xFin, yFin, piezaCapturada);
                 CambiarTurno();
+                movimientos == null;
             }
         }
 
