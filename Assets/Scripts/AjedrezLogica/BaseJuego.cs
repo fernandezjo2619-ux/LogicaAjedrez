@@ -81,7 +81,7 @@ namespace AjedrezLogica
 
         public List<(int x, int y)> movimientos (Pieza pieza) 
         {
-            return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDéjaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
+            return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDejaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
         }
 
         public void RealizarMovimiento(int xOrigen, int yOrigen, int xFin, int yFin)
@@ -141,7 +141,7 @@ namespace AjedrezLogica
                 p.Habilidad?.TipoHabilidad == TipoHabilidad.JustaDefensa))
             {
                 if (ReglasMovimiento.MovimientosValidos(torre, Tablero, this).Any(movimiento => movimiento.X == xFin && movimiento.Y == yFin)
-                && !MovimientoDéjaEnJaque(torre, xFin, yFin, torre.Color))
+                && !MovimientoDejaEnJaque(torre, xFin, yFin, torre.Color))
                 {
                     Tablero.Grid[torre.Posicion.X, torre.Posicion.Y].Ocupante = null;
                     torre.Posicion = (xFin, yFin);
@@ -161,7 +161,7 @@ namespace AjedrezLogica
                 }
             }
 
-            if (piezaEnemiga != null & piezaEnemiga.Habilidad == TipoHabilidad.Reverso)
+            if (piezaEnemiga != null & piezaEnemiga.Habilidad.TipoHabilidad == TipoHabilidad.Reverso)
             {
                 pieza.Tipo = piezaEnemiga.Tipo;
                 // Tiene que cambiar su habilidad por la habilidad seleccionada para el peon del usuario
@@ -174,11 +174,11 @@ namespace AjedrezLogica
                     if ((pieza.Color == ColorPieza.Blanco && xFin == 7) ||
                     (pieza.Color == ColorPieza.Negro && xFin == 0))
                     {
-                        pieza.Tipo = OnCorona(pieza);
+                        pieza.Tipo = AlCoronar(pieza);
                         // Tiene que cambiar su habilidad por la habilidad seleccionada para el tipo de pieza elegido del usuario
                     }
 
-                    if (pieza.Habilidad == TipoHabilidad.Mimico && piezaEnemiga != null && piezaEnemiga.Tipo != TipoPieza.Dama && piezaEnemiga.Tipo != TipoPieza.Rey)
+                    if (pieza.Habilidad.TipoHabilidad == TipoHabilidad.Mimico && piezaEnemiga != null && piezaEnemiga.Tipo != TipoPieza.Dama && piezaEnemiga.Tipo != TipoPieza.Rey)
                     {
                         pieza.Tipo = piezaEnemiga.Tipo;
                         // Tiene que cambiar su habilidad por la habilidad seleccionada para tipo de pieza del usuario
@@ -260,7 +260,7 @@ namespace AjedrezLogica
             if (dama.Color != TurnoActual) { return; }
 
             List<(Pieza piezaEmpujada, int xDestino, int yDestino)> Empujones = ReglasDama.EmpujonesDisponibles(dama.Posicion, dama.Color, Tablero);
-            Empujones = Empujones.Where(empujon => empujon.piezaEmpujada == piezaEmpujada && !MovimientoDéjaEnJaque(empujon.piezaEmpujada, empujon.xDestino, empujon.yDestino, dama.Color));
+            Empujones = Empujones.Where(empujon => empujon.piezaEmpujada == piezaEmpujada && !MovimientoDejaEnJaque(empujon.piezaEmpujada, empujon.xDestino, empujon.yDestino, dama.Color)).ToList();
 
             if (!Empujones.Any()
             || (xDestino == piezaEmpujada.Posicion.X && yDestino == piezaEmpujada.Posicion.Y))
@@ -278,7 +278,7 @@ namespace AjedrezLogica
             piezaEmpujada.Posicion = (xDestino, yDestino);
 
             UltimoMovimiento = (dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y);
-            UltimoEmpujon = (piezaEmpujada, piezaEmpujada.Posicion.X, piezaEmpujada.Posicion.Y, xDestino, yDestino);
+            UltimoEmpujon = (dama, piezaEmpujada, xDestino, yDestino);
             CambiarTurno();
         }
 
@@ -298,7 +298,7 @@ namespace AjedrezLogica
             {
                 var destinos = ReglasMovimiento.MovimientosValidos(pieza, Tablero, this);
 
-                if (validarJaque) { destinos = destinos.Where(d => !MovimientoDéjaEnJaque(pieza, d.X, d.Y, pieza.Color)).ToList(); }
+                if (validarJaque) { destinos = destinos.Where(d => !MovimientoDejaEnJaque(pieza, d.X, d.Y, pieza.Color)).ToList(); }
 
                 if (destinos.Count > 0) { movimientosPosiblesbando.Add((pieza, destinos)); }
             }
@@ -306,7 +306,7 @@ namespace AjedrezLogica
         }
 
         // Pensado para descartar esos movimientos de la lista que se pasara a la IA
-        public bool MovimientoDéjaEnJaque(Pieza pieza, int xFin, int yFin, ColorPieza colorpieza)
+        public bool MovimientoDejaEnJaque(Pieza pieza, int xFin, int yFin, ColorPieza colorpieza)
         {
             int xOrigen = pieza.Posicion.X;
             int yOrigen = pieza.Posicion.Y;

@@ -2,7 +2,7 @@
 
 namespace AjedrezLogica.Recursos
 {
-    public enum TipoAccion()
+    public enum TipoAccion
 	{
 		Movimiento,
 		Empujon

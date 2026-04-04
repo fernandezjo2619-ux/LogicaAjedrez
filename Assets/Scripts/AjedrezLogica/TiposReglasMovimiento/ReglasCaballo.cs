@@ -14,12 +14,9 @@ namespace AjedrezLogica.TiposReglasMovimiento
                 case TipoHabilidad.PuraSangre:
                     (int dx, int dy)[] direcciones = { (3, 1), (3, -1), (-3, 1), (-3, -1), (1, 3), (-1, 3), (1, -3), (-1, -3) };
                     return Basicas(posicion, bando, tablero, direcciones);
-                case TipoHabilidad.CozParalizante:
-                    (int dx, int dy)[] direcciones = { (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2) };
-                    return Basicas(posicion, bando, tablero, direcciones);
                 default:
-                    (int dx, int dy)[] direcciones = { (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2) };
-                    return Basicas(posicion, bando, tablero, direcciones);
+                    (int dx, int dy)[] direccion = { (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2) };
+                    return Basicas(posicion, bando, tablero, direccion);
             }
         }
 

@@ -32,10 +32,10 @@ namespace AjedrezLogica.TiposReglasMovimiento
 
             if (reposicionamiento)
             {
-                (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
-                foreach (var (dx, dy) in direcciones)
+                (int dx, int dy)[] direccion = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+                foreach (var (dx, dy) in direccion)
                 {
-                    if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].EstaOcupado)
+                    if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !tablero.Grid[posicion.x + dx, posicion.y + dy].EstaOcupado)
                     {
                         MovimientosPosibles.Add((posicion.x + dx, posicion.y + dy));
                     }

@@ -1,8 +1,9 @@
 ﻿using System;
+using AjedrezLogica.Recursos;
 
 namespace AjedrezLogica.IA.Estructuras
 {
-    public struct Accion()
+    public struct Accion
 	{
         public TipoAccion Tipo { get; set; }
         public Pieza Pieza { get; set; }

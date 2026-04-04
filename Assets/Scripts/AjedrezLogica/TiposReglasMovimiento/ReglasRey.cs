@@ -27,20 +27,20 @@ namespace AjedrezLogica.TiposReglasMovimiento
 
             foreach (var (dx, dy) in direcciones)
             {
-                if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !baseJuego.MovimientoDéjaEnJaque(tablero.Grid[posicion.x, posicion.y].Ocupante, posicion.x + dx, posicion.y + dy))
+                if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !baseJuego.MovimientoDejaEnJaque(tablero.Grid[posicion.x, posicion.y].Ocupante, posicion.x + dx, posicion.y + dy, tablero.Grid[posicion.x, posicion.y].Ocupante.Color))
                 {
                     MovimientosHelp.AgregarPosicion(MovimientosPosibles, posicion, dx, dy, bando, tablero);
                 }
             }
 
             // Enroque
-            Enrroque(MovimientosPosibles, bando, tablero, baseJuego);
+            Enrroque(posicion, MovimientosPosibles, bando, tablero, baseJuego);
 
 
             return MovimientosPosibles;
         }
 
-        public static Enrroque(List<(int X, int Y)> MovimientosPosibles, ColorPieza bando, Tablero tablero, BaseJuego baseJuego)
+        public static void Enrroque((int x, int y) posicion, List<(int X, int Y)> MovimientosPosibles, ColorPieza bando, Tablero tablero, BaseJuego baseJuego)
         {
             Pieza rey = tablero.Grid[posicion.x, posicion.y].Ocupante;
 
@@ -54,8 +54,8 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     torreCorta.Tipo == TipoPieza.Torre &&
                     !torreCorta.SeHaMovido &&
                     CasillasCaminoVacias(tablero, fila, 5, 7) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 5) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 6))
+                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 5, rey.Color) &&
+                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 6, rey.Color))
                 {
                     MovimientosPosibles.Add((fila, 6));
                 }
@@ -66,8 +66,8 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     torreLarga.Tipo == TipoPieza.Torre &&
                     !torreLarga.SeHaMovido &&
                     CasillasCaminoVacias(tablero, fila, 1, 4) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 3) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 2))
+                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 3, rey.Color) &&
+                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 2, rey.Color))
                 {
                     MovimientosPosibles.Add((fila, 2));
                 }
@@ -79,8 +79,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
             int paso = colDesde < colHasta ? 1 : -1;
             for (int col = colDesde; col != colHasta; col += paso)
             {
-                if (tablero.Grid[fila, col].EstaOcupado)
-                    return false;
+                if (tablero.Grid[fila, col].EstaOcupado) { return false; }
             }
             return true;
         }

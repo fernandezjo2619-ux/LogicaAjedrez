@@ -1,5 +1,6 @@
 ﻿using AjedrezLogica.Recursos;
 using AjedrezLogica.TiposReglasMovimiento;
+using AjedrezLogica.IA.Estructuras;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -46,7 +46,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
             {
                 // Si se encuentra pieza enemiga adyacente
                 if (!tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !tablero.Grid[posicion.x + dx, posicion.y + dy].EstaOcupado && tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante.Color == bando) { continue; }
-                resultado.Add((tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante, posicion.x, posicion.y))
+                resultado.Add((tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante, posicion.x, posicion.y));
 
                     // Si la casilla destino del empujón está libre
                 if (tablero.EsDentroDelTablero(posicion.x + dx + dx, posicion.y + dy + dy) && !tablero.Grid[posicion.x + dx + dx, posicion.y + dy + dy].EstaOcupado)
