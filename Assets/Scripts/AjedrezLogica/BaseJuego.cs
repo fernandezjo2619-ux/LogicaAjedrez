@@ -98,6 +98,7 @@ namespace AjedrezLogica
                 // Estado antes del movimiento
                 Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
                 //(int X, int Y) posicionOriginal = pieza.Posicion;
+
                 ColorPieza ColorEnemigo = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
                 if (EstaEnJaque(ColorEnemigo)) 
                 {
@@ -140,23 +141,31 @@ namespace AjedrezLogica
                 p.Tipo == TipoPieza.Torre &&
                 p.Habilidad?.TipoHabilidad == TipoHabilidad.JustaDefensa))
             {
-                if (ReglasMovimiento.MovimientosValidos(torre, Tablero, this).Any(movimiento => movimiento.X == xFin && movimiento.Y == yFin)
-                && !MovimientoDejaEnJaque(torre, xFin, yFin, torre.Color))
+                (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+                foreach (var (dx, dy) in direcciones)
                 {
-                    Tablero.Grid[torre.Posicion.X, torre.Posicion.Y].Ocupante = null;
-                    torre.Posicion = (xFin, yFin);
-                    Tablero.Grid[xFin, yFin].Ocupante = torre;
-
-                    if (EstaEnJaque(pieza.Color))
+                    if (torre.Posicion.X + dx == xFin && torre.Posicion.Y + dy == yFin && !MovimientoDejaEnJaque(torre, xFin, yFin, torre.Color))
                     {
-                        Pieza reyPropio = ListaPiezas.FirstOrDefault(p => p.Tipo == TipoPieza.Rey && p.Color == pieza.Color);
-                        int xBloqueo = (torre.Posicion.X + reyPropio.Posicion.X) / 2;
-                        int yBloqueo = (torre.Posicion.Y + reyPropio.Posicion.Y) / 2;
+                        Tablero.Grid[torre.Posicion.X, torre.Posicion.Y].Ocupante = null;
+                        torre.Posicion = (xFin, yFin);
+                        Tablero.Grid[xFin, yFin].Ocupante = torre;
 
-                        pieza.Posicion = (xBloqueo, yBloqueo);
-                        Tablero.Grid[xBloqueo, yBloqueo].Ocupante = pieza;
+                        if (EstaEnJaque(pieza.Color))
+                        {
+                            Pieza reyPropio = ListaPiezas.FirstOrDefault(p => p.Tipo == TipoPieza.Rey && p.Color == pieza.Color);
+                            int xBloqueo = (torre.Posicion.X + reyPropio.Posicion.X) / 2;
+                            int yBloqueo = (torre.Posicion.Y + reyPropio.Posicion.Y) / 2;
+
+                            pieza.Posicion = (xBloqueo, yBloqueo);
+                            Tablero.Grid[xBloqueo, yBloqueo].Ocupante = pieza;
+                        }
+
+                        break;
                     }
-
+                }
+                if (Tablero.Grid[xFin, yFin].Ocupante == TipoPieza.Torre && Tablero.Grid[xFin, yFin].Ocupante.Color != pieza.Color)
+                {
                     break;
                 }
             }
@@ -191,17 +200,19 @@ namespace AjedrezLogica
                     {
                         int fila = pieza.Color == ColorPieza.Blanco ? 0 : 7;
 
-                        if (yFin == 6) // enroque corto
+                        if (yFin == 6 && !pieza.SeHaMovido) // enroque corto
                         {
                             Pieza torre = Tablero.Grid[fila, 7].Ocupante;
+                            if (torre.SeHaMovido) { return; }
                             Tablero.Grid[fila, 7].Ocupante = null;
                             Tablero.Grid[fila, 5].Ocupante = torre;
                             torre.Posicion = (fila, 5);
                             torre.SeHaMovido = true;
                         }
-                        else if (yFin == 2) // enroque largo
+                        else if (yFin == 2 && !pieza.SeHaMovido) // enroque largo
                         {
                             Pieza torre = Tablero.Grid[fila, 0].Ocupante;
+                            if (torre.SeHaMovido) { return; }
                             Tablero.Grid[fila, 0].Ocupante = null;
                             Tablero.Grid[fila, 3].Ocupante = torre;
                             torre.Posicion = (fila, 3);

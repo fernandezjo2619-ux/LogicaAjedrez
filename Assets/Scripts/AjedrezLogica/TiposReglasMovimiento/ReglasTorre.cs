@@ -11,10 +11,6 @@ namespace AjedrezLogica.TiposReglasMovimiento
         {
             switch (tipohabilidad)
             {
-                case TipoHabilidad.JustaDefensa:
-                    return Basicas(posicion, bando, tablero);
-                case TipoHabilidad.MuroImpenetrable:
-                    return Basicas(posicion, bando, tablero);
                 default:
                     return Basicas(posicion, bando, tablero);
             }

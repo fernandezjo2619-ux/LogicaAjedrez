@@ -1,6 +1,7 @@
 ﻿using AjedrezLogica.Recursos;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AjedrezLogica.TiposReglasMovimiento
@@ -9,20 +10,55 @@ namespace AjedrezLogica.TiposReglasMovimiento
     {
         public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero, BaseJuego baseJuego)
         {
+            List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             switch (tipohabilidad)
             {
                 case TipoHabilidad.DecretoReal:
-                    return Basicas(posicion, bando, tablero, baseJuego);
-                case TipoHabilidad.ReclutamientoForzado:
-                    return Basicas(posicion, bando, tablero, baseJuego);
+                    DecretoReal(posicion, bando, tablero, baseJuego, MovimientosPosibles);
+                    return MovimientosPosibles;
+                case TipoHabilidad.SituacionDesesperada:
+                    if (baseJuego.ListaPiezas.Any(dama => dama.Tipo == TipoPieza.Dama))
+                    {
+                        Basicas(posicion, bando, tablero, baseJuego, MovimientosPosibles);
+                    }
+                    else
+                    {
+                        SituacionDesesperada(posicion, bando, tablero, baseJuego, MovimientosPosibles);
+                    }
+                    return MovimientosPosibles;
                 default:
-                    return Basicas(posicion, bando, tablero, baseJuego);
+                    return Basicas(posicion, bando, tablero, baseJuego, MovimientosPosibles);
             }
         }
 
-        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, BaseJuego baseJuego)
+        public void SituacionDesesperada((int x, int y) posicion, ColorPieza bando, Tablero tablero, List<(int X, int Y)> MovimientosPosibles)
         {
-            List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
+            (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+            foreach (var (dx, dy) in direcciones)
+            {
+                if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !baseJuego.MovimientoDejaEnJaque(tablero.Grid[posicion.x, posicion.y].Ocupante, posicion.x + dx, posicion.y + dy, tablero.Grid[posicion.x, posicion.y].Ocupante.Color))
+                {
+                    MovimientosHelp.AgregarDireccion(MovimientosPosibles, posicion, dx, dy, bando, tablero);
+                }
+            }
+        }
+
+        public static void DecretoReal((int x, int y) posicion, ColorPieza bando, Tablero tablero, BaseJuego baseJuego, List<(int X, int Y)> MovimientosPosibles)
+        {
+            (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1) };
+
+            foreach (var (dx, dy) in direcciones)
+            {
+                if (tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !baseJuego.MovimientoDejaEnJaque(tablero.Grid[posicion.x, posicion.y].Ocupante, posicion.x + dx, posicion.y + dy, tablero.Grid[posicion.x, posicion.y].Ocupante.Color))
+                {
+                    MovimientosHelp.AgregarDireccion(MovimientosPosibles, posicion, dx, dy, bando, tablero, true, false, 1 , 3);
+                }
+            }
+        }
+
+        public static void Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, BaseJuego baseJuego, List<(int X, int Y)> MovimientosPosibles)
+        {
             (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1) };
 
             foreach (var (dx, dy) in direcciones)
@@ -35,9 +71,6 @@ namespace AjedrezLogica.TiposReglasMovimiento
 
             // Enroque
             Enrroque(posicion, MovimientosPosibles, bando, tablero, baseJuego);
-
-
-            return MovimientosPosibles;
         }
 
         public static void Enrroque((int x, int y) posicion, List<(int X, int Y)> MovimientosPosibles, ColorPieza bando, Tablero tablero, BaseJuego baseJuego)
