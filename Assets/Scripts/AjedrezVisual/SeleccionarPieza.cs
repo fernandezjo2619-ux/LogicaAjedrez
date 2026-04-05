@@ -95,10 +95,12 @@ public class SeleccionarPieza : MonoBehaviour
                 );
                 break;
             case TipoPieza.Caballo:
+                (int dx, int dy)[] direccionesCaballo = { (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2) };
                 movimientos = ReglasCaballo.Basicas(
                     (origen.x, origen.y),
                     pieza.Color,
-                    tableroLogico
+                    tableroLogico,
+                    direccionesCaballo
                 );
                 break;
             case TipoPieza.Alfil:
@@ -119,7 +121,8 @@ public class SeleccionarPieza : MonoBehaviour
                 movimientos = ReglasRey.Basicas(
                     (origen.x, origen.y),
                     pieza.Color,
-                    tableroLogico
+                    tableroLogico,
+                    CrearPiezas.juego
                 );
                 break;
         }
