@@ -87,8 +87,8 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     torreCorta.Tipo == TipoPieza.Torre &&
                     !torreCorta.SeHaMovido &&
                     CasillasCaminoVacias(tablero, fila, 5, 7) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 5, rey.Color) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 6, rey.Color))
+                    !baseJuego.MovimientoDejaEnJaque(rey, fila, 5, rey.Color) &&
+                    !baseJuego.MovimientoDejaEnJaque(rey, fila, 6, rey.Color))
                 {
                     MovimientosPosibles.Add((fila, 6));
                 }
@@ -99,8 +99,8 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     torreLarga.Tipo == TipoPieza.Torre &&
                     !torreLarga.SeHaMovido &&
                     CasillasCaminoVacias(tablero, fila, 1, 4) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 3, rey.Color) &&
-                    !baseJuego.MovimientoDéjaEnJaque(rey, fila, 2, rey.Color))
+                    !baseJuego.MovimientoDejaEnJaque(rey, fila, 3, rey.Color) &&
+                    !baseJuego.MovimientoDejaEnJaque(rey, fila, 2, rey.Color))
                 {
                     MovimientosPosibles.Add((fila, 2));
                 }
