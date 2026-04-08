@@ -55,4 +55,12 @@ public class PiezasPrefab : MonoBehaviour
         // Retorna el nombre de la textura
         return tipoPrefijo + colorSufijo;
     }
+
+    //Actualizar posicion de la pieza
+    public void ActualizarPosicion(int nuevaFila, int nuevaColumna)
+    {
+        this.fila = nuevaFila;
+        this.columna = nuevaColumna;
+        transform.position = new Vector3(columna, 0.5f, fila); // Actualizar la posición visual de la pieza
+    }
 }

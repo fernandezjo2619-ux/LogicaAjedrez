@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using AjedrezLogica;
 
 public class CasillaPrefab : MonoBehaviour
 {
@@ -35,11 +36,42 @@ public class CasillaPrefab : MonoBehaviour
     private void OnMouseDown()
     {
         //ControlTablero.Instance.SeleccionarCasilla(this);
-
         Debug.Log("Has clickeado: " + nombreCasilla +
                   " | Fila: " + fila + " Columna: " + columna);// Imprime el número de la casilla al hacer clic
 
+        //Acceder a la lógica
+        CasillaTablero casillaLogica = CrearPiezas.juego.Tablero.Grid[columna, fila];
+
+        Debug.Log("Pos lógica: " + casillaLogica.Posicion);
+
+        if (casillaLogica.EstaOcupado)
+        {
+            Debug.Log("Hay pieza");
+        }
+        else
+        {
+            Debug.Log("Vacía");
+        }
     }
+
+    // Actualiza visual según la lógica
+    public void ActualizarVisual()
+    {
+        var casilla = CrearPiezas.juego.Tablero.Grid[columna, fila];
+
+        if (casilla.EstaOcupado)
+        {
+            // Aquí podrías mostrar modelo de pieza 3D
+            Debug.Log(nombreCasilla + " tiene pieza");
+        }
+        else
+        {
+            // Casilla vacía, ocultar pieza si hay
+            Debug.Log(nombreCasilla + " vacía");
+        }
+    }
+
+
     public void Resaltar(Material azul)
     {
         if (rendMaterial != null && azul != null)
