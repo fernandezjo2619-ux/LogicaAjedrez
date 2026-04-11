@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\ColorPieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\TipoHabilidad.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IA\IAAleatoria.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\RegistroMovimiento.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Tablero.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\BaseJuego.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Habilidad.cs" />
