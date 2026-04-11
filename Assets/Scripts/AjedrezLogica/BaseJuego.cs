@@ -2,9 +2,7 @@
 using AjedrezLogica.TiposReglasMovimiento;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 
 namespace AjedrezLogica
 {
@@ -55,6 +53,7 @@ namespace AjedrezLogica
         {
             Tablero = new Tablero(8, 8);
 
+
             foreach (TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
             {
                 InicializarHabilidades(tipoPieza, TipoHabilidad.vacio);
@@ -80,9 +79,9 @@ namespace AjedrezLogica
 
         }
 
-        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin
-                                              Pieza piezaEmpujada = null, int xOrigenEmpujada = null, int yOrigenEmpujada = null,
-                                              int xFinEmpujada = null, int yFinEmpujada = null)
+        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
+                                              Pieza piezaEmpujada = null, int xOrigenEmpujada = default, int yOrigenEmpujada = default,
+                                              int xFinEmpujada = default, int yFinEmpujada = default)
         {
             UltimoMovimiento.Pieza = pieza;
             UltimoMovimiento.XOrigen = xOrigen;
@@ -183,7 +182,7 @@ namespace AjedrezLogica
                         break;
                     }
                 }
-                if (Tablero.Grid[xFin, yFin].Ocupante == TipoPieza.Torre && Tablero.Grid[xFin, yFin].Ocupante.Color != pieza.Color)
+                if (Tablero.Grid[xFin, yFin].Ocupante.Tipo == TipoPieza.Torre && Tablero.Grid[xFin, yFin].Ocupante.Color != pieza.Color)
                 {
                     break;
                 }
@@ -213,7 +212,7 @@ namespace AjedrezLogica
                     }
 
                     //comer al paso
-                    if (piezaCapturada == null && yOrigen != yFin)
+                    if (piezaEnemiga == null && yOrigen != yFin)
                     {
                         Pieza? peonCapturado = Tablero.Grid[xOrigen, yFin].Ocupante;
                         if (peonCapturado != null)

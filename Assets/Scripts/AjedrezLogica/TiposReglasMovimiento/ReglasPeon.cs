@@ -78,9 +78,9 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     && Math.Abs(ultimo.XFin - ultimo.XOrigen) == 2
                     && ultimo.XFin == x
                     && Math.Abs(ultimo.YFin - y) == 1
-                    && tablero.EsDentroDelTablero(posicion.x + direccion, ultimo.YFin))
+                    && tablero.EsDentroDelTablero(x + direccion, ultimo.YFin))
                 {
-                    MovimientosPosibles.Add((posicion.x + direccion, ultimo.YFin));
+                    MovimientosPosibles.Add((x + direccion, ultimo.YFin));
                 }
             }
         }

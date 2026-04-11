@@ -53,6 +53,7 @@
     <UnityVersion>2022.3.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.0f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.0f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -74,6 +75,7 @@
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\ColorPieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\TipoHabilidad.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IA\IAAleatoria.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\RegistroMovimiento.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Tablero.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\BaseJuego.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Habilidad.cs" />
@@ -87,9 +89,14 @@
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasCaballo.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\PruebaObtenerHabilidades.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Usuario.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.AssemblyInfo.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Guardar-partida.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\CasillaPrefab.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\obj\Release\netstandard2.1\AjedrezLogica.AssemblyInfo.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-datos-partida.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Scripts\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.csproj.FileListAbsolute.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
