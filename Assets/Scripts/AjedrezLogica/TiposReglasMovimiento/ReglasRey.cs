@@ -27,11 +27,12 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     }
                     return MovimientosPosibles;
                 default:
-                    return Basicas(posicion, bando, tablero, baseJuego, MovimientosPosibles);
+                    Basicas(posicion, bando, tablero, baseJuego, MovimientosPosibles);
+                    return MovimientosPosibles;
             }
         }
 
-        public void SituacionDesesperada((int x, int y) posicion, ColorPieza bando, Tablero tablero, List<(int X, int Y)> MovimientosPosibles)
+        public static void SituacionDesesperada((int x, int y) posicion, ColorPieza bando, Tablero tablero, BaseJuego baseJuego, List<(int X, int Y)> MovimientosPosibles)
         {
             (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
