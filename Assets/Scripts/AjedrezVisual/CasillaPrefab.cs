@@ -40,24 +40,14 @@ public class CasillaPrefab : MonoBehaviour
                   " | Fila: " + fila + " Columna: " + columna);// Imprime el número de la casilla al hacer clic
 
         //Acceder a la lógica
-        CasillaTablero casillaLogica = CrearPiezas.juego.Tablero.Grid[columna, fila];
-
-        Debug.Log("Pos lógica: " + casillaLogica.Posicion);
-
-        if (casillaLogica.EstaOcupado)
-        {
-            Debug.Log("Hay pieza");
-        }
-        else
-        {
-            Debug.Log("Vacía");
-        }
+        //CasillaTablero casillaLogica = CrearPiezas.Instance.juego.Tablero.Grid[columna, fila];
+        SeleccionarPieza.Instance.Mover(this);
     }
 
     // Actualiza visual según la lógica
     public void ActualizarVisual()
     {
-        var casilla = CrearPiezas.juego.Tablero.Grid[columna, fila];
+        var casilla = CrearPiezas.Instance.juego.Tablero.Grid[columna, fila];
 
         if (casilla.EstaOcupado)
         {
@@ -70,7 +60,6 @@ public class CasillaPrefab : MonoBehaviour
             Debug.Log(nombreCasilla + " vacía");
         }
     }
-
 
     public void Resaltar(Material azul)
     {

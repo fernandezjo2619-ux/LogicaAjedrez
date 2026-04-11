@@ -1,174 +1,130 @@
 ﻿using AjedrezLogica;
-using AjedrezLogica.Recursos;
-using AjedrezLogica.TiposReglasMovimiento;
-using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SeleccionarPieza : MonoBehaviour
 {
-    private GameObject piezaSeleccionada;
+    private PiezasPrefab piezaSeleccionada;
+    public static SeleccionarPieza Instance;
 
-    public Material casillaBrillo;  //Color brillo de la casilla
-    private Renderer renderObject;
-    private List<CasillaPrefab> casillasResaltadas = new List<CasillaPrefab>();
+    //Movimientos válidos de la pieza seleccionada
+    private List<(int x, int y)> movimientosActuales = new();
 
-    void Update()
+    public Material casillaBrillo;
+    private List<CasillaPrefab> casillasResaltadas = new();
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    private void Update()
+    {
+        //Detectar click
+        if (Input.GetMouseButtonDown(0))
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                DetectarClick();
-            }
+            DetectarClick();
         }
+    }
 
     void DetectarClick()
     {
-        //La posicion del mouse crea un rayo para detectar colisiones
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // Si el raycast no golpea nada, salimos
         if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-            GameObject objeto = hit.collider.gameObject;
+        //CLICK EN PIEZA
+        if (hit.collider.TryGetComponent(out PiezasPrefab pieza))
+        {
+            Seleccionar(pieza);
+            return;
+        }
 
-            // Seleccionar pieza
-            if (objeto.CompareTag("Pieza"))
-            {
-                piezaSeleccionada = objeto;
-                SeleccionarNuevaPieza(objeto);
-                Debug.Log("Pieza seleccionada: " + objeto.name);
-                return;
-            }
-
-            // clicar casilla, mover pieza
-            else if (objeto.CompareTag("Casilla") && piezaSeleccionada != null)
-            {
-                //Posicion de origen y destino
-                Vector2Int origen = ObtenerPosicionTablero(piezaSeleccionada.transform.position);
-                Vector2Int destino = ObtenerPosicionTablero(objeto.transform.position);
-
-                //basejuego.RealizarMovimiento(origen.x, origen.y, destino.x, destino.y);
-                CrearPiezas.juego.RealizarMovimiento(origen.x, origen.y, destino.x, destino.y);
-
-                // Sincronizar la posición visual de la pieza
-                Pieza piezaLogica = piezaSeleccionada.GetComponent<PiezasPrefab>().piezaLogica;
-                SincronizarPosicionVisual(piezaLogica);
-
-                SincronizarVisual();
-
-                LimpiarResaltado();
-                piezaSeleccionada = null;
-
-            }
+        //CLICK EN CASILLA
+        if (hit.collider.TryGetComponent(out CasillaPrefab casilla))
+        {
+            Mover(casilla);
+            return;
+        }
     }
 
-    void SeleccionarNuevaPieza(GameObject pieza)
+    //SELECCIONAR PIEZA
+    void Seleccionar(PiezasPrefab pieza)
     {
+        var juego = CrearPiezas.Instance.juego;
+
+        //Validar turno
+        if (pieza.piezaLogica.Color != juego.TurnoActual)
+            return;
+
+        //Guardar pieza seleccionada
+        piezaSeleccionada = pieza;
+        movimientosActuales.Clear();
+
+        //Limpiar resaltados anteriores
         LimpiarResaltado();
 
-        piezaSeleccionada = pieza;
+        //Obtener movimientos válidos desde la lógica
+        movimientosActuales = juego.movimientos(pieza.piezaLogica);
 
-        Pieza piezaLogica = pieza.GetComponent<PiezasPrefab>().piezaLogica;
-
-        List<(int x, int y)> movimientos = CrearPiezas.juego.movimientos(piezaLogica);
-
-        foreach (var mov in movimientos)
+        //Resaltar casillas válidas
+        foreach (var mov in movimientosActuales)
         {
             CasillaPrefab casilla = CrearCasillas.casillas[mov.x, mov.y];
+
             casilla.Resaltar(casillaBrillo);
             casillasResaltadas.Add(casilla);
         }
     }
 
-    //Limpiar casillas resaltadas
+    //MOVER PIEZA A UNA CASILLA
+    public void Mover(CasillaPrefab casilla)
+    {
+        //No hay pieza seleccionada
+        if (piezaSeleccionada == null) return;
+
+        var juego = CrearPiezas.Instance.juego;
+
+        //Origen
+        int xOrigen = piezaSeleccionada.piezaLogica.Posicion.X;
+        int yOrigen = piezaSeleccionada.piezaLogica.Posicion.Y;
+
+        //Destino
+        int xDestino = casilla.columna;
+        int yDestino = casilla.fila;
+
+        //Validar movimiento
+        if (!movimientosActuales.Contains((xDestino, yDestino)))
+        {
+            Debug.Log("Movimiento inválido");
+            return;
+        }
+
+        //Ejecutar lógica del juego
+        juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
+
+        CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
+
+        //Limpiar selección y resaltados
+        LimpiarResaltado();
+        piezaSeleccionada = null;
+        movimientosActuales.Clear();
+    }
+    public void SeleccionarDesdePieza(PiezasPrefab pieza)
+    {
+        Seleccionar(pieza);
+    }
+
+    //LIMPIAR CASILLAS RESALTADAS
     void LimpiarResaltado()
     {
         foreach (var casilla in casillasResaltadas)
+        {
             casilla.ResetColor();
+        }
 
         casillasResaltadas.Clear();
     }
-
-    //Sincronizar el tablero visual con el logico
-    void SincronizarVisual()
-    {
-        var juego = CrearPiezas.juego;
-
-        // Limpiar visual
-        foreach (var obj in CrearPiezas.piezasVisuales)
-        {
-            if (obj != null)
-                Destroy(obj);
-        }
-
-        CrearPiezas.piezasVisuales = new GameObject[8, 8];
-
-        // Volver a crear TODO desde la lógica
-        foreach (var pieza in juego.ListaPiezas)
-        {
-            GameObject prefab = CrearPiezas.Instance.ObtenerPrefab(pieza.Tipo, pieza.Color);
-
-            GameObject piezaObj = Instantiate(prefab);
-
-            piezaObj.transform.position = new Vector3(pieza.Posicion.X, 0.5f, pieza.Posicion.Y);
-
-            PiezasPrefab pv = piezaObj.GetComponent<PiezasPrefab>();
-            pv.Inicializar(pieza);
-
-            CrearPiezas.piezasVisuales[pieza.Posicion.X, pieza.Posicion.Y] = piezaObj;
-        }
-    }
-
-    //Obj Visual
-    GameObject BuscarObjetoVisual(Pieza piezaLogica)
-    {
-        foreach (var obj in FindObjectsOfType<PiezasPrefab>())
-        {
-            if (obj.piezaLogica == piezaLogica)
-                return obj.gameObject;
-        }
-        return null;
-    }
-
-    //Posicion de la pieza en 2D, obteniendolas del espacio 3D
-    Vector2Int ObtenerPosicionTablero(Vector3 posicion)
-    {
-        return new Vector2Int(
-            Mathf.RoundToInt(posicion.x),
-            Mathf.RoundToInt(posicion.z)
-        );
-    }
-
-    // Método para sincronizar la posición visual de una pieza con su posición lógica
-    void SincronizarPosicionVisual(Pieza piezaLogica)
-    {
-        // Buscar la pieza visual correspondiente
-        GameObject piezaVisual = BuscarObjetoVisual(piezaLogica);
-
-        // Actualizar la posición de la pieza visual en Unity
-        piezaVisual.transform.position = new Vector3(piezaLogica.Posicion.X, 0.5f, piezaLogica.Posicion.Y);
-    }
-
-    /*
-    private string NombreCasilla(int x, int y)
-    {
-        char letra = (char)('A' + x); // columna → letra
-        int num = y + 1;              // fila → número
-        return letra.ToString() + num.ToString();
-    }
-
-    void MoverPieza(Vector3 destino)
-    {
-        Vector2Int origen = ObtenerPosicionTablero(piezaSeleccionada.transform.position);
-        Vector2Int destinoTablero = ObtenerPosicionTablero(destino);
-
-        Tablero tablero = CrearPiezas.juego.Tablero;
-
-        // Mover en lógica
-        piezaSeleccionada.transform.position = destino + Vector3.up * 0.5f;
-
-
-        //Mover pieza en visual
-        piezaSeleccionada.transform.position = destino + Vector3.up * 0.5f;
-        piezaSeleccionada = null;
-    }
-    */
 }

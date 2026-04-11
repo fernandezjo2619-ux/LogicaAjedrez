@@ -13,6 +13,18 @@ public class PiezasPrefab : MonoBehaviour
 
     public Pieza piezaLogica; // Referencia a la pieza lógica
 
+    private void Start()
+    {
+        Renderer rend = GetComponent<Renderer>();
+
+        // Pone Albedo en blanco para que se vea la imagen
+        Color currentAlbedo = rend.material.GetColor("_Color");
+        if (currentAlbedo == Color.black)
+        {
+            rend.material.SetColor("_Color", Color.white);  // Pone el Albedo a blanco
+        }
+    }
+
     // Inicializa la pieza con la lógica
     public void Inicializar(Pieza piezaLogica)
     {
@@ -56,11 +68,8 @@ public class PiezasPrefab : MonoBehaviour
         return tipoPrefijo + colorSufijo;
     }
 
-    //Actualizar posicion de la pieza
-    public void ActualizarPosicion(int nuevaFila, int nuevaColumna)
+    private void OnMouseDown()
     {
-        this.fila = nuevaFila;
-        this.columna = nuevaColumna;
-        transform.position = new Vector3(columna, 0.5f, fila); // Actualizar la posición visual de la pieza
+        SeleccionarPieza.Instance.SeleccionarDesdePieza(this);
     }
 }
