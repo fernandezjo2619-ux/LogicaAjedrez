@@ -14,11 +14,11 @@ namespace AjedrezLogica
         public ColorPieza TurnoActual { get; private set; } = ColorPieza.Blanco;
         public List<Pieza> ListaPiezas { get; private set; } = new List<Pieza>();
         public List<Habilidad> ListaHabilidades { get; private set; } = new List<Habilidad>();
-        public (Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin)? UltimoMovimiento { get; private set; }
-        public (Pieza pieza, Pieza piezaEmpujada, int xFinEmpujada, int yFinEmpujada)? UltimoEmpujon { get; private set; }
+
+        public RegistroMovimiento? UltimoMovimiento { get; private set; }
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
-        
+
 
         public void CambiarTurno()
         {
@@ -54,6 +54,7 @@ namespace AjedrezLogica
         public void inicializaciones()
         {
             Tablero = new Tablero(8, 8);
+
             foreach (TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
             {
                 InicializarHabilidades(tipoPieza, TipoHabilidad.vacio);
@@ -79,7 +80,24 @@ namespace AjedrezLogica
 
         }
 
-        public List<(int x, int y)> movimientos (Pieza pieza) 
+        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin
+                                              Pieza piezaEmpujada = null, int xOrigenEmpujada = null, int yOrigenEmpujada = null,
+                                              int xFinEmpujada = null, int yFinEmpujada = null)
+        {
+            UltimoMovimiento.Pieza = pieza;
+            UltimoMovimiento.XOrigen = xOrigen;
+            UltimoMovimiento.YOrigen = yOrigen;
+            UltimoMovimiento.XFin = xFin;
+            UltimoMovimiento.YFin = yFin;
+            UltimoMovimiento.PiezaEmpujada = piezaEmpujada;
+            UltimoMovimiento.XOrigenEmpujada = xOrigenEmpujada;
+            UltimoMovimiento.YOrigenEmpujada = yOrigenEmpujada;
+            UltimoMovimiento.XFinEmpujada = xFinEmpujada;
+            UltimoMovimiento.YFinEmpujada = yFinEmpujada;
+        }
+
+        // Movimientos posibles que no dejan en jaque
+        public List<(int x, int y)> movimientos(Pieza pieza)
         {
             return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDejaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
         }
@@ -99,11 +117,7 @@ namespace AjedrezLogica
                 Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
                 //(int X, int Y) posicionOriginal = pieza.Posicion;
 
-                ColorPieza ColorEnemigo = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
-                if (EstaEnJaque(ColorEnemigo)) 
-                {
-                    Console.WriteLine("Jaque a: {0}", ColorEnemigo);
-                }
+
 
                 if (Tablero.Grid[xFin, yFin].EstaOcupado && Tablero.Grid[xFin, yFin].Ocupante.Tipo.Equals(TipoPieza.Rey))
                 {
@@ -114,6 +128,11 @@ namespace AjedrezLogica
                 pieza.Posicion = (xFin, yFin);
                 Tablero.Grid[xFin, yFin].Ocupante = pieza;
 
+                ColorPieza ColorEnemigo = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
+                if (EstaEnJaque(ColorEnemigo))
+                {
+                    Console.WriteLine("Jaque a: {0}", ColorEnemigo);
+                }
                 //// Valorar que el jugador no mueva una pieza que descubre el jaque
                 //if (EstaEnJaque(TurnoActual))
                 //{
@@ -126,7 +145,7 @@ namespace AjedrezLogica
 
                 if (!pieza.SeHaMovido) { pieza.SeHaMovido = true; }
                 // Añadir esto a la base de datos
-                UltimoMovimiento = (pieza, xOrigen, yOrigen, xFin, yFin);
+                RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
 
                 ReglasEspeciales(pieza, xOrigen, yOrigen, xFin, yFin, piezaCapturada);
                 if (piezaCapturada != null) { ListaPiezas.Remove(piezaCapturada); }
@@ -192,6 +211,17 @@ namespace AjedrezLogica
                         pieza.Tipo = piezaEnemiga.Tipo;
                         // Tiene que cambiar su habilidad por la habilidad seleccionada para tipo de pieza del usuario
                     }
+
+                    //comer al paso
+                    if (piezaCapturada == null && yOrigen != yFin)
+                    {
+                        Pieza? peonCapturado = Tablero.Grid[xOrigen, yFin].Ocupante;
+                        if (peonCapturado != null)
+                        {
+                            Tablero.Grid[xOrigen, yFin].Ocupante = null;
+                            ListaPiezas.Remove(peonCapturado);
+                        }
+                    }
                     break;
 
                 case TipoPieza.Rey:
@@ -255,14 +285,14 @@ namespace AjedrezLogica
                             }
                         }
                     }
-                    break; 
+                    break;
             }
 
             // Eliminar paralisis de las piezas del turno
             foreach (Pieza p in ListaPiezas.Where(p => p.Color == TurnoActual)) { p.EstaParalizada = false; }
         }
 
-        
+
         // agregar forma de vista de lista para unity
         // Reglas Movimientos por habilidades especiales - Tratadas con metodos diferentes a RealizarMovimiento
         public void EjecutarEmpujon(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
@@ -288,8 +318,7 @@ namespace AjedrezLogica
             Tablero.Grid[xDestino, yDestino].Ocupante = piezaEmpujada;
             piezaEmpujada.Posicion = (xDestino, yDestino);
 
-            UltimoMovimiento = (dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y);
-            UltimoEmpujon = (dama, piezaEmpujada, xDestino, yDestino);
+            RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
             CambiarTurno();
         }
 

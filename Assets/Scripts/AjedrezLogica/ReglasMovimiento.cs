@@ -11,7 +11,7 @@ namespace AjedrezLogica
             switch (pieza.Tipo)
             {
                 case TipoPieza.Peon:
-                    return ReglasPeon.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
+                    return ReglasPeon.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero, baseJuego);
                 case TipoPieza.Torre:
                     return ReglasTorre.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Alfil:
