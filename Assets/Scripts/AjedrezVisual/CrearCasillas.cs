@@ -20,6 +20,7 @@ public class CrearCasillas : MonoBehaviour
     public Material color2;
 
     //Creación del tablero, Awake
+    //HOla
     private void Awake()
     {
         casillas = new CasillaPrefab[ancho, alto]; //Posicion de la casilla
