@@ -74,10 +74,12 @@
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\ColorPieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\TipoHabilidad.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IA\IAAleatoria.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\RegistroMovimiento.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Tablero.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\BaseJuego.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Habilidad.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IMotorIA.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-habilidades-usuario.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-habilidades-tipo-pieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\MovimientosHelp.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\PiezasPrefab.cs" />

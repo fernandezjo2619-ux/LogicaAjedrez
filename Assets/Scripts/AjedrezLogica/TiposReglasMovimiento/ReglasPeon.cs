@@ -6,7 +6,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
 {
     public class ReglasPeon
     {
-        public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero)
+        public static List<(int X, int Y)> Reglas((int x, int y) posicion, ColorPieza bando, TipoHabilidad tipohabilidad, Tablero tablero, BaseJuego baseJuego)
         {
             switch (tipohabilidad)
             {
@@ -14,24 +14,24 @@ namespace AjedrezLogica.TiposReglasMovimiento
                     // Esta habilidad se tiene que valorar en el tablero
                     // Se transforma en la pieza que come
                     // Reglas de movimiento iguales
-                    return Basicas(posicion, bando, tablero);
+                    return Basicas(posicion, bando, tablero, baseJuego);
                 case TipoHabilidad.Reverso:
                     // Esta habilidad se tiene que valorar en el tablero
                     // La pieza que se lo come se transforma el peon, exceptuando la dama y el rey
                     // Reglas de movimiento iguales
-                    return Basicas(posicion, bando, tablero);
+                    return Basicas(posicion, bando, tablero, baseJuego);
                 case TipoHabilidad.PasoForzado:
                     // Doble Movimiento
-                    return Basicas(posicion, bando, tablero, true);
+                    return Basicas(posicion, bando, tablero, baseJuego, true);
                 case TipoHabilidad.MovimientoCruzado:
                     // Se puede mover lateralmente incluso si no hay pieza que pueda eliminar
-                    return Basicas(posicion, bando, tablero, false , true);
+                    return Basicas(posicion, bando, tablero, baseJuego, false, true);
                 default:
-                    return Basicas(posicion, bando, tablero);
+                    return Basicas(posicion, bando, tablero, baseJuego);
             }
         }
 
-        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, bool doblepaso = false, bool movimientocruzado = false)
+        public static List<(int X, int Y)> Basicas((int x, int y) posicion, ColorPieza bando, Tablero tablero, BaseJuego baseJuego, bool doblepaso = false, bool movimientocruzado = false)
         {
             List<(int X, int Y)> MovimientosPosibles = new List<(int X, int Y)>();
             int direccion = bando == ColorPieza.Blanco ? 1 : -1;
@@ -55,7 +55,34 @@ namespace AjedrezLogica.TiposReglasMovimiento
             AgregarSiPuedeCapturar(MovimientosPosibles, posicion.x + direccion, posicion.y - 1, bando, tablero, movimientocruzado);
             AgregarSiPuedeCapturar(MovimientosPosibles, posicion.x + direccion, posicion.y + 1, bando, tablero, movimientocruzado);
 
+            AgregarSiComerAlPaso(MovimientosPosibles, posicion.x, posicion.y, bando, direccion, tablero, baseJuego);
+
             return MovimientosPosibles;
+        }
+
+        private static void AgregarSiComerAlPaso(
+            List<(int X, int Y)> MovimientosPosibles,
+            int x, int y,
+            ColorPieza bando,
+            int direccion,
+            Tablero tablero,
+            BaseJuego baseJuego)
+        {
+            // Comer al paso
+            if (baseJuego?.UltimoMovimiento != null)
+            {
+                RegistroMovimiento ultimo = baseJuego.UltimoMovimiento;
+
+                if (ultimo.Pieza.Tipo == TipoPieza.Peon
+                    && ultimo.Pieza.Color != bando
+                    && Math.Abs(ultimo.XFin - ultimo.XOrigen) == 2
+                    && ultimo.XFin == x
+                    && Math.Abs(ultimo.YFin - y) == 1
+                    && tablero.EsDentroDelTablero(x + direccion, ultimo.YFin))
+                {
+                    MovimientosPosibles.Add((x + direccion, ultimo.YFin));
+                }
+            }
         }
 
         private static void AgregarPasoInicial(

@@ -2,9 +2,7 @@
 using AjedrezLogica.TiposReglasMovimiento;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 
 namespace AjedrezLogica
 {
@@ -14,8 +12,8 @@ namespace AjedrezLogica
         public ColorPieza TurnoActual { get; private set; } = ColorPieza.Blanco;
         public List<Pieza> ListaPiezas { get; private set; } = new List<Pieza>();
         public List<Habilidad> ListaHabilidades { get; private set; } = new List<Habilidad>();
-        public (Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin)? UltimoMovimiento { get; private set; }
-        public (Pieza pieza, Pieza piezaEmpujada, int xFinEmpujada, int yFinEmpujada)? UltimoEmpujon { get; private set; }
+
+        public RegistroMovimiento? UltimoMovimiento { get; private set; }
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
 
@@ -54,6 +52,8 @@ namespace AjedrezLogica
         public void inicializaciones()
         {
             Tablero = new Tablero(8, 8);
+
+
             foreach (TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
             {
                 InicializarHabilidades(tipoPieza, TipoHabilidad.vacio);
@@ -79,6 +79,23 @@ namespace AjedrezLogica
 
         }
 
+        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
+                                              Pieza piezaEmpujada = null, int xOrigenEmpujada = default, int yOrigenEmpujada = default,
+                                              int xFinEmpujada = default, int yFinEmpujada = default)
+        {
+            UltimoMovimiento.Pieza = pieza;
+            UltimoMovimiento.XOrigen = xOrigen;
+            UltimoMovimiento.YOrigen = yOrigen;
+            UltimoMovimiento.XFin = xFin;
+            UltimoMovimiento.YFin = yFin;
+            UltimoMovimiento.PiezaEmpujada = piezaEmpujada;
+            UltimoMovimiento.XOrigenEmpujada = xOrigenEmpujada;
+            UltimoMovimiento.YOrigenEmpujada = yOrigenEmpujada;
+            UltimoMovimiento.XFinEmpujada = xFinEmpujada;
+            UltimoMovimiento.YFinEmpujada = yFinEmpujada;
+        }
+
+        // Movimientos posibles que no dejan en jaque
         public List<(int x, int y)> movimientos(Pieza pieza)
         {
             return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDejaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
@@ -98,11 +115,8 @@ namespace AjedrezLogica
                 // Estado antes del movimiento
                 Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
                 //(int X, int Y) posicionOriginal = pieza.Posicion;
-                ColorPieza ColorEnemigo = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
-                if (EstaEnJaque(ColorEnemigo))
-                {
-                    Console.WriteLine("Jaque a: {0}", ColorEnemigo);
-                }
+
+
 
                 if (Tablero.Grid[xFin, yFin].EstaOcupado && Tablero.Grid[xFin, yFin].Ocupante.Tipo.Equals(TipoPieza.Rey))
                 {
@@ -113,6 +127,11 @@ namespace AjedrezLogica
                 pieza.Posicion = (xFin, yFin);
                 Tablero.Grid[xFin, yFin].Ocupante = pieza;
 
+                ColorPieza ColorEnemigo = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
+                if (EstaEnJaque(ColorEnemigo))
+                {
+                    Console.WriteLine("Jaque a: {0}", ColorEnemigo);
+                }
                 //// Valorar que el jugador no mueva una pieza que descubre el jaque
                 //if (EstaEnJaque(TurnoActual))
                 //{
@@ -125,7 +144,7 @@ namespace AjedrezLogica
 
                 if (!pieza.SeHaMovido) { pieza.SeHaMovido = true; }
                 // Añadir esto a la base de datos
-                UltimoMovimiento = (pieza, xOrigen, yOrigen, xFin, yFin);
+                RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
 
                 ReglasEspeciales(pieza, xOrigen, yOrigen, xFin, yFin, piezaCapturada);
                 if (piezaCapturada != null) { ListaPiezas.Remove(piezaCapturada); }
@@ -140,23 +159,31 @@ namespace AjedrezLogica
                 p.Tipo == TipoPieza.Torre &&
                 p.Habilidad?.TipoHabilidad == TipoHabilidad.JustaDefensa))
             {
-                if (ReglasMovimiento.MovimientosValidos(torre, Tablero, this).Any(movimiento => movimiento.X == xFin && movimiento.Y == yFin)
-                && !MovimientoDejaEnJaque(torre, xFin, yFin, torre.Color))
+                (int dx, int dy)[] direcciones = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+                foreach (var (dx, dy) in direcciones)
                 {
-                    Tablero.Grid[torre.Posicion.X, torre.Posicion.Y].Ocupante = null;
-                    torre.Posicion = (xFin, yFin);
-                    Tablero.Grid[xFin, yFin].Ocupante = torre;
-
-                    if (EstaEnJaque(pieza.Color))
+                    if (torre.Posicion.X + dx == xFin && torre.Posicion.Y + dy == yFin && !MovimientoDejaEnJaque(torre, xFin, yFin, torre.Color))
                     {
-                        Pieza reyPropio = ListaPiezas.FirstOrDefault(p => p.Tipo == TipoPieza.Rey && p.Color == pieza.Color);
-                        int xBloqueo = (torre.Posicion.X + reyPropio.Posicion.X) / 2;
-                        int yBloqueo = (torre.Posicion.Y + reyPropio.Posicion.Y) / 2;
+                        Tablero.Grid[torre.Posicion.X, torre.Posicion.Y].Ocupante = null;
+                        torre.Posicion = (xFin, yFin);
+                        Tablero.Grid[xFin, yFin].Ocupante = torre;
 
-                        pieza.Posicion = (xBloqueo, yBloqueo);
-                        Tablero.Grid[xBloqueo, yBloqueo].Ocupante = pieza;
+                        if (EstaEnJaque(pieza.Color))
+                        {
+                            Pieza reyPropio = ListaPiezas.FirstOrDefault(p => p.Tipo == TipoPieza.Rey && p.Color == pieza.Color);
+                            int xBloqueo = (torre.Posicion.X + reyPropio.Posicion.X) / 2;
+                            int yBloqueo = (torre.Posicion.Y + reyPropio.Posicion.Y) / 2;
+
+                            pieza.Posicion = (xBloqueo, yBloqueo);
+                            Tablero.Grid[xBloqueo, yBloqueo].Ocupante = pieza;
+                        }
+
+                        break;
                     }
-
+                }
+                if (Tablero.Grid[xFin, yFin].Ocupante.Tipo == TipoPieza.Torre && Tablero.Grid[xFin, yFin].Ocupante.Color != pieza.Color)
+                {
                     break;
                 }
             }
@@ -174,7 +201,6 @@ namespace AjedrezLogica
                     if ((pieza.Color == ColorPieza.Blanco && xFin == 7) ||
                     (pieza.Color == ColorPieza.Negro && xFin == 0))
                     {
-                        //Paso el tipo de pieza, que cambia
                         pieza.Tipo = AlCoronar(pieza);
                         // Tiene que cambiar su habilidad por la habilidad seleccionada para el tipo de pieza elegido del usuario
                     }
@@ -184,6 +210,17 @@ namespace AjedrezLogica
                         pieza.Tipo = piezaEnemiga.Tipo;
                         // Tiene que cambiar su habilidad por la habilidad seleccionada para tipo de pieza del usuario
                     }
+
+                    //comer al paso
+                    if (piezaEnemiga == null && yOrigen != yFin)
+                    {
+                        Pieza? peonCapturado = Tablero.Grid[xOrigen, yFin].Ocupante;
+                        if (peonCapturado != null)
+                        {
+                            Tablero.Grid[xOrigen, yFin].Ocupante = null;
+                            ListaPiezas.Remove(peonCapturado);
+                        }
+                    }
                     break;
 
                 case TipoPieza.Rey:
@@ -192,17 +229,19 @@ namespace AjedrezLogica
                     {
                         int fila = pieza.Color == ColorPieza.Blanco ? 0 : 7;
 
-                        if (yFin == 6) // enroque corto
+                        if (yFin == 6 && !pieza.SeHaMovido) // enroque corto
                         {
                             Pieza torre = Tablero.Grid[fila, 7].Ocupante;
+                            if (torre.SeHaMovido) { return; }
                             Tablero.Grid[fila, 7].Ocupante = null;
                             Tablero.Grid[fila, 5].Ocupante = torre;
                             torre.Posicion = (fila, 5);
                             torre.SeHaMovido = true;
                         }
-                        else if (yFin == 2) // enroque largo
+                        else if (yFin == 2 && !pieza.SeHaMovido) // enroque largo
                         {
                             Pieza torre = Tablero.Grid[fila, 0].Ocupante;
+                            if (torre.SeHaMovido) { return; }
                             Tablero.Grid[fila, 0].Ocupante = null;
                             Tablero.Grid[fila, 3].Ocupante = torre;
                             torre.Posicion = (fila, 3);
@@ -278,8 +317,7 @@ namespace AjedrezLogica
             Tablero.Grid[xDestino, yDestino].Ocupante = piezaEmpujada;
             piezaEmpujada.Posicion = (xDestino, yDestino);
 
-            UltimoMovimiento = (dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y);
-            UltimoEmpujon = (dama, piezaEmpujada, xDestino, yDestino);
+            RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
             CambiarTurno();
         }
 
