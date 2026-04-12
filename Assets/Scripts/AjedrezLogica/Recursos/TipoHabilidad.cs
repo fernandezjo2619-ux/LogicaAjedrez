@@ -32,6 +32,6 @@ namespace AjedrezLogica.Recursos
 
         // Rey
         DecretoReal = 13,
-        ReclutamientoForzado = 14
+        SituacionDesesperada = 14
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AjedrezLogica.Recursos;
 using AjedrezLogica.TiposReglasMovimiento;
-using SupabaseAjedrez;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +22,8 @@ namespace AjedrezLogica
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
 
-        SupabaseGuardarPartida GuardarPartidaBD {  get; set; }
-        RegistrarMovimientoDb registrarMovimientoDb { get; set; }
+        SupabaseRPC GuardarPartidaBD {  get; set; }
+        RegistrarMovimiento registrarMovimientoDb { get; set; }
 
         public void CambiarTurno()
         {
@@ -32,10 +31,10 @@ namespace AjedrezLogica
         }
 
         // Primer usuario agregado se entiende que son las blancas
-        public async Task JuegoBase(int idUsuario1, int idUsuario2)
+        public async Task JuegoBase(int idUsuario1, int idUsuario2, int idPartida)
         {
             inicializaciones();
-            IdPartida = await GuardarPartidaBD.GuardarPartidaAsync(idUsuario1, idUsuario2);
+            IdPartida = idPartida;
             IdUsuario1 = idUsuario1;
             IdUsuario2 = idUsuario2;
         }
@@ -91,7 +90,7 @@ namespace AjedrezLogica
 
         }
 
-        public async Task RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
+        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
                                               Pieza piezaEmpujada = null, int xOrigenEmpujada = default, int yOrigenEmpujada = default,
                                               int xFinEmpujada = default, int yFinEmpujada = default)
         {
@@ -108,7 +107,7 @@ namespace AjedrezLogica
 
 
             var idUsuario = TurnoActual == ColorPieza.Blanco ? IdUsuario1 : IdUsuario2;
-            await registrarMovimientoDb.PostRegistrarMovimientoAsync(IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
+            registrarMovimientoDb.PostRegistrarMovimiento(IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
         }
 
         // Movimientos posibles que no dejan en jaque
@@ -117,7 +116,7 @@ namespace AjedrezLogica
             return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDejaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
         }
 
-        public async Task RealizarMovimientoAsync(int xOrigen, int yOrigen, int xFin, int yFin)
+        public void RealizarMovimiento(int xOrigen, int yOrigen, int xFin, int yFin)
         {
             if (!Tablero.Grid[xOrigen, yOrigen].EstaOcupado) { return; }
             Pieza pieza = Tablero.Grid[xOrigen, yOrigen].Ocupante;
@@ -160,7 +159,7 @@ namespace AjedrezLogica
 
                 if (!pieza.SeHaMovido) { pieza.SeHaMovido = true; }
                 // Añadir esto a la base de datos
-                await RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
+                RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
 
                 ReglasEspeciales(pieza, xOrigen, yOrigen, xFin, yFin, piezaCapturada);
                 if (piezaCapturada != null) { ListaPiezas.Remove(piezaCapturada); }
@@ -316,7 +315,7 @@ namespace AjedrezLogica
         }
         // agregar forma de vista de lista para unity
         // Reglas Movimientos por habilidades especiales - Tratadas con metodos diferentes a RealizarMovimiento
-        public async Task EjecutarEmpujonAsync(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
+        public void EjecutarEmpujonAsync(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
         {
             if (dama.Habilidad?.TipoHabilidad != TipoHabilidad.EmbestidaReal) { return; }
             if (dama.Color != TurnoActual) { return; }
@@ -326,7 +325,7 @@ namespace AjedrezLogica
             if (!Empujones.Any()
             || (xDestino == piezaEmpujada.Posicion.X && yDestino == piezaEmpujada.Posicion.Y))
             {
-                await RealizarMovimientoAsync(dama.Posicion.X, dama.Posicion.Y, piezaEmpujada.Posicion.X, piezaEmpujada.Posicion.Y);
+                RealizarMovimiento(dama.Posicion.X, dama.Posicion.Y, piezaEmpujada.Posicion.X, piezaEmpujada.Posicion.Y);
                 return;
             }
 
@@ -338,7 +337,7 @@ namespace AjedrezLogica
             Tablero.Grid[xDestino, yDestino].Ocupante = piezaEmpujada;
             piezaEmpujada.Posicion = (xDestino, yDestino);
 
-            await RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
+            RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
             CambiarTurno();
         }
 

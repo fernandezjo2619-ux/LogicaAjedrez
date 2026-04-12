@@ -12,7 +12,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
             (int x, int y) posicion,
             int dx, int dy,
             ColorPieza bando,
-            Tablero tablero, bool saltaPieza = false)
+            Tablero tablero, bool saltaPieza = false, bool puedeComer = true, int alrededores = 0, int limitacionMovimiento = 0)
         {
             int i = 1;
 
@@ -25,7 +25,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
                         i++;
                         continue;
                     }
-                    if (!tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].Ocupante.Color.Equals(bando))
+                    if ((puedeComer || alrededores == i) && !tablero.Grid[posicion.x + dx * i, posicion.y + dy * i].Ocupante.Color.Equals(bando))
                     {
                         movimientos.Add((posicion.x + dx * i, posicion.y + dy * i));
                     } 
@@ -33,6 +33,10 @@ namespace AjedrezLogica.TiposReglasMovimiento
                 }
                 movimientos.Add((posicion.x + dx * i, posicion.y + dy * i));
                 i++;
+                if (i == limitacionMovimiento)
+                {
+                    break;
+                }
             }
 
         }

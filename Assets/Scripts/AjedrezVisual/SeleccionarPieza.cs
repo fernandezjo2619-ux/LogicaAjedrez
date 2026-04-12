@@ -103,7 +103,7 @@ public class SeleccionarPieza : MonoBehaviour
         }
 
         //Ejecutar lógica del juego
-        juego.RealizarMovimientoAsync(xOrigen, yOrigen, xDestino, yDestino);
+        juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
 
         CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
 
