@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Assets",
+    "\\Assets\\Scripts",
+    "\\Assets\\Scripts\\AjedrezLogica",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Meter datos",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos",
+    "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos"
+  ],
+  "SelectedNode": "\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos",
+  "PreviewInSolutionExplorer": false
+}

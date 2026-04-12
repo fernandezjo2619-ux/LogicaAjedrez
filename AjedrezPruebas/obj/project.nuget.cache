@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "DjibGIU78x0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezPruebas\\AjedrezPruebas.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Jorge\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

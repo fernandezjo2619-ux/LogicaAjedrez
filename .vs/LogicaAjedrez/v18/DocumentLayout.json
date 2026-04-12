@@ -1,0 +1,218 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assembly-CSharp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assembly-CSharp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Pieza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Pieza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Assembly-CSharp.csproj",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assembly-CSharp.csproj",
+              "RelativeDocumentMoniker": "Assembly-CSharp.csproj",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assembly-CSharp.csproj",
+              "RelativeToolTip": "Assembly-CSharp.csproj",
+              "ViewState": "AgIAADQDAAAAAAAAAADwv0MDAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-12T10:43:07.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Guardar-partida.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Meter datos\\Guardar-partida.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAgwDMAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T09:32:06.346Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Obtener-habilidades-usuario.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T09:20:58.938Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Obtener-habilidades-usuario.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Base de datos\\No Unity\\Sacar datos\\Obtener-habilidades-usuario.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAUwB4AAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T09:05:29.676Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Pieza.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Pieza.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Pieza.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Pieza.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Pieza.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T09:01:22.102Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SeleccionarPieza.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezVisual\\SeleccionarPieza.cs",
+              "ViewState": "AgIAAEoAAAAAAAAAAAAiwGkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:54:09.007Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "TipoHabilidad.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Recursos\\TipoHabilidad.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABIAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:39:45.386Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Usuario.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Usuario.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\Usuario.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\Usuario.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\Usuario.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABcAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:38:38.617Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ReglasPeon.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasPeon.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAowE4AAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:37:30.352Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ReglasRey.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\TiposReglasMovimiento\\ReglasRey.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAiwF8AAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:31:06.688Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AjedrezLogica.AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\obj\\Release\\netstandard2.1\\AjedrezLogica.AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:29:54.625Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BaseJuego.cs",
+              "DocumentMoniker": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs",
+              "ToolTip": "C:\\Users\\Jorge\\source\\repos\\fernandezjo2619-ux\\LogicaAjedrez\\Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AjedrezLogica\\BaseJuego.cs",
+              "ViewState": "AgIAAC0BAAAAAAAAAAAAAEMBAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T08:27:37.235Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
