@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{D028ABBA-482D-75DC-219D-B7C02D52A927}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -53,22 +54,39 @@
     <UnityVersion>2022.3.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.0f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.0f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Meter datos\Guardar-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Meter datos\Registrar-movimiento.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Meter datos\Guardar-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Meter datos\Registrar-movimiento.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\DatosHabilidad.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\Obtener-datos-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\Obtener-habilidades-tipo-pieza.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\Obtener-habilidades-usuario.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\Obtener-partidas-usuario.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\PruebaObtenerHabilidades.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\No Unity\Sacar datos\PruebaObtenerTiposPiezas.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\DatosHabilidad.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-datos-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-habilidades-tipo-pieza.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-habilidades-usuario.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-partidas-usuario.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\PruebaObtenerHabilidades.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\PruebaObtenerTiposPiezas.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasAlfil.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\SeleccionarPieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasDama.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\TipoPieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\CrearPiezas.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-partidas-usuario.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Pieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\TipoAccion.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\CrearCasillas.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\ReglasMovimiento.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IA\Estructuras\Accion.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\DatosHabilidad.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasRey.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasPeon.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Recursos\ColorPieza.cs" />
@@ -78,20 +96,27 @@
     <Compile Include="Assets\Scripts\AjedrezLogica\Tablero.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\BaseJuego.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Habilidad.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\PruebaObtenerTiposPiezas.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\IMotorIA.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-habilidades-usuario.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-habilidades-tipo-pieza.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\MovimientosHelp.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\PiezasPrefab.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasTorre.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\CasillaTablero.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\TiposReglasMovimiento\ReglasCaballo.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\PruebaObtenerHabilidades.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Usuario.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Guardar-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.AssemblyInfo.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\CasillaPrefab.cs" />
-    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Obtener-datos-partida.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\obj\Release\netstandard2.1\AjedrezLogica.AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Meter datos\Guardar-partida.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\DatosHabilidad.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-datos-partida.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-habilidades-tipo-pieza.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-habilidades-usuario.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\Obtener-partidas-usuario.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\PruebaObtenerHabilidades.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\PruebaObtenerTiposPiezas.cs.meta" />
+    <None Include="Assets\Scripts\AjedrezLogica\obj\Debug\netstandard2.1\AjedrezLogica.csproj.FileListAbsolute.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -786,6 +811,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets\Scripts\AjedrezLogica\Base de datos\NoUnity\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

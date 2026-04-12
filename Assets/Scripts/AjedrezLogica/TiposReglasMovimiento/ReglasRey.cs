@@ -1,8 +1,6 @@
 ﻿using AjedrezLogica.Recursos;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace AjedrezLogica.TiposReglasMovimiento
 {
@@ -83,7 +81,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
                 int fila = bando == ColorPieza.Blanco ? 0 : 7;
 
                 // Enroque corto (columna 6) — Torre en columna 7
-                Pieza? torreCorta = tablero.Grid[fila, 7].Ocupante;
+                Pieza torreCorta = tablero.Grid[fila, 7].Ocupante;
                 if (torreCorta != null &&
                     torreCorta.Tipo == TipoPieza.Torre &&
                     !torreCorta.SeHaMovido &&
@@ -95,7 +93,7 @@ namespace AjedrezLogica.TiposReglasMovimiento
                 }
 
                 // Enroque largo (columna 2) — Torre en columna 0
-                Pieza? torreLarga = tablero.Grid[fila, 0].Ocupante;
+                Pieza torreLarga = tablero.Grid[fila, 0].Ocupante;
                 if (torreLarga != null &&
                     torreLarga.Tipo == TipoPieza.Torre &&
                     !torreLarga.SeHaMovido &&

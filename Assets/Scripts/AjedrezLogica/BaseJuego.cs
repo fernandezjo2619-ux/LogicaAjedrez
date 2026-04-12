@@ -1,31 +1,43 @@
 ﻿using AjedrezLogica.Recursos;
 using AjedrezLogica.TiposReglasMovimiento;
+using SupabaseAjedrez;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AjedrezLogica
 {
     public class BaseJuego
     {
+        private int IdPartida;
+        private int IdUsuario1;
+        private int IdUsuario2;
+
         public Tablero Tablero { get; private set; }
         public ColorPieza TurnoActual { get; private set; } = ColorPieza.Blanco;
         public List<Pieza> ListaPiezas { get; private set; } = new List<Pieza>();
         public List<Habilidad> ListaHabilidades { get; private set; } = new List<Habilidad>();
 
-        public RegistroMovimiento? UltimoMovimiento { get; private set; }
+        public RegistroMovimiento UltimoMovimiento { get; private set; }
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
 
+        SupabaseGuardarPartida GuardarPartidaBD {  get; set; }
+        RegistrarMovimientoDb registrarMovimientoDb { get; set; }
 
         public void CambiarTurno()
         {
             TurnoActual = TurnoActual == ColorPieza.Blanco ? ColorPieza.Negro : ColorPieza.Blanco;
         }
 
-        public BaseJuego()
+        // Primer usuario agregado se entiende que son las blancas
+        public async Task JuegoBase(int idUsuario1, int idUsuario2)
         {
             inicializaciones();
+            IdPartida = await GuardarPartidaBD.GuardarPartidaAsync(idUsuario1, idUsuario2);
+            IdUsuario1 = idUsuario1;
+            IdUsuario2 = idUsuario2;
         }
 
         public void IniciarPieza(TipoPieza tipo, ColorPieza color, int x, int y, Tablero tablero, TipoHabilidad tipoHabilidad = TipoHabilidad.vacio)
@@ -79,7 +91,7 @@ namespace AjedrezLogica
 
         }
 
-        public void RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
+        public async Task RegistrarUltimoMovimiento(Pieza pieza, int xOrigen, int yOrigen, int xFin, int yFin,
                                               Pieza piezaEmpujada = null, int xOrigenEmpujada = default, int yOrigenEmpujada = default,
                                               int xFinEmpujada = default, int yFinEmpujada = default)
         {
@@ -93,6 +105,10 @@ namespace AjedrezLogica
             UltimoMovimiento.YOrigenEmpujada = yOrigenEmpujada;
             UltimoMovimiento.XFinEmpujada = xFinEmpujada;
             UltimoMovimiento.YFinEmpujada = yFinEmpujada;
+
+
+            var idUsuario = TurnoActual == ColorPieza.Blanco ? IdUsuario1 : IdUsuario2;
+            await registrarMovimientoDb.PostRegistrarMovimientoAsync(IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
         }
 
         // Movimientos posibles que no dejan en jaque
@@ -101,7 +117,7 @@ namespace AjedrezLogica
             return ReglasMovimiento.MovimientosValidos(pieza, Tablero, this).Where(movimientosPosibles => !MovimientoDejaEnJaque(pieza, movimientosPosibles.X, movimientosPosibles.Y, pieza.Color)).ToList();
         }
 
-        public void RealizarMovimiento(int xOrigen, int yOrigen, int xFin, int yFin)
+        public async Task RealizarMovimientoAsync(int xOrigen, int yOrigen, int xFin, int yFin)
         {
             if (!Tablero.Grid[xOrigen, yOrigen].EstaOcupado) { return; }
             Pieza pieza = Tablero.Grid[xOrigen, yOrigen].Ocupante;
@@ -113,7 +129,7 @@ namespace AjedrezLogica
             if (movimientosPosibles.Contains((xFin, yFin)))
             {
                 // Estado antes del movimiento
-                Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
+                Pieza piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
                 //(int X, int Y) posicionOriginal = pieza.Posicion;
 
 
@@ -144,7 +160,7 @@ namespace AjedrezLogica
 
                 if (!pieza.SeHaMovido) { pieza.SeHaMovido = true; }
                 // Añadir esto a la base de datos
-                RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
+                await RegistrarUltimoMovimiento(pieza, xOrigen, yOrigen, xFin, yFin);
 
                 ReglasEspeciales(pieza, xOrigen, yOrigen, xFin, yFin, piezaCapturada);
                 if (piezaCapturada != null) { ListaPiezas.Remove(piezaCapturada); }
@@ -214,7 +230,7 @@ namespace AjedrezLogica
                     //comer al paso
                     if (piezaEnemiga == null && yOrigen != yFin)
                     {
-                        Pieza? peonCapturado = Tablero.Grid[xOrigen, yFin].Ocupante;
+                        Pieza peonCapturado = Tablero.Grid[xOrigen, yFin].Ocupante;
                         if (peonCapturado != null)
                         {
                             Tablero.Grid[xOrigen, yFin].Ocupante = null;
@@ -291,21 +307,26 @@ namespace AjedrezLogica
             foreach (Pieza p in ListaPiezas.Where(p => p.Color == TurnoActual)) { p.EstaParalizada = false; }
         }
 
+        public List<(Pieza pieza, int x, int y)> Empujes(Pieza pieza, Pieza piezaEmpujada)
+        {
+            List<(Pieza piezaEmpujada, int xDestino, int yDestino)> Empujones = ReglasDama.EmpujonesDisponibles(pieza.Posicion, pieza.Color, Tablero);
+            Empujones.Where(empujon => empujon.piezaEmpujada == piezaEmpujada && !MovimientoDejaEnJaque(empujon.piezaEmpujada, empujon.xDestino, empujon.yDestino, pieza.Color)).ToList();
 
+            return Empujones;
+        }
         // agregar forma de vista de lista para unity
         // Reglas Movimientos por habilidades especiales - Tratadas con metodos diferentes a RealizarMovimiento
-        public void EjecutarEmpujon(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
+        public async Task EjecutarEmpujonAsync(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
         {
             if (dama.Habilidad?.TipoHabilidad != TipoHabilidad.EmbestidaReal) { return; }
             if (dama.Color != TurnoActual) { return; }
 
-            List<(Pieza piezaEmpujada, int xDestino, int yDestino)> Empujones = ReglasDama.EmpujonesDisponibles(dama.Posicion, dama.Color, Tablero);
-            Empujones = Empujones.Where(empujon => empujon.piezaEmpujada == piezaEmpujada && !MovimientoDejaEnJaque(empujon.piezaEmpujada, empujon.xDestino, empujon.yDestino, dama.Color)).ToList();
-
+            List<(Pieza pieza, int x, int y)> Empujones = Empujes(dama, piezaEmpujada);
+           
             if (!Empujones.Any()
             || (xDestino == piezaEmpujada.Posicion.X && yDestino == piezaEmpujada.Posicion.Y))
             {
-                RealizarMovimiento(dama.Posicion.X, dama.Posicion.Y, piezaEmpujada.Posicion.X, piezaEmpujada.Posicion.Y);
+                await RealizarMovimientoAsync(dama.Posicion.X, dama.Posicion.Y, piezaEmpujada.Posicion.X, piezaEmpujada.Posicion.Y);
                 return;
             }
 
@@ -317,7 +338,7 @@ namespace AjedrezLogica
             Tablero.Grid[xDestino, yDestino].Ocupante = piezaEmpujada;
             piezaEmpujada.Posicion = (xDestino, yDestino);
 
-            RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
+            await RegistrarUltimoMovimiento(dama, dama.Posicion.X, dama.Posicion.Y, dama.Posicion.X, dama.Posicion.Y, piezaEmpujada, posAnterior.x, posAnterior.y, xDestino, yDestino);
             CambiarTurno();
         }
 
@@ -349,7 +370,7 @@ namespace AjedrezLogica
         {
             int xOrigen = pieza.Posicion.X;
             int yOrigen = pieza.Posicion.Y;
-            Pieza? piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
+            Pieza piezaCapturada = Tablero.Grid[xFin, yFin].Ocupante;
 
             // Simular
             Tablero.Grid[xOrigen, yOrigen].Ocupante = null;
