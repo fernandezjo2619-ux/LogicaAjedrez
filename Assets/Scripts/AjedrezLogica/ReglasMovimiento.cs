@@ -21,7 +21,7 @@ namespace AjedrezLogica
                 case TipoPieza.Dama:
                     return ReglasDama.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero);
                 case TipoPieza.Rey:
-                    return ReglasRey.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero, baseJuego);
+                    //return ReglasRey.Reglas(pieza.Posicion, pieza.Color, pieza.Habilidad.TipoHabilidad, tablero, baseJuego);
                 default:
                     return new List<(int X, int Y)> { (0, 0) };
             }

@@ -11,6 +11,6 @@ namespace AjedrezLogica.IA.Estructuras
         public int YFin { get; set; }
 
         // Solo para empujones (Habilidad de Dama)
-        public Pieza? PiezaEmpujada { get; set; }
+        public Pieza ? PiezaEmpujada { get; set; }
     }
 }
