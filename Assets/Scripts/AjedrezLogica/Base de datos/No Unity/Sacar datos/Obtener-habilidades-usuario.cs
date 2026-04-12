@@ -39,7 +39,7 @@ namespace SupabaseAjedrez
                         try 
                         {
                             // System.Text.Json maneja deserializacion de listas directamente
-                            var parsedList = JsonSerializer.Deserialize<List<DatosHabilidadUsuario>>(json);
+                            var parsedList = System.Text.Json.JsonSerializer.Deserialize<List<DatosHabilidadUsuario>>(json);
                             if (parsedList != null)
                             {
                                 habilidadesUsuario = parsedList;
