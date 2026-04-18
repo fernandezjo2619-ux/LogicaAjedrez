@@ -31,7 +31,7 @@ namespace AjedrezLogica
         }
 
         // Primer usuario agregado se entiende que son las blancas
-        public async Task JuegoBase(int idUsuario1, int idUsuario2, int idPartida)
+        public void JuegoBase(int idUsuario1, int idUsuario2, int idPartida)
         {
             inicializaciones();
             IdPartida = idPartida;
@@ -306,6 +306,7 @@ namespace AjedrezLogica
             foreach (Pieza p in ListaPiezas.Where(p => p.Color == TurnoActual)) { p.EstaParalizada = false; }
         }
 
+        // Reglas Movimientos por habilidades especiales - Tratadas con metodos diferentes a RealizarMovimiento
         public List<(Pieza pieza, int x, int y)> Empujes(Pieza pieza, Pieza piezaEmpujada)
         {
             List<(Pieza piezaEmpujada, int xDestino, int yDestino)> Empujones = ReglasDama.EmpujonesDisponibles(pieza.Posicion, pieza.Color, Tablero);
@@ -313,9 +314,7 @@ namespace AjedrezLogica
 
             return Empujones;
         }
-        // agregar forma de vista de lista para unity
-        // Reglas Movimientos por habilidades especiales - Tratadas con metodos diferentes a RealizarMovimiento
-        public void EjecutarEmpujonAsync(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
+        public void EjecutarEmpujon(Pieza dama, Pieza piezaEmpujada, int xDestino, int yDestino)
         {
             if (dama.Habilidad?.TipoHabilidad != TipoHabilidad.EmbestidaReal) { return; }
             if (dama.Color != TurnoActual) { return; }
