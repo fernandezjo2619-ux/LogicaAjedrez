@@ -105,7 +105,9 @@ public class SeleccionarPieza : MonoBehaviour
         //Ejecutar lógica del juego
         juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
 
-        CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
+        //CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
+        CrearPiezas.Instance.SincronizarVisual();
+        CrearPiezas.Instance.IntentarMovimientoIA();
 
         //Limpiar selección y resaltados
         LimpiarResaltado();

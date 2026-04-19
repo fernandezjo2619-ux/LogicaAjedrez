@@ -13,7 +13,6 @@ public class CasillaPrefab : MonoBehaviour
     public int columna;              // 0 a 7
 
     private Renderer rendMaterial;
-    private Material materialActual;
 
     void Awake()
     {
@@ -23,13 +22,7 @@ public class CasillaPrefab : MonoBehaviour
         if (colorCasilla != null)
         {
             //Copia del material original
-            materialActual = new Material(colorCasilla);
-            rendMaterial.material = materialActual;
-        }
-        else
-        {
-            materialActual = new Material(rendMaterial.material);
-            rendMaterial.material = materialActual;
+            rendMaterial.material = colorCasilla;
         }
     }
 
@@ -61,19 +54,19 @@ public class CasillaPrefab : MonoBehaviour
         }
     }
 
-    public void Resaltar(Material azul)
+    public void Resaltar(Material materialResaltado)
     {
-        if (rendMaterial != null && azul != null)
+        if (rendMaterial != null && materialResaltado != null)
         {
-            rendMaterial.material = new Material(azul);
+            rendMaterial.material = materialResaltado;
         }
     }
 
     public void ResetColor()
     {
-        if (rendMaterial != null && materialActual != null)
+        if (rendMaterial != null && colorCasilla != null)
         {
-            rendMaterial.material = materialActual;
+            rendMaterial.material = colorCasilla;
         }
     }
 
