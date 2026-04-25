@@ -19,6 +19,9 @@ public class UserData
     public DateTime ultimo_login;
     public int id_partida_activa;  // NULL si no está jugando
     public string estado;  // 'activo', 'inactivo', 'suspendido'
+    internal object token_verificacion;
+
+    public string bio { get; internal set; }
 }
 
 /// <summary>

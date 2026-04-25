@@ -83,6 +83,7 @@ public class AuthenticationService : MonoBehaviour
             
             if (request.result == UnityWebRequest.Result.Success)
             {
+                IEnumerator enumerator = null;
                 try
                 {
                     // Supabase devuelve el id_usuario
@@ -92,7 +93,7 @@ public class AuthenticationService : MonoBehaviour
                     if (idUsuario > 0)
                     {
                         // 2. Enviar email de verificación
-                        yield return SendVerificationEmail(email, idUsuario);
+                        enumerator = SendVerificationEmail(email, idUsuario);
                         
                         OnRegisterSuccess?.Invoke(idUsuario);
                         SaveUserRegistration(idUsuario, username, email);
@@ -107,6 +108,7 @@ public class AuthenticationService : MonoBehaviour
                 {
                     OnRegisterFailed?.Invoke($"Error: {ex.Message}");
                 }
+                yield return enumerator;
             }
             else
             {
@@ -275,6 +277,8 @@ public class AuthenticationService : MonoBehaviour
             
             if (request.result == UnityWebRequest.Result.Success)
             {
+                UnityWebRequestAsyncOperation unityWebRequestAsyncOperation = new(); 
+                IEnumerator enumerator = null;
                 try
                 {
                     string responseText = request.downloadHandler.text;
@@ -299,15 +303,15 @@ public class AuthenticationService : MonoBehaviour
                             resetRequest.downloadHandler = new DownloadHandlerBuffer();
                             resetRequest.SetRequestHeader("Content-Type", "application/json");
                             resetRequest.SetRequestHeader("Authorization", $"Bearer {supabaseKey}");
-                            
-                            yield return resetRequest.SendWebRequest();
+
+                            unityWebRequestAsyncOperation = resetRequest.SendWebRequest();
                             
                             if (resetRequest.result == UnityWebRequest.Result.Success)
                             {
                                 string token = resetRequest.downloadHandler.text.Trim('"');
-                                
+
                                 // Enviar email con el token
-                                yield return SendPasswordResetEmail(email, userId, token);
+                                enumerator = SendPasswordResetEmail(email, userId, token);
                                 Debug.Log("Email de recuperación enviado");
                             }
                             else
@@ -325,6 +329,8 @@ public class AuthenticationService : MonoBehaviour
                 {
                     Debug.LogError("Error: " + ex.Message);
                 }
+                yield return unityWebRequestAsyncOperation;
+                yield return enumerator;
             }
             else
             {
@@ -562,6 +568,7 @@ public class AuthenticationService : MonoBehaviour
             
             if (request.result == UnityWebRequest.Result.Success)
             {
+                IEnumerator enumerator = null;
                 try
                 {
                     string responseText = request.downloadHandler.text;
@@ -570,9 +577,9 @@ public class AuthenticationService : MonoBehaviour
                     if (users.Length > 0)
                     {
                         string verificacionUrl = $"https://tunombrededominio.com/verify?user={userId}&token={users[0].token_verificacion}";
-                        
+
                         // Enviar email con SendGrid
-                        yield return SendGridService.SendEmail(
+                        enumerator = SendGridService.SendEmail(
                             email, 
                             "Verifica tu cuenta de Ajedrez Multijugador",
                             $"Haz click aquí para verificar tu email: {verificacionUrl}"
@@ -583,6 +590,7 @@ public class AuthenticationService : MonoBehaviour
                 {
                     Debug.LogError("Error al enviar email: " + ex.Message);
                 }
+                yield return enumerator;
             }
         }
     }

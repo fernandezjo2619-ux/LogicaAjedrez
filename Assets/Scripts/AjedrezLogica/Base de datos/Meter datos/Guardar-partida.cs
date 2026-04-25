@@ -13,7 +13,7 @@ public class SupabaseRPC : MonoBehaviour
         // StartCoroutine(GuardarPartida(1, 2)); // ejemplo: guardar partida entre jugador 1 y 2
     }
 
-    IEnumerator GetPartidasUsuario(int idUsuario)
+    public IEnumerator GetPartidasUsuario(int idUsuario)
     {
         // JSON con el par�metro de la funci�n
         string jsonBody = "{\"p_id_usuario\": " + idUsuario + "}";
@@ -51,7 +51,7 @@ public class SupabaseRPC : MonoBehaviour
     /// <param name="idJugador2">ID del segundo jugador</param>
     /// <param name="estado">Estado de la partida (EN_CURSO o FINALIZADA). Por defecto: EN_CURSO</param>
     /// <param name="idGanador">ID del ganador (opcional, NULL si no hay ganador)</param>
-    IEnumerator GuardarPartida(int idJugador1, int idJugador2, string estado = "EN_CURSO", int? idGanador = null)
+    public IEnumerator GuardarPartida(int idJugador1, int idJugador2, System.Action<int> onCompletado, string estado = "EN_CURSO", int? idGanador = null)
     {
         string url = baseUrl + "/guardar_partida";
 
@@ -87,6 +87,11 @@ public class SupabaseRPC : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Partida guardada exitosamente. ID de partida: " + request.downloadHandler.text);
+
+            if (int.TryParse(request.downloadHandler.text, out int idPartida))
+                onCompletado?.Invoke(idPartida);
+            else
+                onCompletado?.Invoke(0);
         }
         else
         {
