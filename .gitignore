@@ -1,5 +1,8 @@
 ﻿.vs/
 obj/
 bin/
+Library/
+Temp/
+Logs/
 *.user
 *.suo
