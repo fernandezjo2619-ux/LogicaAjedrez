@@ -4,5 +4,9 @@ bin/
 Library/
 Temp/
 Logs/
+UserSettings/
+Packages/
+[Pp]roject[Ss]ettings/ProjectVersion.txt
+*.pidb
 *.user
 *.suo
