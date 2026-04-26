@@ -1,0 +1,5 @@
+C:\Users\Jorge\source\repos\fernandezjo2619-ux\LogicaAjedrez\Assets\Scripts\AjedrezPruebas\obj\Debug\net10.0\AjedrezPruebas.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Jorge\source\repos\fernandezjo2619-ux\LogicaAjedrez\Assets\Scripts\AjedrezPruebas\obj\Debug\net10.0\AjedrezPruebas.AssemblyInfoInputs.cache
+C:\Users\Jorge\source\repos\fernandezjo2619-ux\LogicaAjedrez\Assets\Scripts\AjedrezPruebas\obj\Debug\net10.0\AjedrezPruebas.AssemblyInfo.cs
+C:\Users\Jorge\source\repos\fernandezjo2619-ux\LogicaAjedrez\Assets\Scripts\AjedrezPruebas\obj\Debug\net10.0\AjedrezPruebas.csproj.CoreCompileInputs.cache
+C:\Users\Jorge\source\repos\fernandezjo2619-ux\LogicaAjedrez\Assets\Scripts\AjedrezPruebas\obj\Debug\net10.0\AjedrezPruebas.sourcelink.json
