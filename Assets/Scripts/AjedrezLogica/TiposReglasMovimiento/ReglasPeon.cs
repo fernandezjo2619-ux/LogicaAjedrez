@@ -68,10 +68,12 @@ namespace AjedrezLogica.TiposReglasMovimiento
             Tablero tablero,
             BaseJuego baseJuego)
         {
+            RegistroMovimiento ultimo = new();
+
             // Comer al paso
-            if (baseJuego?.UltimoMovimiento != null)
+            if (baseJuego?.UltimoMovimiento.Pieza != null)
             {
-                RegistroMovimiento ultimo = baseJuego.UltimoMovimiento;
+                ultimo = baseJuego.UltimoMovimiento;
 
                 if (ultimo.Pieza.Tipo == TipoPieza.Peon
                     && ultimo.Pieza.Color != bando

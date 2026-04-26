@@ -15,14 +15,18 @@ namespace AjedrezLogica
         public TipoHabilidad habilidadDama;
         public TipoHabilidad habilidadRey;
 
+        public int IdUsuario;
+
         /**
          * Crear la base de juego anteriormente
          * Color = El primer id de usuario metido en el la creacion de la base de datos tendra que ser el blanco CUIDADO
          * habilidadesUsuario = pasar la lista de habilidades de ese usuario 
          * idusuario correspondiente
          */
-        public void InicializarPiezasDeUsuario(BaseJuego baseJuego, ColorPieza color, List<DatosHabilidadUsuario> habilidadesUsuario, int IdUsuario)
+        public void InicializarPiezasDeUsuario(BaseJuego baseJuego, ColorPieza color, List<DatosHabilidadUsuario> habilidadesUsuario, int idUsuario)
         {
+            IdUsuario = idUsuario;
+
             TipoHabilidad ObtenerHabilidad(TipoPieza tipo)
             {
                 DatosHabilidadUsuario datos = habilidadesUsuario

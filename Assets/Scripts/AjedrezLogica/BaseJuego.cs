@@ -9,21 +9,18 @@ namespace AjedrezLogica
 {
     public class BaseJuego
     {
-        private int IdPartida;
-        private int IdUsuario1;
-        private int IdUsuario2;
+        public int IdPartida;
+        public int IdUsuario1;
+        public int IdUsuario2;
 
         public Tablero Tablero { get; private set; }
         public ColorPieza TurnoActual { get; private set; } = ColorPieza.Blanco;
-        public List<Pieza> ListaPiezas { get; private set; } = new List<Pieza>();
-        public List<Habilidad> ListaHabilidades { get; private set; } = new List<Habilidad>();
+        public List<Pieza> ListaPiezas { get; private set; } = new();
+        public List<Habilidad> ListaHabilidades { get; private set; } = new();
 
-        public RegistroMovimiento UltimoMovimiento { get; private set; }
+        public RegistroMovimiento UltimoMovimiento { get; private set; } = new();
 
         public Func<Pieza, TipoPieza> AlCoronar { get; set; } = pieza => TipoPieza.Dama;
-
-        SupabaseRPC GuardarPartidaBD {  get; set; }
-        RegistrarMovimiento registrarMovimientoDb { get; set; }
 
         public void CambiarTurno()
         {
@@ -107,8 +104,7 @@ namespace AjedrezLogica
 
 
             var idUsuario = TurnoActual == ColorPieza.Blanco ? IdUsuario1 : IdUsuario2;
-            registrarMovimientoDb.PostRegistrarMovimiento(IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
-        }
+           }
 
         // Movimientos posibles que no dejan en jaque
         public List<(int x, int y)> movimientos(Pieza pieza)
@@ -203,7 +199,7 @@ namespace AjedrezLogica
                 }
             }
 
-            if (piezaEnemiga != null & piezaEnemiga.Habilidad.TipoHabilidad == TipoHabilidad.Reverso)
+            if (piezaEnemiga != null && piezaEnemiga.Habilidad.TipoHabilidad == TipoHabilidad.Reverso)
             {
                 pieza.Tipo = piezaEnemiga.Tipo;
                 // Tiene que cambiar su habilidad por la habilidad seleccionada para el peon del usuario

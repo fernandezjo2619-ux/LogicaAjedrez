@@ -107,7 +107,7 @@ public class SeleccionarPieza : MonoBehaviour
 
         //CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
         CrearPiezas.Instance.SincronizarVisual();
-        CrearPiezas.Instance.IntentarMovimientoIA();
+        //CrearPiezas.Instance.IntentarMovimientoIA();
 
         //Limpiar selección y resaltados
         LimpiarResaltado();

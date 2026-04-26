@@ -40,12 +40,10 @@ namespace AjedrezLogica.TiposReglasMovimiento
 
             (int dx, int dy)[] adyacentes = { (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1) };
 
-            
-
             foreach (var (dx, dy) in adyacentes)
             {
                 // Si se encuentra pieza enemiga adyacente
-                if (!tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) && !tablero.Grid[posicion.x + dx, posicion.y + dy].EstaOcupado && tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante.Color == bando) { continue; }
+                if (!tablero.EsDentroDelTablero(posicion.x + dx, posicion.y + dy) || !tablero.Grid[posicion.x + dx, posicion.y + dy].EstaOcupado || tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante.Color == bando) { continue; }
                 resultado.Add((tablero.Grid[posicion.x + dx, posicion.y + dy].Ocupante, posicion.x, posicion.y));
 
                     // Si la casilla destino del empujón está libre
