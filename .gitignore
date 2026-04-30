@@ -7,6 +7,8 @@ Logs/
 UserSettings/
 Packages/
 [Pp]roject[Ss]ettings/ProjectVersion.txt
+Assets/TextMesh Pro/
+Assets/TextMesh\ Pro/
 *.pidb
 *.user
 *.suo
