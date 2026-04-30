@@ -5,10 +5,7 @@ using AjedrezLogica.Recursos;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.Rendering;
 using UnityEngine;
-using static MenuInicio;
-
 public class CrearPiezas : MonoBehaviour
 {
     public static CrearPiezas Instance;
@@ -27,7 +24,7 @@ public class CrearPiezas : MonoBehaviour
     public IMotorIA iaN;
     public IMotorIA iaActual;
 
-    public UnityEngine.Random random = new();
+    public System.Random random = new System.Random();
 
     //Activar IA
     //public bool jugarContraIA = false;
@@ -190,7 +187,8 @@ public class CrearPiezas : MonoBehaviour
             int idIA = ConfigPartida.idIA;
             int idJugador = ConfigPartida.idJugador;
 
-            random.Next(2) == 1 ? idB = idIA; idN = idJugador; : idN = idIA; idB = idJugador; ;
+            if (random.Next(2) == 1) { idB = idIA; idN = idJugador; }
+            else { idN = idIA; idB = idJugador; }
         }
 
         // IDs 1 al 4, Reservados para la IA
