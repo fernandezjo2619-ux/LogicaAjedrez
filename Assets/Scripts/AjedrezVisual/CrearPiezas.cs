@@ -1,10 +1,11 @@
-using AjedrezLogica;
+﻿using AjedrezLogica;
 using AjedrezLogica.IA;
 using AjedrezLogica.IA.Estructuras;
 using AjedrezLogica.Recursos;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.Rendering;
 using UnityEngine;
 using static MenuInicio;
 
@@ -24,11 +25,14 @@ public class CrearPiezas : MonoBehaviour
     public Usuario usuario2;
     public IMotorIA iaB;
     public IMotorIA iaN;
+    public IMotorIA iaActual;
+
+    public UnityEngine.Random random = new();
 
     //Activar IA
-    public bool jugarContraIA = false;
-    public ColorPieza colorIA = ColorPieza.Negro;
-    private bool ejecutandoIA = false;
+    //public bool jugarContraIA = false;
+    //public ColorPieza colorIA = ColorPieza.Negro;
+    //private bool ejecutandoIA = false;
 
     //Guardar pieza y posicion
     //public static GameObject[,] piezasVisuales = new GameObject[8, 8];
@@ -108,37 +112,92 @@ public class CrearPiezas : MonoBehaviour
 
     private IEnumerator BucleConEspera()
     {
-        int idUsuario;
+        bool movimientoUsuarioRealizado = false;
+        int NumeroDeTurno = 1;
+        ColorPieza turno;
+        Accion accionIa;
+
         while (true)
         {
-            // Tu c�digo aqu�
-            Accion accionIa = iaB.ElegirMovimiento(juego, juego.TurnoActual);
-            if (accionIa.Tipo == TipoAccion.Empujon)
+            turno = juego.TurnoActual;
+
+            iaActual = turno == ColorPieza.Blanco ? iaB : iaN;
+
+            if (iaActual != null)
             {
-                juego.EjecutarEmpujon(accionIa.Pieza, accionIa.PiezaEmpujada, accionIa.XFin, accionIa.YFin);
+                // ── TURNO DE IA ──
+                accionIa = iaActual.ElegirMovimiento(juego, turno);
+
+                if (accionIa.Pieza == null)
+                {
+                    // Jaque Mate
+                    break;
+                }
+
+                if (accionIa.PiezaEliminada != null) EliminarPiezaVisual(accionIa.PiezaEliminada);
+
+                int xOrigen = accionIa.Pieza.Posicion.X;
+                int yOrigen = accionIa.Pieza.Posicion.Y;
+
+                if (accionIa.Tipo == TipoAccion.Empujon)
+                {
+                    juego.EjecutarEmpujon(accionIa.Pieza, accionIa.PiezaEmpujada, accionIa.XFin, accionIa.YFin);
+                }
+                else
+                {
+                    juego.RealizarMovimiento(xOrigen, yOrigen, accionIa.XFin, accionIa.YFin);
+                }
+
+
+                SincronizarVisual();
+
+                // Registrar en BD
+                int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
+                StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
+                    juego.IdPartida, idUsuario, accionIa.Pieza.Id, NumeroDeTurno,
+                    xOrigen, yOrigen, accionIa.XFin, accionIa.YFin,
+                    (int)accionIa.Pieza.Habilidad.TipoHabilidad,
+                    accionIa.PiezaEmpujada?.Id ?? null,
+                    accionIa.PiezaEmpujada?.Posicion.X ?? null,
+                    accionIa.PiezaEmpujada?.Posicion.Y ?? null,
+                    accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
+                    accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null));
+
+                Debug.Log("Pieza movida por IA: " + accionIa.Pieza.Tipo);
+                yield return new WaitForSeconds(2);
             }
             else
             {
-                juego.RealizarMovimiento(accionIa.Pieza.Posicion.X, accionIa.Pieza.Posicion.Y, accionIa.XFin, accionIa.YFin);
-            }
-            // forma de conseguir la pieza
-            MoverVisual(accionIa.Pieza);
-            // idUsuario = juego.TurnoActual == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-            // registrarMovimientoDb.PostRegistrarMovimiento(juego.IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
+                // ── TURNO DE USUARIO ──
+                movimientoUsuarioRealizado = false;
 
-            Debug.Log("pieza movida por la ia " + accionIa.Pieza);
-            yield return new WaitForSeconds(5); 
+                // Esperar hasta que el usuario haga su movimiento
+                yield return new WaitUntil(() => movimientoUsuarioRealizado);
+
+                Debug.Log("Movimiento del usuario completado");
+            }
+            NumeroDeTurno++;
         }
     }
 
     void Start()
     {
+        int idB;
+        int idN;
+
+        if (ConfigPartida.vsIA)
+        {
+            int idIA = ConfigPartida.idIA;
+            int idJugador = ConfigPartida.idJugador;
+
+            random.Next(2) == 1 ? idB = idIA; idN = idJugador; : idN = idIA; idB = idJugador; ;
+        }
 
         // IDs 1 al 4, Reservados para la IA
-        StartCoroutine(IniciarPartida(1,2));
+        StartCoroutine(IniciarPartida(2, 2));
         //jugarContraIA = ConfigPartida.vsIA;
 
-        //// Inicializa la l�gica
+        //// Inicializa la lógica
         //juego = new BaseJuego();
 
         //usuario1 = new Usuario();
@@ -199,6 +258,14 @@ public class CrearPiezas : MonoBehaviour
                 new Vector3(pieza.Posicion.X, 0.5f, pieza.Posicion.Y);
         }
     }
+    void EliminarPiezaVisual(Pieza pieza)
+    {
+        if (mapaPiezas.TryGetValue(pieza, out var go))
+        {
+            Destroy(go);
+            mapaPiezas.Remove(pieza);
+        }
+    }
 
     //public void IntentarMovimientoIA()
     //{
@@ -240,7 +307,7 @@ public class CrearPiezas : MonoBehaviour
 
     //    ejecutandoIA = false;
 
-    //    // Por si hay m�s turnos IA
+    //    // Por si hay más turnos IA
     //    IntentarMovimientoIA();
     //}
 

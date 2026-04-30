@@ -6,8 +6,9 @@ public class MenuInicio : MonoBehaviour
 {
     public void JugarVsIA()
     {
-        ConfigPartida.vsIA = true;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
+        GetComponent<SelectorIA>().MostrarPanel();
+        //ConfigPartida.vsIA = true;
+        //UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
     }
 
     public void JugarVsJugador()

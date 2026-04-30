@@ -1,6 +1,4 @@
-using AjedrezLogica;
 using AjedrezLogica.IA.Estructuras;
-using AjedrezLogica.IA.Utilidad;
 using AjedrezLogica.Recursos;
 using AjedrezLogica.TiposReglasMovimiento;
 using System.Collections.Generic;
