@@ -15,10 +15,8 @@ public class ObtenerHabilidadesUsuario : MonoBehaviour
 
     void Start()
     {
-        // ── Ejemplo de uso ──────────────────────────────────────────────
-        // Obtener la lista de habilidades para el usuario con id 7
-        StartCoroutine(GetHabilidadesUsuario(7));
-        // ────────────────────────────────────────────────────────────────
+        // Deshabilitado para evitar ejecución automática
+        // StartCoroutine(GetHabilidadesUsuario(7));
     }
 
     /// <summary>
