@@ -35,13 +35,19 @@ public class CrearPiezas : MonoBehaviour
 
     public Dictionary<Pieza, PiezasPrefab> mapaPiezas = new();
 
-    private SupabaseRPC GuardarPartidaBD = new();
-    private ObtenerHabilidadesUsuario HabilidadesUsuarioBD = new();
-    private RegistrarMovimiento registrarMovimientoDb = new();
+    // Instancias de MonoBehaviour para acceso a mÃ©todos coroutine
+    private SupabaseRPC GuardarPartidaBD;
+    private ObtenerHabilidadesUsuario HabilidadesUsuarioBD;
+    private RegistrarMovimiento registrarMovimientoDb;
 
     void Awake()
     {
         Instance = this;
+        
+        // Obtener o crear componentes necesarios
+        GuardarPartidaBD = GetComponent<SupabaseRPC>() ?? gameObject.AddComponent<SupabaseRPC>();
+        HabilidadesUsuarioBD = GetComponent<ObtenerHabilidadesUsuario>() ?? gameObject.AddComponent<ObtenerHabilidadesUsuario>();
+        registrarMovimientoDb = GetComponent<RegistrarMovimiento>() ?? gameObject.AddComponent<RegistrarMovimiento>();
     }
 
     private IEnumerator IniciarPartida(int idUsuario1, int idUsuario2)
@@ -101,7 +107,7 @@ public class CrearPiezas : MonoBehaviour
             yield return StartCoroutine(HabilidadesUsuarioBD.GetHabilidadesUsuario(idUsuario2));
 
             List<DatosHabilidadUsuario> habilidades = HabilidadesUsuarioBD.ObtenerListaHabilidadesUsuario();
-            usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, habilidades, idUsuario2);
+            usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro, habilidades, idUsuario2);
         }
 
     }
@@ -111,7 +117,7 @@ public class CrearPiezas : MonoBehaviour
         int idUsuario;
         while (true)
         {
-            // Tu código aquí
+            // Tu cï¿½digo aquï¿½
             Accion accionIa = iaB.ElegirMovimiento(juego, juego.TurnoActual);
             if (accionIa.Tipo == TipoAccion.Empujon)
             {
@@ -138,7 +144,7 @@ public class CrearPiezas : MonoBehaviour
         StartCoroutine(IniciarPartida(1,2));
         //jugarContraIA = ConfigPartida.vsIA;
 
-        //// Inicializa la lógica
+        //// Inicializa la lï¿½gica
         //juego = new BaseJuego();
 
         //usuario1 = new Usuario();
@@ -240,7 +246,7 @@ public class CrearPiezas : MonoBehaviour
 
     //    ejecutandoIA = false;
 
-    //    // Por si hay más turnos IA
+    //    // Por si hay mï¿½s turnos IA
     //    IntentarMovimientoIA();
     //}
 
