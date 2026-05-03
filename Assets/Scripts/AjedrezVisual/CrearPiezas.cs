@@ -24,11 +24,14 @@ public class CrearPiezas : MonoBehaviour
     public Usuario usuario2;
     public IMotorIA iaB;
     public IMotorIA iaN;
+    public IMotorIA iaActual;
+
+    public System.Random random = new System.Random();
 
     //Activar IA
-    public bool jugarContraIA = false;
-    public ColorPieza colorIA = ColorPieza.Negro;
-    private bool ejecutandoIA = false;
+    //public bool jugarContraIA = false;
+    //public ColorPieza colorIA = ColorPieza.Negro;
+    //private bool ejecutandoIA = false;
 
     //Guardar pieza y posicion
     //public static GameObject[,] piezasVisuales = new GameObject[8, 8];
@@ -43,7 +46,7 @@ public class CrearPiezas : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        
+
         // Obtener o crear componentes necesarios
         GuardarPartidaBD = GetComponent<SupabaseRPC>() ?? gameObject.AddComponent<SupabaseRPC>();
         HabilidadesUsuarioBD = GetComponent<ObtenerHabilidadesUsuario>() ?? gameObject.AddComponent<ObtenerHabilidadesUsuario>();
@@ -114,34 +117,99 @@ public class CrearPiezas : MonoBehaviour
 
     private IEnumerator BucleConEspera()
     {
-        int idUsuario;
+        bool movimientoUsuarioRealizado = false;
+        int NumeroDeTurno = 1;
+        ColorPieza turno;
+        Accion accionIa;
+
         while (true)
         {
-            // Tu c�digo aqu�
-            Accion accionIa = iaB.ElegirMovimiento(juego, juego.TurnoActual);
-            if (accionIa.Tipo == TipoAccion.Empujon)
+            turno = juego.TurnoActual;
+
+            iaActual = turno == ColorPieza.Blanco ? iaB : iaN;
+
+            if (iaActual != null)
             {
-                juego.EjecutarEmpujon(accionIa.Pieza, accionIa.PiezaEmpujada, accionIa.XFin, accionIa.YFin);
+                // ── TURNO DE IA ──
+                accionIa = iaActual.ElegirMovimiento(juego, turno);
+
+                if (accionIa.Pieza == null)
+                {
+                    // Jaque Mate
+                    break;
+                }
+
+                if (accionIa.PiezaEliminada != null) EliminarPiezaVisual(accionIa.PiezaEliminada);
+
+                int xOrigen = accionIa.Pieza.Posicion.X;
+                int yOrigen = accionIa.Pieza.Posicion.Y;
+
+                if (accionIa.Tipo == TipoAccion.Empujon)
+                {
+                    juego.EjecutarEmpujon(accionIa.Pieza, accionIa.PiezaEmpujada, accionIa.XFin, accionIa.YFin);
+                }
+                else
+                {
+                    juego.RealizarMovimiento(xOrigen, yOrigen, accionIa.XFin, accionIa.YFin);
+                }
+
+
+                SincronizarVisual();
+
+                // Registrar en BD
+                int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
+                StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
+                    juego.IdPartida, idUsuario, accionIa.Pieza.Id, NumeroDeTurno,
+                    xOrigen, yOrigen, accionIa.XFin, accionIa.YFin,
+                    (int)accionIa.Pieza.Habilidad.TipoHabilidad,
+                    accionIa.PiezaEmpujada?.Id ?? null,
+                    accionIa.PiezaEmpujada?.Posicion.X ?? null,
+                    accionIa.PiezaEmpujada?.Posicion.Y ?? null,
+                    accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
+                    accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null));
+
+                Debug.Log("Pieza movida por IA: " + accionIa.Pieza.Tipo);
+                yield return new WaitForSeconds(2);
             }
             else
             {
-                juego.RealizarMovimiento(accionIa.Pieza.Posicion.X, accionIa.Pieza.Posicion.Y, accionIa.XFin, accionIa.YFin);
-            }
-            // forma de conseguir la pieza
-            MoverVisual(accionIa.Pieza);
-            // idUsuario = juego.TurnoActual == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-            // registrarMovimientoDb.PostRegistrarMovimiento(juego.IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
+                // ── TURNO DE USUARIO ──
+                movimientoUsuarioRealizado = false;
 
-            Debug.Log("pieza movida por la ia " + accionIa.Pieza);
-            yield return new WaitForSeconds(5); 
+                // Esperar hasta que el usuario haga su movimiento
+                yield return new WaitUntil(() => movimientoUsuarioRealizado);
+
+                Debug.Log("Movimiento del usuario completado");
+            }
+            NumeroDeTurno++;
         }
     }
 
     void Start()
     {
+        int idB = 0;
+        int idN = 0;
+
+        if (ConfigPartida.vsIA)
+        {
+            int idIA = ConfigPartida.idIA;
+            int idJugador = ConfigPartida.idJugador1;
+
+            if (random.Next(2) == 1) { idB = idIA; idN = idJugador; }
+            else { idN = idIA; idB = idJugador; }
+        }
+        else
+        {
+            int idJugador1 = ConfigPartida.idJugador1;
+            int idJugador2 = ConfigPartida.idJugador2 == null ? 0 : (int)ConfigPartida.idJugador2;
+
+            if (random.Next(2) == 1) { idB = idJugador1; idN = idJugador2; }
+            else { idN = idJugador1; idB = idJugador2; }
+        }
 
         // IDs 1 al 4, Reservados para la IA
-        StartCoroutine(IniciarPartida(1,2));
+        StartCoroutine(IniciarPartida(idB, idN));
+
         //jugarContraIA = ConfigPartida.vsIA;
 
         //// Inicializa la l�gica
@@ -149,7 +217,6 @@ public class CrearPiezas : MonoBehaviour
 
         //usuario1 = new Usuario();
         //usuario2 = new Usuario();
-
 
         //if (jugarContraIA)
         //{
@@ -203,6 +270,15 @@ public class CrearPiezas : MonoBehaviour
         {
             view.transform.position =
                 new Vector3(pieza.Posicion.X, 0.5f, pieza.Posicion.Y);
+        }
+    }
+
+    public void EliminarPiezaVisual(Pieza pieza)
+    {
+        if (mapaPiezas.TryGetValue(pieza, out var go))
+        {
+            Destroy(go);
+            mapaPiezas.Remove(pieza);
         }
     }
 

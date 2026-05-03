@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class SelectorIA : MonoBehaviour
 {
     public GameObject panelSeleccionIA;
-    public int idJugador = 1;
+    public int idJugador = 0; // Master
     public GameObject interior;
 
     public void MostrarPanel()
@@ -14,11 +14,17 @@ public class SelectorIA : MonoBehaviour
         interior.SetActive(false);
     }
 
+    public void VolverPanel()
+    {
+        panelSeleccionIA.SetActive(false);
+        interior.SetActive(true);
+    }
+
     public void SeleccionarIA(int idIA)
     {
         ConfigPartida.vsIA = true;
         ConfigPartida.idIA = idIA;
-        ConfigPartida.idJugador = idJugador;
+        ConfigPartida.idJugador1 = idJugador;
 
         SceneManager.LoadScene("PartidaTablero");
     }

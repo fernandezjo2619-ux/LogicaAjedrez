@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using AjedrezLogica;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Controlador de la interfaz de usuario del lobby multijugador para ajedrez
