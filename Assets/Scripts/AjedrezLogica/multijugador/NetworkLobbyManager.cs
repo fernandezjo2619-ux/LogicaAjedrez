@@ -240,22 +240,29 @@ public class NetworkLobbyManager : MonoBehaviour
             try
             {
                 SendDiscoveryBroadcast();
-                
-                float timeoutCounter = 0f;
-                while (timeoutCounter < 2f && isDiscoveringRooms)
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[NETWORK] Error en descubrimiento: {ex.Message}");
+            }
+            
+            float timeoutCounter = 0f;
+            while (timeoutCounter < 2f && isDiscoveringRooms)
+            {
+                try
                 {
                     if (discoveryClient.Available > 0)
                     {
                         ProcessDiscoveryResponse();
                     }
-                    
-                    timeoutCounter += 0.1f;
-                    yield return new WaitForSeconds(0.1f);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[NETWORK] Error en descubrimiento: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[NETWORK] Error procesando respuesta: {ex.Message}");
+                }
+                
+                timeoutCounter += 0.1f;
+                yield return new WaitForSeconds(0.1f);
             }
             
             yield return new WaitForSeconds(1f);
