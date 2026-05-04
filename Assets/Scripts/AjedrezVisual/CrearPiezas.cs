@@ -73,6 +73,10 @@ public class CrearPiezas : MonoBehaviour
 
     IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
     {
+        // Inicializar usuarios si no existen
+        if (usuario1 == null) usuario1 = new Usuario();
+        if (usuario2 == null) usuario2 = new Usuario();
+
         if (idUsuario1 <= 4)
         {
             switch (idUsuario1)
