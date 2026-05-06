@@ -50,10 +50,21 @@ public class LobbyUIController : MonoBehaviour
     
     private void Start()
     {
-        ValidateUIReferences();
+        // IMPORTANTE: InitializeNetworkManager va PRIMERO para que networkManager
+        // siempre esté disponible aunque haya referencias de UI faltantes.
         InitializeNetworkManager();
-        SetupUIListeners();
-        InitializeUIState();
+        
+        bool uiValid = ValidateUIReferences();
+        
+        if (uiValid)
+        {
+            SetupUIListeners();
+            InitializeUIState();
+        }
+        else
+        {
+            Debug.LogError("[LOBBY_UI] Inicialización incompleta: faltan referencias de UI en el Inspector.");
+        }
         
         Debug.Log("[LOBBY_UI] === UI del Lobby inicializada ===");
     }
@@ -73,7 +84,8 @@ public class LobbyUIController : MonoBehaviour
     /// <summary>
     /// Valida que todas las referencias de UI esten asignadas
     /// </summary>
-    private void ValidateUIReferences()
+    /// <returns>true si todas las referencias están asignadas, false si falta alguna</returns>
+    private bool ValidateUIReferences()
     {
         List<string> missingReferences = new List<string>();
         
@@ -91,16 +103,18 @@ public class LobbyUIController : MonoBehaviour
         
         if (missingReferences.Count > 0)
         {
-            string errorMsg = "[LOBBY_UI] === REFERENCIAS FALTANTES === \n";
+            string errorMsg = "[LOBBY_UI] === REFERENCIAS FALTANTES en el Inspector ===\n";
             foreach (string reference in missingReferences)
             {
                 errorMsg += $"  >> {reference}\n";
             }
+            errorMsg += "Arrastra los objetos de la Hierarchy al Inspector del LobbyUIController.";
             Debug.LogError(errorMsg);
-            throw new MissingComponentException(errorMsg);
+            return false;  // NO lanzar excepción — dejar que el resto de Start() siga
         }
         
         Debug.Log("[LOBBY_UI] --- Todas las referencias de UI validadas correctamente ---");
+        return true;
     }
     
     /// <summary>
@@ -108,14 +122,28 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void InitializeNetworkManager()
     {
-        networkManager = FindObjectOfType<NetworkLobbyManager>();
-        supabaseManager = FindObjectOfType<SupabaseRPC>();
+        // FindObjectOfType no encuentra objetos en DontDestroyOnLoad en algunas versiones de Unity.
+        // Usamos el parámetro includeInactive=true y además accedemos al singleton como fallback.
+        networkManager = FindObjectOfType<NetworkLobbyManager>(true);
         
         if (networkManager == null)
         {
-            Debug.LogError("[LOBBY_UI] === NetworkLobbyManager no encontrado en la escena ===");
+            // Fallback: acceder al singleton a través de un método estático
+            networkManager = NetworkLobbyManager.Instance;
+        }
+        
+        supabaseManager = FindObjectOfType<SupabaseRPC>(true);
+        
+        if (networkManager == null)
+        {
+            string errMsg = "[LOBBY_UI] === CRITICO: NetworkLobbyManager no encontrado en ningún contexto. " +
+                            "Asegúrate de que existe en la escena o persiste desde una escena anterior ===";
+            Debug.LogError(errMsg);
+            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado", statusDisconnectedColor);
             return;
         }
+        
+        Debug.Log($"[LOBBY_UI] NetworkLobbyManager encontrado: {networkManager.gameObject.name}");
         
         if (supabaseManager == null)
         {
@@ -171,9 +199,16 @@ public class LobbyUIController : MonoBehaviour
     /// Maneja el evento de presionar el boton Host
     /// Inicia un servidor local
     /// </summary>
-    private void OnHostButtonPressed()
+    public void OnHostButtonPressed()
     {
         Debug.Log("[LOBBY_UI] Boton Host presionado");
+        
+        if (networkManager == null)
+        {
+            Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
+            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
+            return;
+        }
         
         string roomName = roomNameInput.text.Trim();
         if (string.IsNullOrEmpty(roomName))
@@ -204,9 +239,16 @@ public class LobbyUIController : MonoBehaviour
     /// Maneja el evento de presionar el boton Join
     /// Conecta con un servidor remoto
     /// </summary>
-    private void OnJoinButtonPressed()
+    public void OnJoinButtonPressed()
     {
         Debug.Log("[LOBBY_UI] Boton Join presionado");
+        
+        if (networkManager == null)
+        {
+            Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
+            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
+            return;
+        }
         
         string ipText = ipAddressInput.text.Trim();
         
@@ -258,9 +300,16 @@ public class LobbyUIController : MonoBehaviour
     /// Maneja el evento de presionar el boton Iniciar Juego
     /// Crea la partida en Supabase y cambia a la escena de juego
     /// </summary>
-    private void OnStartGameButtonPressed()
+    public void OnStartGameButtonPressed()
     {
         Debug.Log("[LOBBY_UI] Boton Iniciar Juego presionado");
+        
+        if (networkManager == null)
+        {
+            Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
+            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
+            return;
+        }
         
         if (!networkManager.IsServer())
         {
@@ -336,12 +385,15 @@ public class LobbyUIController : MonoBehaviour
     /// Maneja el evento de presionar el boton Volver
     /// Desconecta y regresa al menu principal
     /// </summary>
-    private void OnBackButtonPressed()
+    public void OnBackButtonPressed()
     {
         Debug.Log("[LOBBY_UI] Boton Volver presionado");
         
-        networkManager.Disconnect();
-        networkManager.StopRoomDiscovery();
+        if (networkManager != null)
+        {
+            networkManager.Disconnect();
+            networkManager.StopRoomDiscovery();
+        }
         
         SceneManager.LoadScene("MainMenu");
     }

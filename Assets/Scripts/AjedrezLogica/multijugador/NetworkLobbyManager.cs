@@ -49,6 +49,12 @@ public class NetworkLobbyManager : MonoBehaviour
     public event OnConnectionEstablishedDelegate OnConnectionEstablished;
     
     private static NetworkLobbyManager instance;
+    
+    /// <summary>
+    /// Acceso al singleton (útil cuando el objeto está en DontDestroyOnLoad)
+    /// </summary>
+    public static NetworkLobbyManager Instance => instance;
+    
     private bool isDiscoveringRooms = false;
     private Coroutine discoveryCoroutine;
     
