@@ -49,6 +49,12 @@ public class NetworkLobbyManager : MonoBehaviour
     public event OnConnectionEstablishedDelegate OnConnectionEstablished;
     
     private static NetworkLobbyManager instance;
+    
+    /// <summary>
+    /// Acceso al singleton (útil cuando el objeto está en DontDestroyOnLoad)
+    /// </summary>
+    public static NetworkLobbyManager Instance => instance;
+    
     private bool isDiscoveringRooms = false;
     private Coroutine discoveryCoroutine;
     
@@ -133,46 +139,69 @@ public class NetworkLobbyManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Intenta conectarse a un servidor remoto
+    /// Inicia la conexión al servidor de forma asíncrona (no bloquea el hilo principal).
+    /// Usa StartCoroutine(ConnectToServerAsync(ip, port)) desde LobbyUIController.
     /// </summary>
-    public bool ConnectToServer(string ipAddress, int port)
+    public IEnumerator ConnectToServerAsync(string ipAddress, int port)
     {
-        Debug.Log("[NETWORK] === Iniciando conexion a servidor remoto ===");
-        Debug.Log($"[NETWORK] IP: {ipAddress}");
-        Debug.Log($"[NETWORK] Puerto: {port}");
+        Debug.Log("[NETWORK] === Iniciando conexion asincrona a servidor remoto ===");
+        Debug.Log($"[NETWORK] IP: {ipAddress}, Puerto: {port}");
         
-        try
+        System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient();
+        
+        // Lanzar ConnectAsync en un hilo de fondo
+        System.Threading.Tasks.Task connectTask = client.ConnectAsync(ipAddress, port);
+        
+        float elapsed = 0f;
+        const float TIMEOUT = 3f;
+        
+        // Esperar hasta que conecte o expire el timeout
+        while (!connectTask.IsCompleted && elapsed < TIMEOUT)
         {
-            if (TryConnectToRemoteServer(ipAddress, port))
-            {
-                isServer = false;
-                isConnected = true;
-                currentPort = port;
-                
-                connectedPlayerId = 2;
-                
-                connectedPlayers[2] = new PlayerConnectionData
-                {
-                    PlayerId = 2,
-                    PlayerName = "Jugador 2 (Cliente)",
-                    IpAddress = ipAddress,
-                    Port = port,
-                    ConnectionTime = DateTime.Now
-                };
-                
-                Debug.Log("[NETWORK] === Conexion establecida exitosamente ===");
-                OnConnectionEstablished?.Invoke();
-                
-                return true;
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[NETWORK] Error conectando a servidor: {ex.Message}");
-            OnConnectionFailed?.Invoke($"Error de conexion: {ex.Message}");
+            elapsed += Time.deltaTime;
+            yield return null;
         }
         
-        return false;
+        if (!connectTask.IsCompleted)
+        {
+            // Timeout: cancelar y limpiar
+            client.Close();
+            client.Dispose();
+            string msg = $"Timeout: el servidor {ipAddress}:{port} no respondió en {TIMEOUT}s";
+            Debug.LogError($"[NETWORK] {msg}");
+            OnConnectionFailed?.Invoke(msg);
+            yield break;
+        }
+        
+        if (connectTask.IsFaulted || connectTask.Exception != null)
+        {
+            client.Close();
+            client.Dispose();
+            string msg = connectTask.Exception?.GetBaseException().Message ?? "Error desconocido";
+            Debug.LogError($"[NETWORK] Error conectando: {msg}");
+            OnConnectionFailed?.Invoke($"Error de conexion: {msg}");
+            yield break;
+        }
+        
+        // Conexión exitosa
+        connectedClients.Add(client);
+        isServer = false;
+        isConnected = true;
+        currentPort = port;
+        connectedPlayerId = 2;
+        
+        connectedPlayers[2] = new PlayerConnectionData
+        {
+            PlayerId = 2,
+            PlayerName = "Jugador 2 (Cliente)",
+            IpAddress = ipAddress,
+            Port = port,
+            ConnectionTime = DateTime.Now
+        };
+        
+        Debug.Log($"[NETWORK] === Conexion establecida con {ipAddress}:{port} ===");
+        OnConnectionEstablished?.Invoke();
+        // IEnumerator termina aquí — no se necesita return
     }
     
     /// <summary>
@@ -484,24 +513,7 @@ public class NetworkLobbyManager : MonoBehaviour
         }
     }
     
-    private bool TryConnectToRemoteServer(string ipAddress, int port)
-    {
-        try
-        {
-            System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient();
-            client.Connect(ipAddress, port);
-            
-            connectedClients.Add(client);
-            
-            Debug.Log($"[NETWORK] Conectado al servidor {ipAddress}:{port}");
-            return true;
-        }
-        catch (SocketException ex)
-        {
-            Debug.LogError($"[NETWORK] Error conectando: {ex.Message}");
-            return false;
-        }
-    }
+    // TryConnectToRemoteServer eliminado — reemplazado por ConnectToServerAsync (Coroutine)
     
     private IEnumerator AcceptConnectionsCoroutine()
     {
