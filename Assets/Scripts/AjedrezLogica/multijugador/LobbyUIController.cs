@@ -360,16 +360,26 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        // Validar IDs de jugadores
-        if (!int.TryParse(idJugador1Input.text, out idJugador1) || idJugador1 <= 0)
+        // Validar IDs de jugadores — los campos pueden no estar asignados en el Inspector
+        if (idJugador1Input == null)
         {
-            UpdateStatusLabel("ID Jugador 1 inválido", statusDisconnectedColor);
+            Debug.LogWarning("[LOBBY_UI] idJugador1Input no asignado en Inspector. Usando ID por defecto: 1");
+            idJugador1 = 1;
+        }
+        else if (!int.TryParse(idJugador1Input.text, out idJugador1) || idJugador1 <= 0)
+        {
+            UpdateStatusLabel("ID Jugador 1 inválido (debe ser un número > 0)", statusDisconnectedColor);
             return;
         }
         
-        if (!int.TryParse(idJugador2Input.text, out idJugador2) || idJugador2 <= 0)
+        if (idJugador2Input == null)
         {
-            UpdateStatusLabel("ID Jugador 2 inválido", statusDisconnectedColor);
+            Debug.LogWarning("[LOBBY_UI] idJugador2Input no asignado en Inspector. Usando ID por defecto: 2");
+            idJugador2 = 2;
+        }
+        else if (!int.TryParse(idJugador2Input.text, out idJugador2) || idJugador2 <= 0)
+        {
+            UpdateStatusLabel("ID Jugador 2 inválido (debe ser un número > 0)", statusDisconnectedColor);
             return;
         }
         
