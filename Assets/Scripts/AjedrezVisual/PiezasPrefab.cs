@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using AjedrezLogica;
 using AjedrezLogica.Recursos;
+using UnityEngine;
 
 public class PiezasPrefab : MonoBehaviour
 {

@@ -1,8 +1,5 @@
-﻿using AjedrezLogica.Recursos;
-using AjedrezLogica.IA.Estructuras;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using AjedrezLogica.IA.Estructuras;
+using AjedrezLogica.Recursos;
 
 namespace AjedrezLogica
 {
