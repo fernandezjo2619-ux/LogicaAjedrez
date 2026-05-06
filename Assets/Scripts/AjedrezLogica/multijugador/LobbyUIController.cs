@@ -236,8 +236,8 @@ public class LobbyUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// Maneja el evento de presionar el boton Join
-    /// Conecta con un servidor remoto
+    /// Maneja el evento de presionar el boton Join.
+    /// Usa una Coroutine asíncrona para no bloquear el hilo principal de Unity.
     /// </summary>
     public void OnJoinButtonPressed()
     {
@@ -272,7 +272,7 @@ public class LobbyUIController : MonoBehaviour
             }
         }
         
-        if (portInput.text.Length > 0 && int.TryParse(portInput.text, out int inputPort))
+        if (portInput != null && portInput.text.Length > 0 && int.TryParse(portInput.text, out int inputPort))
         {
             port = inputPort;
         }
@@ -281,16 +281,59 @@ public class LobbyUIController : MonoBehaviour
         hostButton.interactable = false;
         joinButton.interactable = false;
         
-        if (networkManager.ConnectToServer(ip, port))
+        // Usar coroutine asíncrona: no bloquea Unity mientras espera la conexión
+        StartCoroutine(JoinServerCoroutine(ip, port));
+    }
+    
+    /// <summary>
+    /// Coroutine que gestiona la conexión asíncrona al servidor.
+    /// Espera el resultado del ConnectToServerAsync del NetworkLobbyManager.
+    /// </summary>
+    private IEnumerator JoinServerCoroutine(string ip, int port)
+    {
+        bool connectionSucceeded = false;
+        bool connectionFinished = false;
+        
+        // Suscribirse temporalmente a los eventos para capturar el resultado
+        void OnSuccess()
         {
-            Debug.Log("[LOBBY_UI] Conectado al servidor");
+            connectionSucceeded = true;
+            connectionFinished = true;
+        }
+        void OnFail(string msg)
+        {
+            connectionSucceeded = false;
+            connectionFinished = true;
+        }
+        
+        networkManager.OnConnectionEstablished += OnSuccess;
+        networkManager.OnConnectionFailed      += OnFail;
+        
+        // Lanzar la conexión asíncrona
+        yield return StartCoroutine(networkManager.ConnectToServerAsync(ip, port));
+        
+        // Esperar a que los eventos hayan sido procesados (1 frame extra de margen)
+        float wait = 0f;
+        while (!connectionFinished && wait < 0.5f)
+        {
+            wait += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Desuscribirse
+        networkManager.OnConnectionEstablished -= OnSuccess;
+        networkManager.OnConnectionFailed      -= OnFail;
+        
+        if (connectionSucceeded)
+        {
+            Debug.Log("[LOBBY_UI] Conectado al servidor exitosamente");
             UpdateUIForClient();
             networkManager.StopRoomDiscovery();
         }
         else
         {
-            Debug.LogError("[LOBBY_UI] Error conectando al servidor");
-            UpdateStatusLabel("Error al conectar", statusDisconnectedColor);
+            Debug.LogError("[LOBBY_UI] No se pudo conectar al servidor");
+            // El status label ya fue actualizado por HandleConnectionFailed
             hostButton.interactable = true;
             joinButton.interactable = true;
         }
