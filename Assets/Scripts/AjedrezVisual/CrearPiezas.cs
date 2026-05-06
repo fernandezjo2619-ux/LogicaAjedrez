@@ -2,11 +2,9 @@ using AjedrezLogica;
 using AjedrezLogica.IA;
 using AjedrezLogica.IA.Estructuras;
 using AjedrezLogica.Recursos;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static MenuInicio;
 
 public class CrearPiezas : MonoBehaviour
 {
