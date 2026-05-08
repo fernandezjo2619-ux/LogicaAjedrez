@@ -36,6 +36,11 @@ public class NetworkLobbyManager : MonoBehaviour
     private System.Net.Sockets.TcpListener tcpListener;
     private List<System.Net.Sockets.TcpClient> connectedClients = new List<System.Net.Sockets.TcpClient>();
     
+    // Cola thread-safe para conexiones aceptadas desde el hilo de fondo
+    private readonly Queue<System.Net.Sockets.TcpClient> _pendingClients = new Queue<System.Net.Sockets.TcpClient>();
+    private readonly object _pendingLock = new object();
+    private bool _acceptingConnections = false;
+    
     public delegate void OnPlayerConnectedDelegate(int playerId, string playerName);
     public delegate void OnPlayerDisconnectedDelegate(int playerId);
     public delegate void OnRoomDiscoveredDelegate(RoomDiscoveryData roomData);
@@ -496,9 +501,11 @@ public class NetworkLobbyManager : MonoBehaviour
         try
         {
             tcpListener = new System.Net.Sockets.TcpListener(IPAddress.Any, port);
-            tcpListener.Start(MAX_PLAYERS);
+            tcpListener.Start();
             
-            StartCoroutine(AcceptConnectionsCoroutine());
+            // Usar async/await en vez de polling — más fiable para conexiones LAN
+            _acceptingConnections = true;
+            AcceptClientsAsync();
             
             Debug.LogWarning($"[NETWORK] Servidor TCP escuchando en puerto {port}");
             return true;
@@ -510,61 +517,71 @@ public class NetworkLobbyManager : MonoBehaviour
         }
     }
     
-    // TryConnectToRemoteServer eliminado — reemplazado por ConnectToServerAsync (Coroutine)
-    
-    private IEnumerator AcceptConnectionsCoroutine()
+    /// <summary>
+    /// Acepta conexiones entrantes de forma asíncrona en un hilo de fondo.
+    /// Las conexiones se encolan y se procesan en el hilo principal via Update().
+    /// </summary>
+    private async void AcceptClientsAsync()
     {
-        Debug.LogWarning("[NETWORK] AcceptConnectionsCoroutine INICIADA — esperando clientes...");
-        int loopCount = 0;
+        Debug.LogWarning("[NETWORK] AcceptClientsAsync INICIADO — esperando clientes...");
         
-        while (isServer && isConnected)
+        while (_acceptingConnections && tcpListener != null)
         {
-            loopCount++;
-            if (loopCount % 100 == 0)
-                Debug.LogWarning($"[NETWORK] AcceptConnectionsCoroutine ACTIVA — iter {loopCount}, jugadores: {connectedPlayers.Count}");
-            
             try
             {
-                if (tcpListener == null)
-                {
-                    Debug.LogError("[NETWORK] tcpListener es NULL — coroutine terminando");
-                    yield break;
-                }
+                System.Net.Sockets.TcpClient client = await tcpListener.AcceptTcpClientAsync();
+                Debug.LogWarning("[NETWORK] >>> CLIENTE ACEPTADO (hilo de fondo)");
                 
-                if (tcpListener.Pending())
+                lock (_pendingLock)
                 {
-                    Debug.LogWarning("[NETWORK] >>> CONEXION ENTRANTE DETECTADA <<<");
-                    
-                    System.Net.Sockets.TcpClient incomingClient = tcpListener.AcceptTcpClient();
-                    connectedClients.Add(incomingClient);
-                    
-                    string clientIp = ((IPEndPoint)incomingClient.Client.RemoteEndPoint).Address.ToString();
-                    int newPlayerId = connectedPlayers.Count + 1;
-                    string newPlayerName = $"Jugador {newPlayerId}";
-                    
-                    connectedPlayers[newPlayerId] = new PlayerConnectionData
-                    {
-                        PlayerId       = newPlayerId,
-                        PlayerName     = newPlayerName,
-                        IpAddress      = clientIp,
-                        Port           = currentPort,
-                        ConnectionTime = DateTime.Now
-                    };
-                    
-                    Debug.LogWarning($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
-                    OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
+                    _pendingClients.Enqueue(client);
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[NETWORK] Error aceptando conexion: {ex.Message}");
+                if (_acceptingConnections)
+                    Debug.LogError($"[NETWORK] Error aceptando cliente: {ex.Message}");
+                break;
             }
-            
-            yield return new WaitForSeconds(0.05f);
         }
         
-        Debug.LogWarning($"[NETWORK] AcceptConnectionsCoroutine TERMINADA — isServer={isServer} isConnected={isConnected}");
+        Debug.LogWarning("[NETWORK] AcceptClientsAsync TERMINADO");
     }
+    
+    private void Update()
+    {
+        // Procesar conexiones entrantes en el hilo principal
+        if (!isServer) return;
+        
+        lock (_pendingLock)
+        {
+            while (_pendingClients.Count > 0)
+            {
+                System.Net.Sockets.TcpClient incomingClient = _pendingClients.Dequeue();
+                connectedClients.Add(incomingClient);
+                
+                string clientIp = "desconocida";
+                try { clientIp = ((IPEndPoint)incomingClient.Client.RemoteEndPoint).Address.ToString(); } catch { }
+                
+                int newPlayerId = connectedPlayers.Count + 1;
+                string newPlayerName = $"Jugador {newPlayerId}";
+                
+                connectedPlayers[newPlayerId] = new PlayerConnectionData
+                {
+                    PlayerId       = newPlayerId,
+                    PlayerName     = newPlayerName,
+                    IpAddress      = clientIp,
+                    Port           = currentPort,
+                    ConnectionTime = DateTime.Now
+                };
+                
+                Debug.LogWarning($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
+                OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
+            }
+        }
+    }
+    
+    // AcceptConnectionsCoroutine reemplazada por AcceptClientsAsync + Update()
     
     private void StartBroadcastDiscovery(string roomName, string ipAddress, int port)
     {
