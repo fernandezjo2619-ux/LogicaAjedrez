@@ -517,20 +517,32 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private IEnumerator AcceptConnectionsCoroutine()
     {
+        Debug.Log("[NETWORK] AcceptConnectionsCoroutine iniciada — esperando clientes...");
+        int loopCount = 0;
+        
         while (isServer && isConnected)
         {
+            loopCount++;
+            if (loopCount % 100 == 0)
+                Debug.Log($"[NETWORK] AcceptConnectionsCoroutine activa — iter {loopCount}, jugadores: {connectedPlayers.Count}");
+            
             try
             {
+                if (tcpListener == null)
+                {
+                    Debug.LogError("[NETWORK] tcpListener es NULL — coroutine terminando");
+                    yield break;
+                }
+                
                 if (tcpListener.Pending())
                 {
+                    Debug.Log("[NETWORK] >>> Conexion entrante detectada!");
+                    
                     System.Net.Sockets.TcpClient incomingClient = tcpListener.AcceptTcpClient();
                     connectedClients.Add(incomingClient);
                     
                     string clientIp = ((IPEndPoint)incomingClient.Client.RemoteEndPoint).Address.ToString();
-                    
-                    // IMPORTANTE: añadir al diccionario ANTES de invocar el evento.
-                    // GetConnectedPlayerCount() lee connectedPlayers.Count — sin esto devuelve 1.
-                    int newPlayerId = connectedPlayers.Count + 1; // Host=1 ya registrado, cliente=2
+                    int newPlayerId = connectedPlayers.Count + 1;
                     string newPlayerName = $"Jugador {newPlayerId}";
                     
                     connectedPlayers[newPlayerId] = new PlayerConnectionData
@@ -542,7 +554,7 @@ public class NetworkLobbyManager : MonoBehaviour
                         ConnectionTime = DateTime.Now
                     };
                     
-                    Debug.Log($"[NETWORK] Jugador {newPlayerId} conectado desde {clientIp} — Total jugadores: {connectedPlayers.Count}");
+                    Debug.Log($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
                     OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
                 }
             }
@@ -551,8 +563,10 @@ public class NetworkLobbyManager : MonoBehaviour
                 Debug.LogError($"[NETWORK] Error aceptando conexion: {ex.Message}");
             }
             
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
+        
+        Debug.LogWarning($"[NETWORK] AcceptConnectionsCoroutine TERMINADA — isServer={isServer} isConnected={isConnected}");
     }
     
     private void StartBroadcastDiscovery(string roomName, string ipAddress, int port)
