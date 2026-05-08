@@ -517,14 +517,14 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private IEnumerator AcceptConnectionsCoroutine()
     {
-        Debug.Log("[NETWORK] AcceptConnectionsCoroutine iniciada — esperando clientes...");
+        Debug.LogWarning("[NETWORK] AcceptConnectionsCoroutine INICIADA — esperando clientes...");
         int loopCount = 0;
         
         while (isServer && isConnected)
         {
             loopCount++;
             if (loopCount % 100 == 0)
-                Debug.Log($"[NETWORK] AcceptConnectionsCoroutine activa — iter {loopCount}, jugadores: {connectedPlayers.Count}");
+                Debug.LogWarning($"[NETWORK] AcceptConnectionsCoroutine ACTIVA — iter {loopCount}, jugadores: {connectedPlayers.Count}");
             
             try
             {
@@ -536,7 +536,7 @@ public class NetworkLobbyManager : MonoBehaviour
                 
                 if (tcpListener.Pending())
                 {
-                    Debug.Log("[NETWORK] >>> Conexion entrante detectada!");
+                    Debug.LogWarning("[NETWORK] >>> CONEXION ENTRANTE DETECTADA <<<");
                     
                     System.Net.Sockets.TcpClient incomingClient = tcpListener.AcceptTcpClient();
                     connectedClients.Add(incomingClient);
@@ -554,7 +554,7 @@ public class NetworkLobbyManager : MonoBehaviour
                         ConnectionTime = DateTime.Now
                     };
                     
-                    Debug.Log($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
+                    Debug.LogWarning($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
                     OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
                 }
             }
