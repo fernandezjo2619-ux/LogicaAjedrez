@@ -528,8 +528,22 @@ public class NetworkLobbyManager : MonoBehaviour
                     
                     string clientIp = ((IPEndPoint)incomingClient.Client.RemoteEndPoint).Address.ToString();
                     
-                    OnPlayerConnected?.Invoke(2, "Jugador 2");
-                    Debug.Log($"[NETWORK] Jugador conectado desde {clientIp}");
+                    // IMPORTANTE: añadir al diccionario ANTES de invocar el evento.
+                    // GetConnectedPlayerCount() lee connectedPlayers.Count — sin esto devuelve 1.
+                    int newPlayerId = connectedPlayers.Count + 1; // Host=1 ya registrado, cliente=2
+                    string newPlayerName = $"Jugador {newPlayerId}";
+                    
+                    connectedPlayers[newPlayerId] = new PlayerConnectionData
+                    {
+                        PlayerId       = newPlayerId,
+                        PlayerName     = newPlayerName,
+                        IpAddress      = clientIp,
+                        Port           = currentPort,
+                        ConnectionTime = DateTime.Now
+                    };
+                    
+                    Debug.Log($"[NETWORK] Jugador {newPlayerId} conectado desde {clientIp} — Total jugadores: {connectedPlayers.Count}");
+                    OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
                 }
             }
             catch (Exception ex)

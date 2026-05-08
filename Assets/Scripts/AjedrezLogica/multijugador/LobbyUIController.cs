@@ -69,6 +69,42 @@ public class LobbyUIController : MonoBehaviour
         Debug.Log("[LOBBY_UI] === UI del Lobby inicializada ===");
     }
     
+    private float _refreshTimer = 0f;
+    private int   _lastPlayerCount = -1;
+    
+    /// <summary>
+    /// Refresca el estado de la UI cada segundo como mecanismo de seguridad,
+    /// independiente de que los eventos de red se hayan recibido correctamente.
+    /// </summary>
+    private void Update()
+    {
+        if (networkManager == null) return;
+        
+        _refreshTimer += Time.deltaTime;
+        if (_refreshTimer < 1f) return;
+        _refreshTimer = 0f;
+        
+        int count = networkManager.GetConnectedPlayerCount();
+        
+        // Solo actualizar la UI si el número de jugadores cambió
+        if (count == _lastPlayerCount) return;
+        _lastPlayerCount = count;
+        
+        Debug.Log($"[LOBBY_UI] [UPDATE] Jugadores detectados: {count}");
+        UpdatePlayersLabel();
+        
+        if (count >= 2 && networkManager.IsServer())
+        {
+            if (startGameButton != null)
+                startGameButton.gameObject.SetActive(true);
+            UpdateStatusLabel("2 Jugadores conectados - Listo para jugar", statusConnectedColor);
+        }
+        else if (count < 2 && networkManager.IsServer())
+        {
+            UpdateStatusLabel($"Esperando jugador 2... ({count}/2)", statusWaitingColor);
+        }
+    }
+    
     private void OnDestroy()
     {
         if (networkManager != null)
@@ -287,44 +323,17 @@ public class LobbyUIController : MonoBehaviour
     
     /// <summary>
     /// Coroutine que gestiona la conexión asíncrona al servidor.
-    /// Espera el resultado del ConnectToServerAsync del NetworkLobbyManager.
+    /// Espera el resultado de ConnectToServerAsync y actualiza la UI.
     /// </summary>
     private IEnumerator JoinServerCoroutine(string ip, int port)
     {
-        bool connectionSucceeded = false;
-        bool connectionFinished = false;
-        
-        // Suscribirse temporalmente a los eventos para capturar el resultado
-        void OnSuccess()
-        {
-            connectionSucceeded = true;
-            connectionFinished = true;
-        }
-        void OnFail(string msg)
-        {
-            connectionSucceeded = false;
-            connectionFinished = true;
-        }
-        
-        networkManager.OnConnectionEstablished += OnSuccess;
-        networkManager.OnConnectionFailed      += OnFail;
-        
-        // Lanzar la conexión asíncrona
+        // Lanzar la conexión asíncrona y esperar su resultado
         yield return StartCoroutine(networkManager.ConnectToServerAsync(ip, port));
         
-        // Esperar a que los eventos hayan sido procesados (1 frame extra de margen)
-        float wait = 0f;
-        while (!connectionFinished && wait < 0.5f)
-        {
-            wait += Time.deltaTime;
-            yield return null;
-        }
+        // Dar un frame para que los eventos se procesen
+        yield return null;
         
-        // Desuscribirse
-        networkManager.OnConnectionEstablished -= OnSuccess;
-        networkManager.OnConnectionFailed      -= OnFail;
-        
-        if (connectionSucceeded)
+        if (networkManager.IsConnected())
         {
             Debug.Log("[LOBBY_UI] Conectado al servidor exitosamente");
             UpdateUIForClient();
@@ -333,7 +342,7 @@ public class LobbyUIController : MonoBehaviour
         else
         {
             Debug.LogError("[LOBBY_UI] No se pudo conectar al servidor");
-            // El status label ya fue actualizado por HandleConnectionFailed
+            // HandleConnectionFailed ya actualizó el statusLabel con el mensaje de error
             hostButton.interactable = true;
             joinButton.interactable = true;
         }
