@@ -85,7 +85,7 @@ public class NetworkLobbyManager : MonoBehaviour
     /// </summary>
     public bool StartHost(string roomName = "")
     {
-        Debug.Log("[NETWORK] === Iniciando servidor como Host ===");
+        Debug.LogWarning("[NETWORK] === StartHost() LLAMADO ===");
         
         if (string.IsNullOrEmpty(roomName))
         {
@@ -115,10 +115,7 @@ public class NetworkLobbyManager : MonoBehaviour
                         ConnectionTime = DateTime.Now
                     };
                     
-                    Debug.Log("[NETWORK] === Servidor creado exitosamente ===");
-                    Debug.Log($"[NETWORK] Puerto: {currentPort}");
-                    Debug.Log($"[NETWORK] IP Local: {localIp}");
-                    Debug.Log($"[NETWORK] Sala: {roomName}");
+                    Debug.LogWarning($"[NETWORK] === SERVIDOR CREADO en puerto {currentPort}, IP={localIp}, Sala={roomName} ===");
                     
                     StartBroadcastDiscovery(roomName, localIp, currentPort);
                     OnConnectionEstablished?.Invoke();
@@ -503,12 +500,12 @@ public class NetworkLobbyManager : MonoBehaviour
             
             StartCoroutine(AcceptConnectionsCoroutine());
             
-            Debug.Log($"[NETWORK] Servidor TCP escuchando en puerto {port}");
+            Debug.LogWarning($"[NETWORK] Servidor TCP escuchando en puerto {port}");
             return true;
         }
         catch (SocketException ex)
         {
-            Debug.LogWarning($"[NETWORK] No se puede escuchar en puerto {port}: {ex.Message}");
+            Debug.LogError($"[NETWORK] ERROR en puerto {port}: {ex.Message}");
             return false;
         }
     }
