@@ -20,6 +20,10 @@ public class NetworkLobbyManager : MonoBehaviour
     private const int SERVER_BROADCAST_PORT = 47777;
     private const int DISCOVERY_TIMEOUT = 3000;
     
+    // TODO: BORRAR estas constantes cuando los IDs reales estén disponibles desde la UI/BD
+    private const int TODO_TEST_ID_JUGADOR1 = 3;
+    private const int TODO_TEST_ID_JUGADOR2 = 4;
+    
     [SerializeField] private int currentPort = BASE_PORT;
     [SerializeField] private bool isServer = false;
     [SerializeField] private bool isConnected = false;
@@ -378,10 +382,19 @@ public class NetworkLobbyManager : MonoBehaviour
             return;
         }
         
-        if (idJugador1 <= 0 || idJugador2 <= 0 || idPartida <= 0)
+        if (idJugador1 <= 0 || idJugador2 <= 0)
         {
-            Debug.LogError("[NETWORK] IDs de jugadores o partida no inicializados");
-            return;
+            // TODO: BORRAR este bloque cuando los IDs reales estén disponibles
+            Debug.LogWarning($"[NETWORK] IDs no inicializados — usando IDs de prueba ({TODO_TEST_ID_JUGADOR1}/{TODO_TEST_ID_JUGADOR2})");
+            idJugador1 = TODO_TEST_ID_JUGADOR1;
+            idJugador2 = TODO_TEST_ID_JUGADOR2;
+        }
+        
+        // idPartida puede ser -1 si Supabase falló — se permite continuar igualmente
+        if (idPartida <= 0)
+        {
+            Debug.LogWarning("[NETWORK] idPartida no válido, usando -1 (sin registro en BD)");
+            idPartida = -1;
         }
         
         // Pasar los datos a través de PlayerPrefs para que estén disponibles en la siguiente escena
