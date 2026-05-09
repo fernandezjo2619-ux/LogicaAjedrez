@@ -428,17 +428,16 @@ public class LobbyUIController : MonoBehaviour
                 {
                     idPartidaCreada = idPartida;
                     Debug.Log($"[LOBBY_UI] Partida creada con ID: {idPartida}");
-                    
-                    // Establecer los datos en el NetworkLobbyManager
                     networkManager.SetGameData(idJugador1, idJugador2, idPartida);
-                    
-                    // Cambiar de escena
                     networkManager.GoToGameScene(gameSceneName);
                 }
                 else
                 {
-                    UpdateStatusLabel("Error creando partida en Supabase", statusDisconnectedColor);
-                    startGameButton.interactable = true;
+                    // La BD falló pero el multijugador está listo — continuar con ID temporal
+                    Debug.LogWarning("[LOBBY_UI] No se pudo guardar en Supabase. Iniciando partida sin ID de BD.");
+                    idPartidaCreada = -1;
+                    networkManager.SetGameData(idJugador1, idJugador2, -1);
+                    networkManager.GoToGameScene(gameSceneName);
                 }
             }));
     }

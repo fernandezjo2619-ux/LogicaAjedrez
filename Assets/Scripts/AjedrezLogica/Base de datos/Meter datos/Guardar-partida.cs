@@ -102,6 +102,8 @@ public class SupabaseRPC : MonoBehaviour
             Debug.LogError("Error al guardar partida:");
             Debug.LogError(request.error);
             Debug.LogError(request.downloadHandler.text);
+            // IMPORTANTE: llamar siempre al callback para no colgar el juego
+            onCompletado?.Invoke(-1);
         }
     }
 
