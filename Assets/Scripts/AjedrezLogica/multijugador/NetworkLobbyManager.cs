@@ -45,6 +45,10 @@ public class NetworkLobbyManager : MonoBehaviour
     private readonly object _pendingLock = new object();
     private bool _acceptingConnections = false;
     
+    // Cola thread-safe para mensajes TCP recibidos desde el hilo de fondo
+    private readonly Queue<string> _incomingMessages = new Queue<string>();
+    private readonly object _msgLock = new object();
+    
     public delegate void OnPlayerConnectedDelegate(int playerId, string playerName);
     public delegate void OnPlayerDisconnectedDelegate(int playerId);
     public delegate void OnRoomDiscoveredDelegate(RoomDiscoveryData roomData);
@@ -204,6 +208,9 @@ public class NetworkLobbyManager : MonoBehaviour
             Port = port,
             ConnectionTime = DateTime.Now
         };
+        
+        // Iniciar recepción de mensajes del HOST (START_GAME, etc.)
+        StartReceivingMessages(client);
         
         Debug.Log($"[NETWORK] === Conexion establecida con {ipAddress}:{port} ===");
         OnConnectionEstablished?.Invoke();
@@ -404,10 +411,84 @@ public class NetworkLobbyManager : MonoBehaviour
         PlayerPrefs.SetInt("LocalPlayerId", connectedPlayerId);
         PlayerPrefs.Save();
         
+        // Notificar a todos los clientes para que también cambien de escena
+        if (isServer && connectedClients.Count > 0)
+        {
+            string msg = $"START_GAME|{sceneName}|{idJugador1}|{idJugador2}|{idPartida}";
+            SendToAllClients(msg);
+            Debug.LogWarning($"[NETWORK] Mensaje START_GAME enviado a {connectedClients.Count} cliente(s)");
+            // Pequeña pausa para asegurar que el mensaje se envía antes de cambiar de escena
+            System.Threading.Thread.Sleep(200);
+        }
+        
         Debug.Log($"[NETWORK] === Cambiando a escena: {sceneName} ===");
         Debug.Log($"[NETWORK] Datos: J1={idJugador1}, J2={idJugador2}, Partida={idPartida}, Local={connectedPlayerId}");
         
         SceneManager.LoadScene(sceneName);
+    }
+    
+    /// <summary>
+    /// Envía un mensaje de texto a todos los clientes conectados (HOST → CLIENTs).
+    /// </summary>
+    private void SendToAllClients(string message)
+    {
+        byte[] data = System.Text.Encoding.UTF8.GetBytes(message + "\n");
+        foreach (var client in connectedClients)
+        {
+            try
+            {
+                if (client != null && client.Connected)
+                    client.GetStream().Write(data, 0, data.Length);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NETWORK] Error enviando mensaje: {ex.Message}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Inicia la escucha de mensajes entrantes en un hilo de fondo.
+    /// Llamado tanto en el cliente (tras conectar) como en el host (por cada cliente aceptado).
+    /// </summary>
+    private async void StartReceivingMessages(System.Net.Sockets.TcpClient client)
+    {
+        Debug.LogWarning("[NETWORK] Iniciando recepcion de mensajes TCP...");
+        try
+        {
+            var stream = client.GetStream();
+            var buffer = new byte[4096];
+            var sb = new System.Text.StringBuilder();
+            
+            while (client.Connected)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead == 0) break;
+                
+                sb.Append(System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead));
+                
+                // Procesar mensajes completos (delimitados por \n)
+                string data = sb.ToString();
+                int newlineIdx;
+                while ((newlineIdx = data.IndexOf('\n')) >= 0)
+                {
+                    string msg = data.Substring(0, newlineIdx).Trim();
+                    data = data.Substring(newlineIdx + 1);
+                    if (!string.IsNullOrEmpty(msg))
+                    {
+                        lock (_msgLock) { _incomingMessages.Enqueue(msg); }
+                        Debug.LogWarning($"[NETWORK] Mensaje recibido: {msg}");
+                    }
+                }
+                sb.Clear();
+                sb.Append(data);
+            }
+        }
+        catch (Exception ex)
+        {
+            if (isConnected)
+                Debug.LogWarning($"[NETWORK] Recepcion terminada: {ex.Message}");
+        }
     }
     
     /// <summary>
@@ -563,9 +644,7 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private void Update()
     {
-        // Procesar conexiones entrantes en el hilo principal
-        if (!isServer) return;
-        
+        // 1. Procesar conexiones entrantes (HOST)
         lock (_pendingLock)
         {
             while (_pendingClients.Count > 0)
@@ -588,9 +667,64 @@ public class NetworkLobbyManager : MonoBehaviour
                     ConnectionTime = DateTime.Now
                 };
                 
+                // Iniciar recepción de mensajes de este cliente (para mensajes futuros cliente → host)
+                StartReceivingMessages(incomingClient);
+                
                 Debug.LogWarning($"[NETWORK] Jugador {newPlayerId} registrado desde {clientIp} — Total: {connectedPlayers.Count}");
                 OnPlayerConnected?.Invoke(newPlayerId, newPlayerName);
             }
+        }
+        
+        // 2. Procesar mensajes TCP recibidos (CLIENT y HOST)
+        lock (_msgLock)
+        {
+            while (_incomingMessages.Count > 0)
+            {
+                string msg = _incomingMessages.Dequeue();
+                ProcessNetworkMessage(msg);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Procesa un mensaje TCP recibido. Ejecutado en el hilo principal de Unity.
+    /// </summary>
+    private void ProcessNetworkMessage(string message)
+    {
+        Debug.LogWarning($"[NETWORK] Procesando mensaje: {message}");
+        
+        string[] parts = message.Split('|');
+        if (parts.Length == 0) return;
+        
+        switch (parts[0])
+        {
+            case "START_GAME":
+                // Formato: START_GAME|sceneName|idJ1|idJ2|idPartida
+                if (parts.Length >= 5)
+                {
+                    string sceneName  = parts[1];
+                    int.TryParse(parts[2], out int j1);
+                    int.TryParse(parts[3], out int j2);
+                    int.TryParse(parts[4], out int partida);
+                    
+                    idJugador1 = j1 > 0 ? j1 : TODO_TEST_ID_JUGADOR1;
+                    idJugador2 = j2 > 0 ? j2 : TODO_TEST_ID_JUGADOR2;
+                    idPartida  = partida;
+                    
+                    PlayerPrefs.SetInt("IdJugador1",   idJugador1);
+                    PlayerPrefs.SetInt("IdJugador2",   idJugador2);
+                    PlayerPrefs.SetInt("IdPartida",    idPartida);
+                    PlayerPrefs.SetInt("LocalPlayerId", connectedPlayerId);
+                    PlayerPrefs.Save();
+                    
+                    Debug.LogWarning($"[NETWORK] START_GAME recibido — cargando escena: {sceneName}");
+                    SceneManager.LoadScene(sceneName);
+                }
+                break;
+                
+            default:
+                Debug.Log($"[NETWORK] Mensaje desconocido: {parts[0]}");
+                break;
         }
     }
     
