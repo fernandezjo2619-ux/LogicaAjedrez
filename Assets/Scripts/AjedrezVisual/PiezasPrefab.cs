@@ -34,23 +34,19 @@ public class PiezasPrefab : MonoBehaviour
         fila = piezaLogica.Posicion.Y;
         transform.position = new Vector3(columna, 0.5f, fila); //intercambiarlas mueve posicion de las piezas
 
-        // Cargar y asignar la textura según el tipo de pieza y color
-        string textureName = GetTextureName(tipo, color);
+        //Dirección a la que mira
+        float rotY = (color == ColorPieza.Blanco) ? 90f : -90f;
+        transform.rotation = Quaternion.Euler(0f, rotY, 0f);
 
-        // Cargar la textura desde los recursos
-        Texture texture = Resources.Load<Texture>("Textures/" + textureName);
-
-        // Opcional: cambiar el material según el color
         Renderer rend = GetComponent<Renderer>();
-        if (rend != null && texture != null)
-        {
-            rend.material.mainTexture = texture;
 
-            // Pone Albedo en blanco para que se vea la imagen
-            Color currentAlbedo = rend.material.GetColor("_Color");
-            if (currentAlbedo == Color.black)
+        foreach (var mat in rend.materials)
+        {
+            if (mat.name.Contains("ColorPieza"))
             {
-                rend.material.SetColor("_Color", Color.white);  // Pone el Albedo a blanco
+                mat.color = (color == ColorPieza.Blanco)
+                    ? Color.white
+                    : Color.black;
             }
         }
     }
