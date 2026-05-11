@@ -66,6 +66,10 @@ public class LobbyUIController : MonoBehaviour
             Debug.LogError("[LOBBY_UI] Inicialización incompleta: faltan referencias de UI en el Inspector.");
         }
         
+        // Iniciar descubrimiento de salas automáticamente para ver salas disponibles en la red
+        if (networkManager != null)
+            networkManager.StartRoomDiscovery();
+        
         Debug.Log("[LOBBY_UI] === UI del Lobby inicializada ===");
     }
     
@@ -216,9 +220,9 @@ public class LobbyUIController : MonoBehaviour
         UpdateStatusLabel("Desconectado", statusDisconnectedColor);
         UpdatePlayersLabel();
         
-        // Nombre de sala por defecto = nombre del dispositivo
+        // El nombre de sala lo escribe el usuario — no se auto-rellena
         if (roomNameInput != null)
-            roomNameInput.text = SystemInfo.deviceName;
+            roomNameInput.text = string.Empty;
         
         // Auto-rellenar IP local y puerto — el usuario no necesita tocarlos
         string localIp = GetLocalIpAddress();
