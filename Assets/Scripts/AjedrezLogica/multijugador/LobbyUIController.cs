@@ -686,7 +686,8 @@ public class LobbyUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// Añade una sala descubierta a la lista visual
+    /// Añade una sala descubierta a la lista visual.
+    /// Crea el boton en codigo sin necesitar prefab.
     /// </summary>
     private void AddRoomToList(RoomDiscoveryData roomData)
     {
@@ -698,31 +699,55 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        if (roomListButtonPrefab == null)
+        // Si no hay contenedor asignado en el Inspector, mostrar aviso y salir
+        if (roomListContainer == null)
         {
-            Debug.LogWarning("[LOBBY_UI] Prefab de boton de sala no asignado");
+            Debug.LogWarning($"[LOBBY_UI] Sala detectada '{roomData.RoomName}' pero roomListContainer no está asignado en el Inspector.");
             return;
         }
         
-        GameObject roomButtonObj = Instantiate(roomListButtonPrefab, roomListContainer);
-        Button roomButton = roomButtonObj.GetComponent<Button>();
-        TextMeshProUGUI roomButtonText = roomButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+        // ── Crear botón en código (sin prefab) ──────────────────────────────
+        GameObject roomButtonObj = new GameObject($"RoomBtn_{roomKey}");
+        roomButtonObj.transform.SetParent(roomListContainer, false);
         
-        if (roomButton == null || roomButtonText == null)
-        {
-            Debug.LogError("[LOBBY_UI] Prefab de sala no tiene estructura esperada");
-            Destroy(roomButtonObj);
-            return;
-        }
+        // RectTransform
+        RectTransform rect = roomButtonObj.AddComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(0f, 70f);  // ancho flexible, alto fijo
         
-        string displayText = $"{roomData.RoomName}\n[{roomData.IpAddress}:{roomData.Port}]\n({roomData.CurrentPlayers}/{roomData.MaxPlayers})";
-        roomButtonText.text = displayText;
+        // Fondo del botón
+        Image bg = roomButtonObj.AddComponent<Image>();
+        bg.color = new Color(0.15f, 0.40f, 0.75f, 0.90f);
         
-        roomButton.onClick.AddListener(() => OnRoomButtonClicked(roomData));
+        // Componente Button
+        Button btn = roomButtonObj.AddComponent<Button>();
+        ColorBlock cb = btn.colors;
+        cb.highlightedColor = new Color(0.25f, 0.55f, 0.90f, 1f);
+        cb.pressedColor     = new Color(0.10f, 0.30f, 0.60f, 1f);
+        btn.colors = cb;
+        
+        // Texto hijo
+        GameObject textObj = new GameObject("Label");
+        textObj.transform.SetParent(roomButtonObj.transform, false);
+        
+        RectTransform textRect = textObj.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = new Vector2(8f, 4f);
+        textRect.offsetMax = new Vector2(-8f, -4f);
+        
+        TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
+        tmp.text      = $"<b>{roomData.RoomName}</b>\n{roomData.IpAddress}:{roomData.Port}  ({roomData.CurrentPlayers}/{roomData.MaxPlayers})";
+        tmp.fontSize  = 14f;
+        tmp.color     = Color.white;
+        tmp.alignment = TextAlignmentOptions.MidlineLeft;
+        // ────────────────────────────────────────────────────────────────────
+        
+        // Listener: al pulsar el botón, rellenar campos y conectar
+        btn.onClick.AddListener(() => OnRoomButtonClicked(roomData));
         
         discoveredRoomButtons[roomKey] = roomButtonObj;
         
-        Debug.Log($"[LOBBY_UI] Sala añadida a lista: {roomKey}");
+        Debug.LogWarning($"[LOBBY_UI] Botón de sala creado: {roomData.RoomName} ({roomKey})");
     }
     
     /// <summary>
