@@ -125,28 +125,22 @@ public class LobbyUIController : MonoBehaviour
     {
         List<string> missingReferences = new List<string>();
         
-        if (hostButton == null) missingReferences.Add("hostButton");
-        if (joinButton == null) missingReferences.Add("joinButton");
-        if (startGameButton == null) missingReferences.Add("startGameButton");
-        if (backButton == null) missingReferences.Add("backButton");
-        if (roomNameInput == null) missingReferences.Add("roomNameInput");
-        if (ipAddressInput == null) missingReferences.Add("ipAddressInput");
-        if (portInput == null) missingReferences.Add("portInput");
-        if (idJugador1Input == null) missingReferences.Add("idJugador1Input");
-        if (idJugador2Input == null) missingReferences.Add("idJugador2Input");
-        if (statusLabel == null) missingReferences.Add("statusLabel");
-        if (connectedPlayersLabel == null) missingReferences.Add("connectedPlayersLabel");
+        if (hostButton == null)       missingReferences.Add("hostButton");
+        if (joinButton == null)       missingReferences.Add("joinButton");
+        if (startGameButton == null)  missingReferences.Add("startGameButton");
+        if (backButton == null)       missingReferences.Add("backButton");
+        if (roomNameInput == null)    missingReferences.Add("roomNameInput");
+        if (statusLabel == null)      missingReferences.Add("statusLabel");
+        // ipAddressInput y portInput son opcionales — se auto-rellenan en InitializeUIState
         
         if (missingReferences.Count > 0)
         {
             string errorMsg = "[LOBBY_UI] === REFERENCIAS FALTANTES en el Inspector ===\n";
             foreach (string reference in missingReferences)
-            {
                 errorMsg += $"  >> {reference}\n";
-            }
             errorMsg += "Arrastra los objetos de la Hierarchy al Inspector del LobbyUIController.";
             Debug.LogError(errorMsg);
-            return false;  // NO lanzar excepción — dejar que el resto de Start() siga
+            return false;
         }
         
         Debug.Log("[LOBBY_UI] --- Todas las referencias de UI validadas correctamente ---");
@@ -221,12 +215,46 @@ public class LobbyUIController : MonoBehaviour
         startGameButton.gameObject.SetActive(false);
         UpdateStatusLabel("Desconectado", statusDisconnectedColor);
         UpdatePlayersLabel();
-        roomNameInput.text = SystemInfo.deviceName;
+        
+        // Nombre de sala por defecto = nombre del dispositivo
+        if (roomNameInput != null)
+            roomNameInput.text = SystemInfo.deviceName;
+        
+        // Auto-rellenar IP local y puerto — el usuario no necesita tocarlos
+        string localIp = GetLocalIpAddress();
+        if (ipAddressInput != null)
+        {
+            ipAddressInput.text = localIp;
+            Debug.Log($"[LOBBY_UI] IP local detectada: {localIp}");
+        }
         
         if (portInput != null)
         {
+            portInput.text = BASE_PORT.ToString();
             portInput.contentType = TMP_InputField.ContentType.IntegerNumber;
         }
+    }
+    
+    /// <summary>
+    /// Obtiene la IP local de red LAN (192.168.x.x / 10.x.x.x).
+    /// Si no se encuentra ninguna, devuelve 127.0.0.1.
+    /// </summary>
+    private string GetLocalIpAddress()
+    {
+        try
+        {
+            var host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    return ip.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[LOBBY_UI] No se pudo obtener IP local: {ex.Message}");
+        }
+        return "127.0.0.1";
     }
     
     // ====== MANEJADORES DE EVENTOS DE BOTONES ======
