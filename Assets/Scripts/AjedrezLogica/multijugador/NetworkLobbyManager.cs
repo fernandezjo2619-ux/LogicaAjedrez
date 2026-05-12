@@ -228,14 +228,14 @@ public class NetworkLobbyManager : MonoBehaviour
             return;
         }
         
-        Debug.LogWarning("[NETWORK] === Iniciando escucha de salas en red ===");
+        Debug.Log("[NETWORK] === Iniciando descubrimiento de salas ===");
         isDiscoveringRooms = true;
         
         try
         {
-            // IMPORTANTE: bindear al puerto 47777 para RECIBIR los broadcasts del HOST
-            discoveryClient = new UdpClient(SERVER_BROADCAST_PORT);
+            discoveryClient = new UdpClient();
             discoveryClient.EnableBroadcast = true;
+            discoveryClient.Client.ReceiveTimeout = DISCOVERY_TIMEOUT;
             
             discoveryCoroutine = StartCoroutine(DiscoveryCoroutine());
         }
@@ -277,27 +277,38 @@ public class NetworkLobbyManager : MonoBehaviour
     /// </summary>
     private IEnumerator DiscoveryCoroutine()
     {
-        Debug.LogWarning("[NETWORK] DiscoveryCoroutine escuchando en puerto " + SERVER_BROADCAST_PORT);
-        
         while (isDiscoveringRooms)
         {
             try
             {
-                // Leer todos los paquetes disponibles sin bloquear
-                while (discoveryClient != null && discoveryClient.Available > 0)
-                {
-                    ProcessDiscoveryResponse();
-                }
+                SendDiscoveryBroadcast();
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[NETWORK] Error en discovery: {ex.Message}");
+                Debug.LogWarning($"[NETWORK] Error en descubrimiento: {ex.Message}");
             }
             
-            yield return new WaitForSeconds(0.5f);  // revisar cada 500ms
+            float timeoutCounter = 0f;
+            while (timeoutCounter < 2f && isDiscoveringRooms)
+            {
+                try
+                {
+                    if (discoveryClient.Available > 0)
+                    {
+                        ProcessDiscoveryResponse();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[NETWORK] Error procesando respuesta: {ex.Message}");
+                }
+                
+                timeoutCounter += 0.1f;
+                yield return new WaitForSeconds(0.1f);
+            }
+            
+            yield return new WaitForSeconds(1f);
         }
-        
-        Debug.LogWarning("[NETWORK] DiscoveryCoroutine terminada");
     }
     
     /// <summary>
