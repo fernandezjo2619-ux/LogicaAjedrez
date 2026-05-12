@@ -44,9 +44,9 @@ public class LobbyUIController : MonoBehaviour
     private const int BASE_PORT = 8000;
     
     // IDs de jugadores para la partida de ajedrez
-    private int idJugador1 = -1;
-    private int idJugador2 = -1;
-    private int idPartidaCreada = -1;
+    private int idJugador1 = 6;
+    private int idJugador2 = 7;
+    private int idPartidaCreada = 0;
     
     private void Start()
     {
@@ -65,6 +65,10 @@ public class LobbyUIController : MonoBehaviour
         {
             Debug.LogError("[LOBBY_UI] Inicialización incompleta: faltan referencias de UI en el Inspector.");
         }
+        
+        // Iniciar descubrimiento de salas automáticamente para ver salas disponibles en la red
+        if (networkManager != null)
+            networkManager.StartRoomDiscovery();
         
         Debug.Log("[LOBBY_UI] === UI del Lobby inicializada ===");
     }
@@ -125,28 +129,22 @@ public class LobbyUIController : MonoBehaviour
     {
         List<string> missingReferences = new List<string>();
         
-        if (hostButton == null) missingReferences.Add("hostButton");
-        if (joinButton == null) missingReferences.Add("joinButton");
-        if (startGameButton == null) missingReferences.Add("startGameButton");
-        if (backButton == null) missingReferences.Add("backButton");
-        if (roomNameInput == null) missingReferences.Add("roomNameInput");
-        if (ipAddressInput == null) missingReferences.Add("ipAddressInput");
-        if (portInput == null) missingReferences.Add("portInput");
-        if (idJugador1Input == null) missingReferences.Add("idJugador1Input");
-        if (idJugador2Input == null) missingReferences.Add("idJugador2Input");
-        if (statusLabel == null) missingReferences.Add("statusLabel");
-        if (connectedPlayersLabel == null) missingReferences.Add("connectedPlayersLabel");
+        if (hostButton == null)       missingReferences.Add("hostButton");
+        if (joinButton == null)       missingReferences.Add("joinButton");
+        if (startGameButton == null)  missingReferences.Add("startGameButton");
+        if (backButton == null)       missingReferences.Add("backButton");
+        if (roomNameInput == null)    missingReferences.Add("roomNameInput");
+        if (statusLabel == null)      missingReferences.Add("statusLabel");
+        // ipAddressInput y portInput son opcionales — se auto-rellenan en InitializeUIState
         
         if (missingReferences.Count > 0)
         {
             string errorMsg = "[LOBBY_UI] === REFERENCIAS FALTANTES en el Inspector ===\n";
             foreach (string reference in missingReferences)
-            {
                 errorMsg += $"  >> {reference}\n";
-            }
             errorMsg += "Arrastra los objetos de la Hierarchy al Inspector del LobbyUIController.";
             Debug.LogError(errorMsg);
-            return false;  // NO lanzar excepción — dejar que el resto de Start() siga
+            return false;
         }
         
         Debug.Log("[LOBBY_UI] --- Todas las referencias de UI validadas correctamente ---");
@@ -221,12 +219,46 @@ public class LobbyUIController : MonoBehaviour
         startGameButton.gameObject.SetActive(false);
         UpdateStatusLabel("Desconectado", statusDisconnectedColor);
         UpdatePlayersLabel();
-        roomNameInput.text = SystemInfo.deviceName;
+        
+        // El nombre de sala lo escribe el usuario — no se auto-rellena
+        if (roomNameInput != null)
+            roomNameInput.text = string.Empty;
+        
+        // Auto-rellenar IP local y puerto — el usuario no necesita tocarlos
+        string localIp = GetLocalIpAddress();
+        if (ipAddressInput != null)
+        {
+            ipAddressInput.text = localIp;
+            Debug.Log($"[LOBBY_UI] IP local detectada: {localIp}");
+        }
         
         if (portInput != null)
         {
+            portInput.text = BASE_PORT.ToString();
             portInput.contentType = TMP_InputField.ContentType.IntegerNumber;
         }
+    }
+    
+    /// <summary>
+    /// Obtiene la IP local de red LAN (192.168.x.x / 10.x.x.x).
+    /// Si no se encuentra ninguna, devuelve 127.0.0.1.
+    /// </summary>
+    private string GetLocalIpAddress()
+    {
+        try
+        {
+            var host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    return ip.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[LOBBY_UI] No se pudo obtener IP local: {ex.Message}");
+        }
+        return "127.0.0.1";
     }
     
     // ====== MANEJADORES DE EVENTOS DE BOTONES ======
@@ -415,8 +447,10 @@ public class LobbyUIController : MonoBehaviour
     {
         if (supabaseManager == null)
         {
-            UpdateStatusLabel("Error: SupabaseRPC no disponible", statusDisconnectedColor);
-            startGameButton.interactable = true;
+            Debug.LogWarning("[LOBBY_UI] SupabaseRPC no disponible. Iniciando partida con ID temporal.");
+            idPartidaCreada = -1;
+            networkManager.SetGameData(idJugador1, idJugador2, idPartidaCreada);
+            networkManager.GoToGameScene(gameSceneName);
             yield break;
         }
         
@@ -428,17 +462,16 @@ public class LobbyUIController : MonoBehaviour
                 {
                     idPartidaCreada = idPartida;
                     Debug.Log($"[LOBBY_UI] Partida creada con ID: {idPartida}");
-                    networkManager.SetGameData(idJugador1, idJugador2, idPartida);
-                    networkManager.GoToGameScene(gameSceneName);
                 }
                 else
                 {
                     // La BD falló pero el multijugador está listo — continuar con ID temporal
                     Debug.LogWarning("[LOBBY_UI] No se pudo guardar en Supabase. Iniciando partida sin ID de BD.");
                     idPartidaCreada = -1;
-                    networkManager.SetGameData(idJugador1, idJugador2, -1);
-                    networkManager.GoToGameScene(gameSceneName);
                 }
+                
+                networkManager.SetGameData(idJugador1, idJugador2, idPartidaCreada);
+                networkManager.GoToGameScene(gameSceneName);
             }));
     }
     
@@ -456,7 +489,7 @@ public class LobbyUIController : MonoBehaviour
             networkManager.StopRoomDiscovery();
         }
         
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Menu_Inicio");
     }
     
     // ====== MANEJADORES DE EVENTOS DE RED ======
@@ -595,7 +628,8 @@ public class LobbyUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// Añade una sala descubierta a la lista visual
+    /// Añade una sala descubierta a la lista visual.
+    /// Crea el boton en codigo sin necesitar prefab.
     /// </summary>
     private void AddRoomToList(RoomDiscoveryData roomData)
     {
@@ -607,31 +641,55 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        if (roomListButtonPrefab == null)
+        // Si no hay contenedor asignado en el Inspector, mostrar aviso y salir
+        if (roomListContainer == null)
         {
-            Debug.LogWarning("[LOBBY_UI] Prefab de boton de sala no asignado");
+            Debug.LogWarning($"[LOBBY_UI] Sala detectada '{roomData.RoomName}' pero roomListContainer no está asignado en el Inspector.");
             return;
         }
         
-        GameObject roomButtonObj = Instantiate(roomListButtonPrefab, roomListContainer);
-        Button roomButton = roomButtonObj.GetComponent<Button>();
-        TextMeshProUGUI roomButtonText = roomButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+        // ── Crear botón en código (sin prefab) ──────────────────────────────
+        GameObject roomButtonObj = new GameObject($"RoomBtn_{roomKey}");
+        roomButtonObj.transform.SetParent(roomListContainer, false);
         
-        if (roomButton == null || roomButtonText == null)
-        {
-            Debug.LogError("[LOBBY_UI] Prefab de sala no tiene estructura esperada");
-            Destroy(roomButtonObj);
-            return;
-        }
+        // RectTransform
+        RectTransform rect = roomButtonObj.AddComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(0f, 70f);  // ancho flexible, alto fijo
         
-        string displayText = $"{roomData.RoomName}\n[{roomData.IpAddress}:{roomData.Port}]\n({roomData.CurrentPlayers}/{roomData.MaxPlayers})";
-        roomButtonText.text = displayText;
+        // Fondo del botón
+        Image bg = roomButtonObj.AddComponent<Image>();
+        bg.color = new Color(0.15f, 0.40f, 0.75f, 0.90f);
         
-        roomButton.onClick.AddListener(() => OnRoomButtonClicked(roomData));
+        // Componente Button
+        Button btn = roomButtonObj.AddComponent<Button>();
+        ColorBlock cb = btn.colors;
+        cb.highlightedColor = new Color(0.25f, 0.55f, 0.90f, 1f);
+        cb.pressedColor     = new Color(0.10f, 0.30f, 0.60f, 1f);
+        btn.colors = cb;
+        
+        // Texto hijo
+        GameObject textObj = new GameObject("Label");
+        textObj.transform.SetParent(roomButtonObj.transform, false);
+        
+        RectTransform textRect = textObj.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = new Vector2(8f, 4f);
+        textRect.offsetMax = new Vector2(-8f, -4f);
+        
+        TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
+        tmp.text      = $"<b>{roomData.RoomName}</b>\n{roomData.IpAddress}:{roomData.Port}  ({roomData.CurrentPlayers}/{roomData.MaxPlayers})";
+        tmp.fontSize  = 14f;
+        tmp.color     = Color.white;
+        tmp.alignment = TextAlignmentOptions.MidlineLeft;
+        // ────────────────────────────────────────────────────────────────────
+        
+        // Listener: al pulsar el botón, rellenar campos y conectar
+        btn.onClick.AddListener(() => OnRoomButtonClicked(roomData));
         
         discoveredRoomButtons[roomKey] = roomButtonObj;
         
-        Debug.Log($"[LOBBY_UI] Sala añadida a lista: {roomKey}");
+        Debug.LogWarning($"[LOBBY_UI] Botón de sala creado: {roomData.RoomName} ({roomKey})");
     }
     
     /// <summary>
