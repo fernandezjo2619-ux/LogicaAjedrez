@@ -488,7 +488,7 @@ public class LobbyUIController : MonoBehaviour
             networkManager.StopRoomDiscovery();
         }
         
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Menu_Inicio");
     }
     
     // ====== MANEJADORES DE EVENTOS DE RED ======
