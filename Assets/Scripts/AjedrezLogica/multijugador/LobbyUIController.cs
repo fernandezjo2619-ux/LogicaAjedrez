@@ -44,8 +44,8 @@ public class LobbyUIController : MonoBehaviour
     private const int BASE_PORT = 8000;
     
     // IDs de jugadores para la partida de ajedrez
-    private int idJugador1 = -1;
-    private int idJugador2 = -1;
+    private int idJugador1 = 6;
+    private int idJugador2 = 7;
     private int idPartidaCreada = -1;
     
     private void Start()
