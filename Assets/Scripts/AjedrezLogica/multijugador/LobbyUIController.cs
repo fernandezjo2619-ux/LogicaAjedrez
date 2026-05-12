@@ -41,9 +41,6 @@ public class LobbyUIController : MonoBehaviour
     private SupabaseRPC supabaseManager;
     private Dictionary<string, GameObject> discoveredRoomButtons = new Dictionary<string, GameObject>();
     
-    // Cache de salas descubiertas por nombre (nombre normalizado en minúsculas → datos de la sala)
-    private Dictionary<string, RoomDiscoveryData> _discoveredRoomsByName = new Dictionary<string, RoomDiscoveryData>();
-    
     private const int BASE_PORT = 8000;
     
     // IDs de jugadores para la partida de ajedrez
@@ -316,96 +313,44 @@ public class LobbyUIController : MonoBehaviour
         
         if (networkManager == null)
         {
-            Debug.LogError("[LOBBY_UI] networkManager es null.");
-            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado", statusDisconnectedColor);
+            Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
+            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
             return;
         }
         
-        string ip   = string.Empty;
-        int    port = BASE_PORT;
+        string ipText = ipAddressInput.text.Trim();
         
-        // --- PRIORIDAD 1: buscar por nombre de sala en el discovery UDP ---
-        string searchName = roomNameInput != null ? roomNameInput.text.Trim() : string.Empty;
-        if (!string.IsNullOrEmpty(searchName))
+        if (string.IsNullOrEmpty(ipText))
         {
-            string key = searchName.ToLowerInvariant();
-            if (_discoveredRoomsByName.TryGetValue(key, out RoomDiscoveryData found))
+            UpdateStatusLabel("Ingresa una IP valida", statusDisconnectedColor);
+            return;
+        }
+        
+        string ip = ipText;
+        int port = BASE_PORT;
+        
+        if (ipText.Contains(":"))
+        {
+            string[] parts = ipText.Split(':');
+            ip = parts[0].Trim();
+            
+            if (!int.TryParse(parts[1].Trim(), out port))
             {
-                ip   = found.IpAddress;
-                port = found.Port;
-                Debug.LogWarning($"[LOBBY_UI] Sala '{searchName}' encontrada por discovery — IP: {ip}:{port}");
-            }
-            else
-            {
-                // No encontrada todavía: esperar unos segundos y reintentar
-                UpdateStatusLabel($"Buscando sala '{searchName}'...", statusWaitingColor);
-                hostButton.interactable  = false;
-                joinButton.interactable  = false;
-                StartCoroutine(SearchRoomByNameCoroutine(searchName));
-                return;
+                port = BASE_PORT;
             }
         }
         
-        // --- PRIORIDAD 2: usar IP del campo ipAddressInput ---
-        if (string.IsNullOrEmpty(ip))
+        if (portInput != null && portInput.text.Length > 0 && int.TryParse(portInput.text, out int inputPort))
         {
-            string ipText = ipAddressInput != null ? ipAddressInput.text.Trim() : string.Empty;
-            if (string.IsNullOrEmpty(ipText))
-            {
-                UpdateStatusLabel("Escribe el nombre de sala o una IP válida", statusDisconnectedColor);
-                return;
-            }
-            if (ipText.Contains(":"))
-            {
-                string[] parts = ipText.Split(':');
-                ip = parts[0].Trim();
-                int.TryParse(parts[1].Trim(), out port);
-            }
-            else
-            {
-                ip = ipText;
-            }
-            if (portInput != null && int.TryParse(portInput.text, out int inputPort))
-                port = inputPort;
+            port = inputPort;
         }
         
         UpdateStatusLabel($"Conectando a {ip}:{port}...", statusWaitingColor);
         hostButton.interactable = false;
         joinButton.interactable = false;
+        
+        // Usar coroutine asíncrona: no bloquea Unity mientras espera la conexión
         StartCoroutine(JoinServerCoroutine(ip, port));
-    }
-    
-    /// <summary>
-    /// Espera hasta 5 segundos a que el discovery encuentre la sala por nombre.
-    /// Si la encuentra, conecta; si no, muestra error.
-    /// </summary>
-    private IEnumerator SearchRoomByNameCoroutine(string roomName)
-    {
-        float elapsed = 0f;
-        float timeout = 5f;
-        string key    = roomName.ToLowerInvariant();
-        
-        while (elapsed < timeout)
-        {
-            yield return new WaitForSeconds(0.5f);
-            elapsed += 0.5f;
-            
-            if (_discoveredRoomsByName.TryGetValue(key, out RoomDiscoveryData found))
-            {
-                Debug.LogWarning($"[LOBBY_UI] Sala '{roomName}' encontrada tras {elapsed:F1}s");
-                UpdateStatusLabel($"Conectando a {found.IpAddress}:{found.Port}...", statusWaitingColor);
-                yield return StartCoroutine(JoinServerCoroutine(found.IpAddress, found.Port));
-                yield break;
-            }
-            
-            UpdateStatusLabel($"Buscando '{roomName}'... ({elapsed:F0}/{timeout:F0}s)", statusWaitingColor);
-        }
-        
-        // Timeout: sala no encontrada
-        Debug.LogWarning($"[LOBBY_UI] Sala '{roomName}' no encontrada tras {timeout}s");
-        UpdateStatusLabel($"Sala '{roomName}' no encontrada en la red", statusDisconnectedColor);
-        hostButton.interactable = true;
-        joinButton.interactable = true;
     }
     
     /// <summary>
@@ -583,10 +528,6 @@ public class LobbyUIController : MonoBehaviour
     private void HandleRoomDiscovered(RoomDiscoveryData roomData)
     {
         Debug.Log($"[LOBBY_UI] Sala descubierta: {roomData.RoomName} ({roomData.IpAddress}:{roomData.Port})");
-        
-        // Guardar en caché por nombre (normalizado) para búsqueda por nombre
-        string key = roomData.RoomName.Trim().ToLowerInvariant();
-        _discoveredRoomsByName[key] = roomData;
         
         AddRoomToList(roomData);
     }
