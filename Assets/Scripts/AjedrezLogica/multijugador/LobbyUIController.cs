@@ -46,7 +46,7 @@ public class LobbyUIController : MonoBehaviour
     // IDs de jugadores para la partida de ajedrez
     private int idJugador1 = 6;
     private int idJugador2 = 7;
-    private int idPartidaCreada = -1;
+    private int idPartidaCreada = 0;
     
     private void Start()
     {
@@ -447,8 +447,10 @@ public class LobbyUIController : MonoBehaviour
     {
         if (supabaseManager == null)
         {
-            UpdateStatusLabel("Error: SupabaseRPC no disponible", statusDisconnectedColor);
-            startGameButton.interactable = true;
+            Debug.LogWarning("[LOBBY_UI] SupabaseRPC no disponible. Iniciando partida con ID temporal.");
+            idPartidaCreada = -1;
+            networkManager.SetGameData(idJugador1, idJugador2, idPartidaCreada);
+            networkManager.GoToGameScene(gameSceneName);
             yield break;
         }
         
@@ -460,17 +462,16 @@ public class LobbyUIController : MonoBehaviour
                 {
                     idPartidaCreada = idPartida;
                     Debug.Log($"[LOBBY_UI] Partida creada con ID: {idPartida}");
-                    networkManager.SetGameData(idJugador1, idJugador2, idPartida);
-                    networkManager.GoToGameScene(gameSceneName);
                 }
                 else
                 {
                     // La BD falló pero el multijugador está listo — continuar con ID temporal
                     Debug.LogWarning("[LOBBY_UI] No se pudo guardar en Supabase. Iniciando partida sin ID de BD.");
                     idPartidaCreada = -1;
-                    networkManager.SetGameData(idJugador1, idJugador2, -1);
-                    networkManager.GoToGameScene(gameSceneName);
                 }
+                
+                networkManager.SetGameData(idJugador1, idJugador2, idPartidaCreada);
+                networkManager.GoToGameScene(gameSceneName);
             }));
     }
     
