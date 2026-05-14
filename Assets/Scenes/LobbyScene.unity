@@ -1499,7 +1499,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1132548950}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.99999297
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1726,9 +1726,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SelectorIA, Assembly-CSharp
-        m_MethodName: VolverPanel
+      - m_Target: {fileID: 1958447010}
+        m_TargetAssemblyTypeName: MenuInicio, Assembly-CSharp
+        m_MethodName: VolverMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4371,6 +4371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f208e640173f56439c98044e29a7787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lobbySceneName: LobbyScene
 --- !u!1 &2022383852
 GameObject:
   m_ObjectHideFlags: 0
