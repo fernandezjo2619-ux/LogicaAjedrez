@@ -24,6 +24,19 @@ public class MenuInicio : MonoBehaviour
         PlayerPrefs.Save();
 
         ConfigPartida.vsIA = false;
-        SceneManager.LoadScene(lobbySceneName);
+        SceneManager.LoadScene("LobbyScene");
+        //GetComponent<LobbyUIController>().MostrarPanel();
+        //ConfigPartida.vsIA = false;
+        //UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
+    }
+
+    public void VolverMenu()
+    {
+        SceneManager.LoadScene("Menu_Inicio");
+    }
+
+    public void Salir()
+    {
+        Application.Quit();
     }
 }

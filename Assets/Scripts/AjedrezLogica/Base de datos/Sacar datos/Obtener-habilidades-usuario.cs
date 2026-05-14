@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
+using LogicProject.Recursos.Class;
 
 /// <summary>
 /// Llama a la función RPC obtener_habilidades_usuario de Supabase
@@ -127,28 +128,28 @@ public class ObtenerHabilidadesUsuario : MonoBehaviour
     }
 }
 
-/// <summary>
-/// Estructura para parsear cada fila devuelta por obtener_habilidades_usuario
-/// </summary>
-[System.Serializable]
-public class DatosHabilidadUsuario
-{
-    public int id_pieza;
-    public string nombre_pieza;
-    public int id_habilidad;
-    public string nombre_habilidad;
-    public string descripcion;
-    public int poder_base;
-    public string nombre_tipo;
-    public bool es_habilidad_activa;
-    public string fecha_desbloqueo;
-}
+///// <summary>
+///// Estructura para parsear cada fila devuelta por obtener_habilidades_usuario
+///// </summary>
+//[System.Serializable]
+//public class DatosHabilidadUsuario
+//{
+//    public int id_pieza;
+//    public string nombre_pieza;
+//    public int id_habilidad;
+//    public string nombre_habilidad;
+//    public string descripcion;
+//    public int poder_base;
+//    public string nombre_tipo;
+//    public bool es_habilidad_activa;
+//    public string fecha_desbloqueo;
+//}
 
-/// <summary>
-/// Wrapper para el JSON
-/// </summary>
-[System.Serializable]
-public class ListaHabilidadesUsuario
-{
-    public DatosHabilidadUsuario[] habilidades;
-}
+///// <summary>
+///// Wrapper para el JSON
+///// </summary>
+//[System.Serializable]
+//public class ListaHabilidadesUsuario
+//{
+//    public DatosHabilidadUsuario[] habilidades;
+//}

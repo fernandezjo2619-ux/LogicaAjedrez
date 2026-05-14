@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class SeleccionarPieza : MonoBehaviour
@@ -101,8 +102,11 @@ public class SeleccionarPieza : MonoBehaviour
         }
 
         //Ejecutar lógica del juego
-        juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
-
+        bool exito = juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
+        if (exito)
+        {
+            CrearPiezas.Instance.NotificarMovimientoUsuario();
+        }
         //CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
         CrearPiezas.Instance.SincronizarVisual();
         //CrearPiezas.Instance.IntentarMovimientoIA();

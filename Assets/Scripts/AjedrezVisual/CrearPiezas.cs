@@ -1,10 +1,30 @@
-using AjedrezLogica;
-using AjedrezLogica.IA;
-using AjedrezLogica.IA.Estructuras;
-using AjedrezLogica.Recursos;
+
+using LogicProject;
+using LogicProject.IA;
+using LogicProject.IA.Estructuras;
+using LogicProject.IA.Utilidad;
+using LogicProject.Recursos.Class;
+using LogicProject.Recursos.Enum;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public class Estructuras {
+    public int p_id_partida { get; set; }
+    public int p_id_usuario { get; set; }
+    public int p_id_pieza { get; set; }
+    public int p_turno_numero { get; set; }
+    public int p_x_origen { get; set; }
+    public int p_y_origen { get; set; }
+    public int p_x_fin { get; set; }
+    public int p_y_fin { get; set; }
+    public int? p_id_habilidad_usada { get; set; } = null;
+    public int? p_id_pieza_empujada { get; set; } = null;
+    public int? p_x_origen_empujada { get; set; } = null;
+    public int? p_y_origen_empujada { get; set; } = null;
+    public int? p_x_fin_empujada { get; set; } = null;
+    public int? p_y_fin_empujada { get; set; } = null;
+}
 
 public class CrearPiezas : MonoBehaviour
 {
@@ -35,11 +55,19 @@ public class CrearPiezas : MonoBehaviour
     //public static GameObject[,] piezasVisuales = new GameObject[8, 8];
 
     public Dictionary<Pieza, PiezasPrefab> mapaPiezas = new();
+    public Dictionary<int, Estructuras> mapaRegistroMovimiento = new();
 
     // Instancias de MonoBehaviour para acceso a métodos coroutine
     private SupabaseRPC GuardarPartidaBD;
     private ObtenerHabilidadesUsuario HabilidadesUsuarioBD;
     private RegistrarMovimiento registrarMovimientoDb;
+
+    private bool movimientoUsuarioRealizado = false;
+
+    public void NotificarMovimientoUsuario()
+    {
+        movimientoUsuarioRealizado = true;
+    }
 
     void Awake()
     {
@@ -160,15 +188,33 @@ public class CrearPiezas : MonoBehaviour
 
                 // Registrar en BD
                 int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-                StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
-                    juego.IdPartida, idUsuario, accionIa.Pieza.Id, NumeroDeTurno,
-                    xOrigen, yOrigen, accionIa.XFin, accionIa.YFin,
-                    (int)accionIa.Pieza.Habilidad.TipoHabilidad,
-                    accionIa.PiezaEmpujada?.Id ?? null,
-                    accionIa.PiezaEmpujada?.Posicion.X ?? null,
-                    accionIa.PiezaEmpujada?.Posicion.Y ?? null,
-                    accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
-                    accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null));
+                //StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
+                //    juego.IdPartida, idUsuario, accionIa.Pieza.Id, NumeroDeTurno,
+                //    xOrigen, yOrigen, accionIa.XFin, accionIa.YFin,
+                //    (int)accionIa.Pieza.Habilidad.TipoHabilidad,
+                //    accionIa.PiezaEmpujada?.Id ?? null,
+                //    accionIa.PiezaEmpujada?.Posicion.X ?? null,
+                //    accionIa.PiezaEmpujada?.Posicion.Y ?? null,
+                //    accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
+                //    accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null));
+
+                mapaRegistroMovimiento[NumeroDeTurno] = new Estructuras
+                {
+                    p_id_partida = juego.IdPartida,
+                    p_id_usuario = idUsuario,
+                    p_id_pieza = accionIa.Pieza.Id,
+                    p_turno_numero = NumeroDeTurno,
+                    p_x_origen = xOrigen,
+                    p_y_origen = yOrigen,
+                    p_x_fin = accionIa.XFin,
+                    p_y_fin = accionIa.YFin,
+                    p_id_habilidad_usada = (int)accionIa.Pieza.Habilidad.TipoHabilidad,
+                    p_id_pieza_empujada = accionIa.PiezaEmpujada?.Id,
+                    p_x_origen_empujada = accionIa.PiezaEmpujada?.Posicion.X,
+                    p_y_origen_empujada = accionIa.PiezaEmpujada?.Posicion.Y,
+                    p_x_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
+                    p_y_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null
+                };
 
                 Debug.Log("Pieza movida por IA: " + accionIa.Pieza.Tipo);
                 yield return new WaitForSeconds(2);
@@ -181,10 +227,33 @@ public class CrearPiezas : MonoBehaviour
                 // Esperar hasta que el usuario haga su movimiento
                 yield return new WaitUntil(() => movimientoUsuarioRealizado);
 
+                SincronizarVisual();
+
+                int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
+                //mapaRegistroMovimiento[NumeroDeTurno] = new Estructuras
+                //{
+                //    p_id_partida = juego.IdPartida,
+                //    p_id_usuario = idUsuario,
+                //    p_id_pieza = accionIa.Pieza.Id,
+                //    p_turno_numero = NumeroDeTurno,
+                //    p_x_origen = xOrigen,
+                //    p_y_origen = yOrigen,
+                //    p_x_fin = accionIa.XFin,
+                //    p_y_fin = accionIa.YFin,
+                //    p_id_habilidad_usada = (int)accionIa.Pieza.Habilidad.TipoHabilidad,
+                //    p_id_pieza_empujada = accionIa.PiezaEmpujada?.Id,
+                //    p_x_origen_empujada = accionIa.PiezaEmpujada?.Posicion.X,
+                //    p_y_origen_empujada = accionIa.PiezaEmpujada?.Posicion.Y,
+                //    p_x_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
+                //    p_y_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null
+                //};
+
                 Debug.Log("Movimiento del usuario completado");
             }
             NumeroDeTurno++;
         }
+
+        // Registrar resultado final en BD, mostrar mensaje de victoria, registrar movimientos realizados tipo dicionario etc.
     }
 
     void Start()

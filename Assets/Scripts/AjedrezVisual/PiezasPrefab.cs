@@ -1,5 +1,6 @@
-using AjedrezLogica;
-using AjedrezLogica.Recursos;
+
+using LogicProject.Recursos.Class;
+using LogicProject.Recursos.Enum;
 using UnityEngine;
 
 public class PiezasPrefab : MonoBehaviour
