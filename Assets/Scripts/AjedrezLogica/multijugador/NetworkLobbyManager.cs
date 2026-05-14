@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 /// Proporciona funcionalidades de host, cliente, descubrimiento de salas y sincronizacion
 /// </summary>
 public class NetworkLobbyManager : MonoBehaviour
+//hola
 {
     private const int BASE_PORT = 8000;
     private const int MAX_PLAYERS = 2;
@@ -21,8 +22,8 @@ public class NetworkLobbyManager : MonoBehaviour
     private const int DISCOVERY_TIMEOUT = 3000;
     
     // TODO: BORRAR estas constantes cuando los IDs reales estén disponibles desde la UI/BD
-    private const int TODO_TEST_ID_JUGADOR1 = 3;
-    private const int TODO_TEST_ID_JUGADOR2 = 4;
+    private const int TODO_TEST_ID_JUGADOR1 = 6;
+    private const int TODO_TEST_ID_JUGADOR2 = 7;
     
     [SerializeField] private int currentPort = BASE_PORT;
     [SerializeField] private bool isServer = false;
