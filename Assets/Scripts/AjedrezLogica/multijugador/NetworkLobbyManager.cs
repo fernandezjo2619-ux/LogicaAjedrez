@@ -71,6 +71,7 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private bool isDiscoveringRooms = false;
     private Coroutine discoveryCoroutine;
+    private Coroutine _broadcastCoroutine;
     
     private void Awake()
     {
@@ -78,17 +79,52 @@ public class NetworkLobbyManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            // Escuchar cambios de escena para cerrar el puerto al volver al menú
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
         }
     }
-    
+
+    /// <summary>
+    /// Se ejecuta cada vez que una escena termina de cargarse.
+    /// Si es la escena del menú, cierra el puerto TCP y todos los recursos de red.
+    /// </summary>
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Nombres de la escena del menú principal — ajusta si cambia el nombre
+        bool esMenuPrincipal = scene.name == "Menu_Inicio"
+                            || scene.name == "MenuInicio"
+                            || scene.name == "MainMenu";
+
+        if (esMenuPrincipal)
+        {
+            Debug.Log($"[NETWORK] Escena '{scene.name}' detectada — cerrando puerto y recursos de red.");
+
+            // Parar flags primero para evitar que corrutinas sigan en fondo
+            _acceptingConnections = false;
+            isConnected           = false;
+            isServer              = false;
+
+            // Limpiar todos los recursos (puerto TCP, UDP, corrutinas)
+            CleanupNetworkResources();
+
+            // Limpiar estado de jugadores
+            connectedPlayers.Clear();
+            discoveredRooms.Clear();
+            connectedPlayerId = -1;
+
+            Debug.Log("[NETWORK] Puerto 8000 cerrado. Recursos de red liberados al volver al menú.");
+        }
+    }
+
     private void OnDestroy()
     {
         if (instance == this)
         {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             CleanupNetworkResources();
         }
     }
@@ -371,12 +407,19 @@ public class NetworkLobbyManager : MonoBehaviour
     {
         Debug.Log("[NETWORK] === Desconectando ===");
         
+        // Parar flags ANTES de limpiar recursos para que AcceptClientsAsync
+        // y BroadcastDiscoveryCoroutine terminen limpiamente
+        _acceptingConnections = false;
         isConnected = false;
+        isServer = false;
+        
         CleanupNetworkResources();
         
         connectedPlayers.Clear();
         discoveredRooms.Clear();
         connectedPlayerId = -1;
+        
+        Debug.Log("[NETWORK] === Puerto cerrado y recursos liberados ===");
     }
     
     /// <summary>
@@ -733,7 +776,13 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private void StartBroadcastDiscovery(string roomName, string ipAddress, int port)
     {
-        StartCoroutine(BroadcastDiscoveryCoroutine(roomName, ipAddress, port));
+        // Parar broadcast previo si existiera
+        if (_broadcastCoroutine != null)
+        {
+            StopCoroutine(_broadcastCoroutine);
+            _broadcastCoroutine = null;
+        }
+        _broadcastCoroutine = StartCoroutine(BroadcastDiscoveryCoroutine(roomName, ipAddress, port));
     }
     
     private IEnumerator BroadcastDiscoveryCoroutine(string roomName, string ipAddress, int port)
@@ -828,38 +877,57 @@ public class NetworkLobbyManager : MonoBehaviour
     
     private void CleanupNetworkResources()
     {
+        // 1. Parar corrutina de broadcast UDP explícitamente
+        if (_broadcastCoroutine != null)
+        {
+            StopCoroutine(_broadcastCoroutine);
+            _broadcastCoroutine = null;
+            Debug.Log("[NETWORK] Broadcast UDP detenido");
+        }
+
+        // 2. Parar descubrimiento de salas
+        StopRoomDiscovery();
+
+        // 3. Cerrar el servidor TCP (libera el puerto)
         try
         {
             if (tcpListener != null)
             {
                 tcpListener.Stop();
                 tcpListener = null;
+                Debug.Log("[NETWORK] Puerto TCP del servidor cerrado");
             }
-            
-            foreach (var client in connectedClients)
-            {
-                try
-                {
-                    client?.Close();
-                    client?.Dispose();
-                }
-                catch { }
-            }
-            connectedClients.Clear();
-            
-            if (discoveryClient != null)
-            {
-                discoveryClient.Close();
-                discoveryClient.Dispose();
-                discoveryClient = null;
-            }
-            
-            StopRoomDiscovery();
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[NETWORK] Error limpiando recursos: {ex.Message}");
+            Debug.LogWarning($"[NETWORK] Error cerrando tcpListener: {ex.Message}");
         }
+
+        // 4. Cerrar todas las conexiones de clientes
+        foreach (var client in connectedClients)
+        {
+            try
+            {
+                client?.Close();
+                client?.Dispose();
+            }
+            catch { }
+        }
+        connectedClients.Clear();
+
+        // 5. Cerrar cliente UDP de descubrimiento si sigue abierto
+        if (discoveryClient != null)
+        {
+            try
+            {
+                discoveryClient.Close();
+                discoveryClient.Dispose();
+            }
+            catch { }
+            discoveryClient = null;
+        }
+
+        Debug.Log("[NETWORK] Todos los recursos de red han sido liberados");
     }
 }
 

@@ -114,7 +114,7 @@ public class LobbyUIController : MonoBehaviour
 
     public void VolverPanel()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MenuInicio");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Menu_Inicio");
     }
 
     private void OnDestroy()
@@ -484,8 +484,8 @@ public class LobbyUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Maneja el evento de presionar el boton Volver
-    /// Desconecta y regresa al menu principal
+    /// Maneja el evento de presionar el boton Volver.
+    /// Si el jugador era Host, cierra el puerto TCP del servidor antes de salir.
     /// </summary>
     public void OnBackButtonPressed()
     {
@@ -493,10 +493,31 @@ public class LobbyUIController : MonoBehaviour
 
         if (networkManager != null)
         {
-            networkManager.Disconnect();
+            bool eraHost = networkManager.IsServer();
+
+            // Actualizar UI para indicar que se está cerrando la sala/conexión
+            if (eraHost)
+            {
+                UpdateStatusLabel("Cerrando sala y puerto...", statusWaitingColor);
+                Debug.Log("[LOBBY_UI] Era Host — cerrando servidor y liberando puerto TCP");
+            }
+            else
+            {
+                UpdateStatusLabel("Desconectando...", statusWaitingColor);
+            }
+
+            // Deshabilitar botones para evitar doble-click
+            if (backButton != null)  backButton.interactable  = false;
+            if (hostButton != null)  hostButton.interactable  = false;
+            if (joinButton != null)  joinButton.interactable  = false;
+
+            // Cerrar descubrimiento UDP primero, luego la conexión TCP (incluye tcpListener.Stop())
             networkManager.StopRoomDiscovery();
+            networkManager.Disconnect();  // <-- cierra el puerto del Host si era servidor
+
+            Debug.Log($"[LOBBY_UI] Recursos de red liberados (eraHost={eraHost}). Volviendo al menú.");
         }
-        
+
         SceneManager.LoadScene("Menu_Inicio");
     }
 
