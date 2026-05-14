@@ -11,7 +11,8 @@ public class MenuInicio : MonoBehaviour
 
     public void JugarVsJugador()
     {
-        ConfigPartida.vsIA = false;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
+        GetComponent<LobbyUIController>().MostrarPanel();
+        //ConfigPartida.vsIA = false;
+        //UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
     }
 }

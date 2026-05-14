@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Menu_Inicio.unity
+    guid: 7fcf4d9862ead1b4b82b2b7de087566c
+  - enabled: 1
+    path: Assets/Scenes/LobbyScene.unity
+    guid: 801a2bc1daf9e18418d44677c28f13b5
+  - enabled: 1
+    path: Assets/Scenes/PartidaTablero.unity
+    guid: 747643d425b94fb4aad47467f4ab1958
   m_configObjects: {}
