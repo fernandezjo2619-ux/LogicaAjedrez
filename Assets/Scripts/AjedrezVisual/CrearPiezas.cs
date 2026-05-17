@@ -64,6 +64,7 @@ public class CrearPiezas : MonoBehaviour
     private RegistrarMovimiento registrarMovimientoDb;
 
     private bool movimientoUsuarioRealizado = false;
+    private ChessGameSyncManager chessSyncManager;
 
     public void NotificarMovimientoUsuario()
     {
@@ -282,6 +283,63 @@ public class CrearPiezas : MonoBehaviour
 
             StartCoroutine(IniciarPartida(idB, idN, 0));
         }
+        // --- Suscribirse a movimientos remotos TCP ---
+        chessSyncManager = FindObjectOfType<ChessGameSyncManager>();
+        if (chessSyncManager != null)
+        {
+            chessSyncManager.OnMoveReceived += AplicarMovimientoRemoto;
+            Debug.Log("[CrearPiezas] Suscrito a movimientos remotos TCP");
+        }
+        else
+        {
+            Debug.LogWarning("[CrearPiezas] ChessGameSyncManager no encontrado, los movimientos remotos no se aplicarán");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (chessSyncManager != null)
+        {
+            chessSyncManager.OnMoveReceived -= AplicarMovimientoRemoto;
+        }
+    }
+
+    /// <summary>
+    /// Aplica un movimiento recibido del oponente remoto por TCP.
+    /// Ejecuta la lógica del juego y sincroniza la vista visual.
+    /// </summary>
+    private void AplicarMovimientoRemoto(ChessGameSyncManager.ChessMoveSync move)
+    {
+        if (juego == null)
+        {
+            Debug.LogError("[CrearPiezas] juego es null, no se puede aplicar movimiento remoto");
+            return;
+        }
+
+        Debug.LogWarning($"[CrearPiezas] Aplicando movimiento remoto: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
+
+        // Comprobar si hay una pieza enemiga en la casilla destino para eliminarla visualmente
+        Pieza piezaEnDestino = juego.Tablero[move.XFin, move.YFin];
+        if (piezaEnDestino != null)
+        {
+            EliminarPiezaVisual(piezaEnDestino);
+        }
+
+        // Ejecutar el movimiento en la lógica del juego
+        bool exito = juego.RealizarMovimiento(move.XOrigen, move.YOrigen, move.XFin, move.YFin);
+
+        if (exito)
+        {
+            Debug.Log($"[CrearPiezas] Movimiento remoto aplicado exitosamente");
+            // Notificar que el turno del oponente (remoto) ha terminado
+            NotificarMovimientoUsuario();
+        }
+        else
+        {
+            Debug.LogError($"[CrearPiezas] El movimiento remoto ({move.XOrigen},{move.YOrigen})->({move.XFin},{move.YFin}) fue rechazado por la lógica");
+        }
+
+        SincronizarVisual();
     }
 
     void CrearPrefabs()
