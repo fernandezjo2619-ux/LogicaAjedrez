@@ -9,7 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Estructuras {
+public class Estructuras
+{
     public int p_id_partida { get; set; }
     public int p_id_usuario { get; set; }
     public int p_id_pieza { get; set; }
@@ -79,10 +80,10 @@ public class CrearPiezas : MonoBehaviour
         registrarMovimientoDb = GetComponent<RegistrarMovimiento>() ?? gameObject.AddComponent<RegistrarMovimiento>();
     }
 
-    private IEnumerator IniciarPartida(int idUsuario1, int idUsuario2)
+    private IEnumerator IniciarPartida(int idUsuario1, int idUsuario2, int idPartidaExistente)
     {
         // 1. Guardar partida en BD y obtener el ID
-        int idPartida = 0;
+        int idPartida = idPartidaExistente > 0 ? idPartidaExistente : 0;
         yield return StartCoroutine(GuardarPartidaBD.GuardarPartida(idUsuario1, idUsuario2,
             resultado => idPartida = resultado));
 
@@ -151,6 +152,7 @@ public class CrearPiezas : MonoBehaviour
         int NumeroDeTurno = 1;
         ColorPieza turno;
         Accion accionIa;
+        movimientoUsuarioRealizado = false;
 
         while (true)
         {
@@ -188,16 +190,6 @@ public class CrearPiezas : MonoBehaviour
 
                 // Registrar en BD
                 int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-                //StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
-                //    juego.IdPartida, idUsuario, accionIa.Pieza.Id, NumeroDeTurno,
-                //    xOrigen, yOrigen, accionIa.XFin, accionIa.YFin,
-                //    (int)accionIa.Pieza.Habilidad.TipoHabilidad,
-                //    accionIa.PiezaEmpujada?.Id ?? null,
-                //    accionIa.PiezaEmpujada?.Posicion.X ?? null,
-                //    accionIa.PiezaEmpujada?.Posicion.Y ?? null,
-                //    accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
-                //    accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null));
-
                 mapaRegistroMovimiento[NumeroDeTurno] = new Estructuras
                 {
                     p_id_partida = juego.IdPartida,
@@ -222,7 +214,6 @@ public class CrearPiezas : MonoBehaviour
             else
             {
                 // ── TURNO DE USUARIO ──
-                movimientoUsuarioRealizado = false;
 
                 // Esperar hasta que el usuario haga su movimiento
                 yield return new WaitUntil(() => movimientoUsuarioRealizado);
@@ -260,99 +251,54 @@ public class CrearPiezas : MonoBehaviour
     {
         int idB = 0;
         int idN = 0;
-        
+
         // --- DETECTAR SI VENIMOS DEL LOBBY MULTIJUGADOR ---
         // El Lobby guarda estos datos antes de cambiar de escena
         bool esMultijugador = PlayerPrefs.HasKey("LocalPlayerId") && PlayerPrefs.GetInt("LocalPlayerId", 0) > 0;
-        
+
         if (esMultijugador)
         {
             int idJ1 = PlayerPrefs.GetInt("IdJugador1", 0);
             int idJ2 = PlayerPrefs.GetInt("IdJugador2", 0);
             int idPartidaExistente = PlayerPrefs.GetInt("IdPartida", -1);
-            
+
             Debug.LogWarning($"[DEBUG_PIEZAS] MULTIJUGADOR DETECTADO: J1={idJ1}, J2={idJ2}, Partida={idPartidaExistente}");
-            
-            if (idJ1 == 0 || idJ2 == 0) {
+
+            if (idJ1 == 0 || idJ2 == 0)
+            {
                 Debug.LogError("[DEBUG_PIEZAS] ERROR: Los IDs en PlayerPrefs son 0. ¿Se guardaron bien en el Lobby?");
             }
-            
-            idB = idJ1; 
-            idN = idJ2;
-            
-            StartCoroutine(IniciarPartidaMultijugador(idB, idN, idPartidaExistente));
+            if (random.Next(2) == 1) { idB = idJ1; idN = idJ2; }
+            else { idN = idJ1; idB = idJ2; }
+
+            StartCoroutine(IniciarPartida(idB, idN, idPartidaExistente));
         }
         else
         {
-            // --- MODO LOCAL / IA ORIGINAL ---
-            if (ConfigPartida.vsIA)
-            {
-                int idIA = ConfigPartida.idIA;
-                int idJugador = ConfigPartida.idJugador1;
-                if (random.Next(2) == 1) { idB = idIA; idN = idJugador; }
-                else { idN = idIA; idB = idJugador; }
-            }
-            else
-            {
-                int idJugador1 = ConfigPartida.idJugador1;
-                int idJugador2 = ConfigPartida.idJugador2 == null ? 0 : (int)ConfigPartida.idJugador2;
-                if (random.Next(2) == 1) { idB = idJugador1; idN = idJugador2; }
-                else { idN = idJugador1; idB = idJugador2; }
-            }
-            StartCoroutine(IniciarPartida(idB, idN));
-        }
-    }
+            int idIA = ConfigPartida.idIA;
+            int idJugador = ConfigPartida.idJugador1;
+            if (random.Next(2) == 1) { idB = idIA; idN = idJugador; }
+            else { idN = idIA; idB = idJugador; }
 
-    /// <summary>
-    /// Inicialización especial para multijugador:
-    /// Salta el guardado en BD y la lógica de niveles de IA.
-    /// </summary>
-    private IEnumerator IniciarPartidaMultijugador(int idUsuario1, int idUsuario2, int idPartidaExistente)
-    {
-        // Usar 0 si el ID de partida es inválido
-        int idPartida = idPartidaExistente > 0 ? idPartidaExistente : 0;
-        
-        juego = new BaseJuego();
-        juego.JuegoBase(idUsuario1, idUsuario2, idPartida);
-        
-        // Inicializar usuarios manualmente para evitar que IDs 1-4 disparen la IA
-        if (usuario1 == null) usuario1 = new Usuario();
-        if (usuario2 == null) usuario2 = new Usuario();
-        
-        usuario1.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, new List<DatosHabilidadUsuario>(), idUsuario1);
-        usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro,  new List<DatosHabilidadUsuario>(), idUsuario2);
-        
-        Debug.Log($"[DEBUG_PIEZAS] Lógica inicializada. Conteo de piezas en la lista: {juego.ListaPiezas.Count}");
-        
-        iaB = null; 
-        iaN = null;
-        
-        if (juego.ListaPiezas.Count == 0) {
-            Debug.LogError("[DEBUG_PIEZAS] ERROR: ListaPiezas está VACÍA después de inicializar usuarios.");
+            StartCoroutine(IniciarPartida(idB, idN, 0));
         }
-        
-        CrearPrefabs();
-        
-        Debug.Log("[CREAR_PIEZAS] Piezas generadas correctamente para multijugador.");
-        
-        yield return null;
-        StartCoroutine(BucleConEspera());
     }
 
     void CrearPrefabs()
     {
         Debug.Log($"[DEBUG_PIEZAS] Instanciando {juego.ListaPiezas.Count} prefabs...");
-        
+
         if (peonPrefab == null) Debug.LogError("[DEBUG_PIEZAS] ERROR: peonPrefab no está asignado en el Inspector.");
 
         foreach (var piezaLogica in juego.ListaPiezas)
         {
             GameObject prefab = ObtenerPrefab(piezaLogica.Tipo, piezaLogica.Color);
-            if (prefab == null) {
+            if (prefab == null)
+            {
                 Debug.LogError($"[DEBUG_PIEZAS] No se encontró prefab para {piezaLogica.Tipo}");
                 continue;
             }
-            
+
             GameObject piezaObj = Instantiate(prefab);
             // ... (resto igual)
 

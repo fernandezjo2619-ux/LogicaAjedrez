@@ -58,7 +58,7 @@ public class LoginUIController : MonoBehaviour
     {
         Debug.Log($"¡Bienvenido {datosUsuario.nombre_usuario}! ID: {datosUsuario.id_usuario}");
 
-        PlayerPrefs.SetInt("UsuarioID", datosUsuario.id_usuario);
+        PlayerPrefs.SetInt("LocalPlayerId", datosUsuario.id_usuario);
         PlayerPrefs.SetString("UsuarioNombre", datosUsuario.nombre_usuario);
         PlayerPrefs.Save();
 
