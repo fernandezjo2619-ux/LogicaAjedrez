@@ -318,19 +318,27 @@ public class CrearPiezas : MonoBehaviour
 
         Debug.LogWarning($"[CrearPiezas] Aplicando movimiento remoto: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
 
-        // Comprobar si hay una pieza enemiga en la casilla destino para eliminarla visualmente
-        var casillaDestino = juego.Tablero.Grid[move.XFin, move.YFin];
-        if (casillaDestino != null && casillaDestino.Pieza != null)
-        {
-            EliminarPiezaVisual(casillaDestino.Pieza);
-        }
-
         // Ejecutar el movimiento en la lógica del juego
         bool exito = juego.RealizarMovimiento(move.XOrigen, move.YOrigen, move.XFin, move.YFin);
 
         if (exito)
         {
             Debug.Log($"[CrearPiezas] Movimiento remoto aplicado exitosamente");
+            
+            // Eliminar piezas visuales que ya no existen en la lógica (capturadas)
+            List<Pieza> piezasAEliminar = new List<Pieza>();
+            foreach (var kvp in mapaPiezas)
+            {
+                if (!juego.ListaPiezas.Contains(kvp.Key))
+                {
+                    piezasAEliminar.Add(kvp.Key);
+                }
+            }
+            foreach (var pieza in piezasAEliminar)
+            {
+                EliminarPiezaVisual(pieza);
+            }
+
             // Notificar que el turno del oponente (remoto) ha terminado
             NotificarMovimientoUsuario();
         }
