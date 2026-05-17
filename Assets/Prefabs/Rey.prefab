@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6321231879150029540}
   - component: {fileID: 1432514306540523576}
   - component: {fileID: 3405019705296590812}
+  - component: {fileID: 5996590369049180911}
   m_Layer: 0
   m_Name: Rey
   m_TagString: Pieza
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6321231879150029540
 MeshFilter:
@@ -104,3 +105,24 @@ MonoBehaviour:
   color: 0
   fila: 0
   columna: 0
+--- !u!65 &5996590369049180911
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6976396686553249635}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.41555712, y: 1.4310576, z: 0.44618124}
+  m_Center: {x: -0.05054207, y: 0.7155288, z: -0.058294304}
