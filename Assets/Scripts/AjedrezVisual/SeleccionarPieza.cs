@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -106,6 +106,13 @@ public class SeleccionarPieza : MonoBehaviour
         if (exito)
         {
             CrearPiezas.Instance.NotificarMovimientoUsuario();
+            
+            // Enviar movimiento por TCP al oponente
+            var syncManager = FindObjectOfType<ChessGameSyncManager>();
+            if (syncManager != null)
+            {
+                syncManager.SyncChessMove(xOrigen, yOrigen, xDestino, yDestino);
+            }
         }
         //CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
         CrearPiezas.Instance.SincronizarVisual();
