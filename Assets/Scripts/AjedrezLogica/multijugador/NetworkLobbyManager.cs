@@ -505,6 +505,8 @@ public class NetworkLobbyManager : MonoBehaviour
             return;
         }
         
+        Debug.LogWarning($"[NETWORK] SendMessage llamado. isServer={isServer}, connectedClients={connectedClients.Count}");
+
         if (isServer)
         {
             SendToAllClients(message);
@@ -517,6 +519,7 @@ public class NetworkLobbyManager : MonoBehaviour
                 {
                     byte[] data = System.Text.Encoding.UTF8.GetBytes(message + "\n");
                     connectedClients[0].GetStream().Write(data, 0, data.Length);
+                    Debug.LogWarning($"[NETWORK] Mensaje enviado al HOST: {message}");
                 }
                 catch (Exception ex)
                 {
@@ -525,7 +528,7 @@ public class NetworkLobbyManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[NETWORK] No hay conexión TCP al host");
+                Debug.LogWarning($"[NETWORK] No hay conexión TCP al host. Count={connectedClients.Count}");
             }
         }
     }

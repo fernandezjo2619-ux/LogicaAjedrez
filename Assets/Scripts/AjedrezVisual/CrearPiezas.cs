@@ -261,16 +261,19 @@ public class CrearPiezas : MonoBehaviour
         {
             int idJ1 = PlayerPrefs.GetInt("IdJugador1", 0);
             int idJ2 = PlayerPrefs.GetInt("IdJugador2", 0);
-            int idPartidaExistente = PlayerPrefs.GetInt("IdPartida", -1);
-
-            Debug.LogWarning($"[DEBUG_PIEZAS] MULTIJUGADOR DETECTADO: J1={idJ1}, J2={idJ2}, Partida={idPartidaExistente}");
+            int idPartidaExistente = PlayerPrefs.GetInt("IdPartida", 0);
 
             if (idJ1 == 0 || idJ2 == 0)
             {
-                Debug.LogError("[DEBUG_PIEZAS] ERROR: Los IDs en PlayerPrefs son 0. ¿Se guardaron bien en el Lobby?");
+                Debug.LogWarning("[CrearPiezas] Faltan IDs en PlayerPrefs. Usando IDs por defecto 1 y 2.");
+                idJ1 = 1;
+                idJ2 = 2;
             }
-            if (random.Next(2) == 1) { idB = idJ1; idN = idJ2; }
-            else { idN = idJ1; idB = idJ2; }
+            
+            // IMPORTANTE: En multijugador NO podemos hacer un random independiente en cada cliente
+            // porque podrían quedar con colores invertidos. El Host (idJ1) siempre será Blanco y el Cliente (idJ2) Negro.
+            idB = idJ1;
+            idN = idJ2;
 
             StartCoroutine(IniciarPartida(idB, idN, idPartidaExistente));
         }
