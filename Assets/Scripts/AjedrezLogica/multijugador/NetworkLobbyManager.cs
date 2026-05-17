@@ -55,14 +55,12 @@ public class NetworkLobbyManager : MonoBehaviour
     public delegate void OnRoomDiscoveredDelegate(RoomDiscoveryData roomData);
     public delegate void OnConnectionFailedDelegate(string errorMessage);
     public delegate void OnConnectionEstablishedDelegate();
-    public delegate void OnChessMoveReceivedDelegate(string moveData);
     
     public event OnPlayerConnectedDelegate OnPlayerConnected;
     public event OnPlayerDisconnectedDelegate OnPlayerDisconnected;
     public event OnRoomDiscoveredDelegate OnRoomDiscovered;
     public event OnConnectionFailedDelegate OnConnectionFailed;
     public event OnConnectionEstablishedDelegate OnConnectionEstablished;
-    public event OnChessMoveReceivedDelegate OnChessMoveReceived;
     
     private static NetworkLobbyManager instance;
     
@@ -494,47 +492,6 @@ public class NetworkLobbyManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Envía un mensaje TCP al otro jugador (bidireccional).
-    /// - Si eres HOST: envía a todos los clientes conectados.
-    /// - Si eres CLIENTE: envía al host a través de la conexión TCP existente.
-    /// Usar para sincronizar movimientos de ajedrez durante la partida.
-    /// </summary>
-    public void SendMessage(string message)
-    {
-        if (!isConnected)
-        {
-            Debug.LogWarning("[NETWORK] No se puede enviar mensaje: no hay conexión activa");
-            return;
-        }
-        
-        if (isServer)
-        {
-            // HOST → enviar a todos los clientes
-            SendToAllClients(message);
-        }
-        else
-        {
-            // CLIENTE → enviar al host (primer TcpClient en connectedClients)
-            if (connectedClients.Count > 0 && connectedClients[0] != null && connectedClients[0].Connected)
-            {
-                try
-                {
-                    byte[] data = System.Text.Encoding.UTF8.GetBytes(message + "\n");
-                    connectedClients[0].GetStream().Write(data, 0, data.Length);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[NETWORK] Error enviando mensaje al host: {ex.Message}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[NETWORK] No hay conexión TCP al host para enviar mensaje");
-            }
-        }
-    }
-    
-    /// <summary>
     /// Inicia la escucha de mensajes entrantes en un hilo de fondo.
     /// Llamado tanto en el cliente (tras conectar) como en el host (por cada cliente aceptado).
     /// </summary>
@@ -806,27 +763,6 @@ public class NetworkLobbyManager : MonoBehaviour
                     
                     Debug.LogWarning($"[NETWORK] START_GAME recibido — cargando escena: {sceneName}");
                     SceneManager.LoadScene(sceneName);
-                }
-                break;
-            
-            case "CHESS_MOVE":
-                // Formato: CHESS_MOVE|idPartida|idJugador|xOrig|yOrig|xFin|yFin|timestamp|idHab|idPiezaEmp|xOrigEmp|yOrigEmp|xFinEmp|yFinEmp
-                if (parts.Length >= 14)
-                {
-                    // Si soy host, retransmitir el movimiento a todos los demás clientes (relay)
-                    if (isServer)
-                    {
-                        SendToAllClients(message);
-                    }
-                    
-                    // Reconstruir los datos del movimiento (sin el prefijo CHESS_MOVE)
-                    string moveData = message.Substring("CHESS_MOVE|".Length);
-                    Debug.LogWarning($"[NETWORK] CHESS_MOVE recibido: {moveData}");
-                    OnChessMoveReceived?.Invoke(moveData);
-                }
-                else
-                {
-                    Debug.LogWarning($"[NETWORK] CHESS_MOVE con formato inválido ({parts.Length} campos, se esperan 14): {message}");
                 }
                 break;
                 
