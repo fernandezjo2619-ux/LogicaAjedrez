@@ -64,6 +64,7 @@ public class CrearPiezas : MonoBehaviour
     private RegistrarMovimiento registrarMovimientoDb;
 
     private bool movimientoUsuarioRealizado = false;
+    private ChessGameSyncManager chessSyncManager;
 
     public void NotificarMovimientoUsuario()
     {
@@ -97,14 +98,15 @@ public class CrearPiezas : MonoBehaviour
 
         StartCoroutine(BucleConEspera());
     }
-
-    IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
+    IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
     {
         // Inicializar usuarios si no existen
         if (usuario1 == null) usuario1 = new Usuario();
         if (usuario2 == null) usuario2 = new Usuario();
 
-        if (idUsuario1 <= 4)
+        bool esMultijugador = PlayerPrefs.HasKey("LocalPlayerId") && PlayerPrefs.GetInt("LocalPlayerId", 0) > 0;
+
+        if (!esMultijugador && idUsuario1 <= 4)
         {
             switch (idUsuario1)
             {
@@ -124,7 +126,7 @@ public class CrearPiezas : MonoBehaviour
             usuario1.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, habilidades, idUsuario1);
         }
 
-        if (idUsuario2 <= 4)
+        if (!esMultijugador && idUsuario2 <= 4)
         {
             switch (idUsuario2)
             {
@@ -143,16 +145,14 @@ public class CrearPiezas : MonoBehaviour
             List<DatosHabilidadUsuario> habilidades = HabilidadesUsuarioBD.ObtenerListaHabilidadesUsuario();
             usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro, habilidades, idUsuario2);
         }
-
-    }
+    }}
 
     private IEnumerator BucleConEspera()
     {
-        bool movimientoUsuarioRealizado = false;
         int NumeroDeTurno = 1;
         ColorPieza turno;
         Accion accionIa;
-        movimientoUsuarioRealizado = false;
+        this.movimientoUsuarioRealizado = false;
 
         while (true)
         {
@@ -216,7 +216,8 @@ public class CrearPiezas : MonoBehaviour
                 // ── TURNO DE USUARIO ──
 
                 // Esperar hasta que el usuario haga su movimiento
-                yield return new WaitUntil(() => movimientoUsuarioRealizado);
+                yield return new WaitUntil(() => this.movimientoUsuarioRealizado);
+                this.movimientoUsuarioRealizado = false;
 
                 SincronizarVisual();
 
@@ -282,6 +283,72 @@ public class CrearPiezas : MonoBehaviour
 
             StartCoroutine(IniciarPartida(idB, idN, 0));
         }
+        
+        // --- Suscribirse a movimientos remotos TCP ---
+        chessSyncManager = FindObjectOfType<ChessGameSyncManager>();
+        if (chessSyncManager != null)
+        {
+            chessSyncManager.OnMoveReceived += AplicarMovimientoRemoto;
+            Debug.Log("[CrearPiezas] Suscrito a movimientos remotos TCP");
+        }
+        else
+        {
+            Debug.LogWarning("[CrearPiezas] ChessGameSyncManager no encontrado, los movimientos remotos no se aplicarán");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (chessSyncManager != null)
+        {
+            chessSyncManager.OnMoveReceived -= AplicarMovimientoRemoto;
+        }
+    }
+
+    /// <summary>
+    /// Aplica un movimiento recibido del oponente remoto por TCP.
+    /// Ejecuta la lógica del juego y sincroniza la vista visual.
+    /// </summary>
+    private void AplicarMovimientoRemoto(ChessGameSyncManager.ChessMoveSync move)
+    {
+        if (juego == null)
+        {
+            Debug.LogError("[CrearPiezas] juego es null, no se puede aplicar movimiento remoto");
+            return;
+        }
+
+        Debug.LogWarning($"[CrearPiezas] Aplicando movimiento remoto: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
+
+        // Ejecutar el movimiento en la lógica del juego
+        bool exito = juego.RealizarMovimiento(move.XOrigen, move.YOrigen, move.XFin, move.YFin);
+
+        if (exito)
+        {
+            Debug.Log($"[CrearPiezas] Movimiento remoto aplicado exitosamente");
+            
+            // Eliminar piezas visuales que ya no existen en la lógica (capturadas)
+            List<Pieza> piezasAEliminar = new List<Pieza>();
+            foreach (var kvp in mapaPiezas)
+            {
+                if (!juego.ListaPiezas.Contains(kvp.Key))
+                {
+                    piezasAEliminar.Add(kvp.Key);
+                }
+            }
+            foreach (var pieza in piezasAEliminar)
+            {
+                EliminarPiezaVisual(pieza);
+            }
+
+            // Notificar que el turno del oponente (remoto) ha terminado
+            NotificarMovimientoUsuario();
+        }
+        else
+        {
+            Debug.LogError($"[CrearPiezas] El movimiento remoto ({move.XOrigen},{move.YOrigen})->({move.XFin},{move.YFin}) fue rechazado por la lógica");
+        }
+
+        SincronizarVisual();
     }
 
     void CrearPrefabs()
