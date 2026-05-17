@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3400465107290727561}
   - component: {fileID: 3895655478121398533}
   - component: {fileID: -3088945560253747788}
+  - component: {fileID: 8795449873392796123}
   m_Layer: 0
   m_Name: Peon
   m_TagString: Pieza
@@ -104,3 +105,24 @@ MonoBehaviour:
   color: 0
   fila: 0
   columna: 0
+--- !u!65 &8795449873392796123
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8506048585046219477}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.476022, y: 0.9612533, z: 0.45049483}
+  m_Center: {x: -0.06566379, y: 0.48062664, z: -0.08419631}

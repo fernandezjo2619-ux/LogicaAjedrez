@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8516019026800538159}
   - component: {fileID: 2894295698817052635}
   - component: {fileID: 5100700681463235691}
+  - component: {fileID: 2514734400657022064}
   m_Layer: 0
   m_Name: Caballo
   m_TagString: Pieza
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8516019026800538159
 MeshFilter:
@@ -105,3 +106,24 @@ MonoBehaviour:
   color: 0
   fila: 0
   columna: 0
+--- !u!65 &2514734400657022064
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5237956588584908933}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.40309274, y: 1.2238969, z: 0.6331676}
+  m_Center: {x: -0.06694689, y: 0.61194843, z: -0.0559216}

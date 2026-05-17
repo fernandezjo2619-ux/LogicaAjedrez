@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5302579699314939697}
   - component: {fileID: 3774188258449538708}
   - component: {fileID: 8147374860089072772}
+  - component: {fileID: 6204801638087106705}
   m_Layer: 0
   m_Name: Alfil
   m_TagString: Pieza
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5302579699314939697
 MeshFilter:
@@ -105,3 +106,24 @@ MonoBehaviour:
   color: 0
   fila: 0
   columna: 0
+--- !u!65 &6204801638087106705
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869716147752201318}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.38688326, y: 1.5826572, z: 0.4036312}
+  m_Center: {x: -0.043841504, y: 0.7913286, z: -0.047585703}

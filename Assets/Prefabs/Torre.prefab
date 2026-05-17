@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6629858810476747662}
   - component: {fileID: 834854611438292202}
   - component: {fileID: 6866462151200910575}
+  - component: {fileID: 4673984028753657180}
   m_Layer: 0
   m_Name: Torre
   m_TagString: Pieza
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6629858810476747662
 MeshFilter:
@@ -104,3 +105,24 @@ MonoBehaviour:
   color: 0
   fila: 0
   columna: 0
+--- !u!65 &4673984028753657180
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345705681942441374}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5445512, y: 1.0907849, z: 0.50720763}
+  m_Center: {x: -0.09289184, y: 0.54539245, z: -0.09794361}
