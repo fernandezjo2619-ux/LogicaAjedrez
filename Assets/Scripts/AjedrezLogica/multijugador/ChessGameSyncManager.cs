@@ -106,7 +106,7 @@ public class ChessGameSyncManager : MonoBehaviour
 
     private void RefreshGameDataIfInvalid()
     {
-        if (idPartida <= 0 || idJugadorLocal <= 0)
+        if (idJugadorLocal <= 0)
         {
             NetworkLobbyManager.GetGameDataFromPrefs(out int j1, out int j2, out int partida);
             idPartida = partida;
@@ -131,9 +131,9 @@ public class ChessGameSyncManager : MonoBehaviour
     {
         RefreshGameDataIfInvalid();
 
-        if (idPartida <= 0 || idJugadorLocal <= 0)
+        if (idJugadorLocal <= 0)
         {
-            Debug.LogError("[CHESS_SYNC] No se puede sincronizar sin datos de partida");
+            Debug.LogError("[CHESS_SYNC] No se puede sincronizar sin ID de jugador local");
             return;
         }
 
