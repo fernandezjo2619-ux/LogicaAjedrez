@@ -26,6 +26,7 @@ public class LobbyUIController : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI statusLabel;
     [SerializeField] private TextMeshProUGUI connectedPlayersLabel;
+    [SerializeField] private GameObject connectionPanel; // Panel exterior para mostrar estado/jugadores
     [SerializeField] private Transform roomListContainer;
     [SerializeField] private GameObject roomListButtonPrefab;
 
@@ -54,14 +55,13 @@ public class LobbyUIController : MonoBehaviour
 
         bool uiValid = ValidateUIReferences();
 
-        if (uiValid)
+        // Aunque falten referencias, intentamos configurar lo que haya
+        SetupUIListeners();
+        InitializeUIState();
+
+        if (!uiValid)
         {
-            SetupUIListeners();
-            InitializeUIState();
-        }
-        else
-        {
-            Debug.LogError("[LOBBY_UI] Inicialización incompleta: faltan referencias de UI en el Inspector.");
+            Debug.LogError("[LOBBY_UI] Inicialización con referencias faltantes. Revisar Inspector.");
         }
         
         // Iniciar descubrimiento de salas automáticamente para ver salas disponibles en la red
@@ -141,9 +141,9 @@ public class LobbyUIController : MonoBehaviour
         if (joinButton == null)       missingReferences.Add("joinButton");
         if (startGameButton == null)  missingReferences.Add("startGameButton");
         if (backButton == null)       missingReferences.Add("backButton");
-        if (roomNameInput == null)    missingReferences.Add("roomNameInput");
         if (statusLabel == null)      missingReferences.Add("statusLabel");
-        // ipAddressInput y portInput son opcionales — se auto-rellenan en InitializeUIState
+        if (connectionPanel == null)  missingReferences.Add("connectionPanel");
+        // roomNameInput, ipAddressInput y portInput son opcionales
         
         if (missingReferences.Count > 0)
         {
@@ -206,10 +206,10 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void SetupUIListeners()
     {
-        hostButton.onClick.AddListener(OnHostButtonPressed);
-        joinButton.onClick.AddListener(OnJoinButtonPressed);
-        startGameButton.onClick.AddListener(OnStartGameButtonPressed);
-        backButton.onClick.AddListener(OnBackButtonPressed);
+        if (hostButton != null) hostButton.onClick.AddListener(OnHostButtonPressed);
+        if (joinButton != null) joinButton.onClick.AddListener(OnJoinButtonPressed);
+        if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGameButtonPressed);
+        if (backButton != null) backButton.onClick.AddListener(OnBackButtonPressed);
 
         if (portInput != null)
         {
@@ -224,7 +224,11 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void InitializeUIState()
     {
-        startGameButton.gameObject.SetActive(false);
+        if (startGameButton != null) startGameButton.gameObject.SetActive(false);
+        
+        if (connectionPanel != null)
+            connectionPanel.SetActive(false); // Ocultar el panel exterior al inicio
+
         UpdateStatusLabel("Desconectado", statusDisconnectedColor);
         UpdatePlayersLabel();
         
@@ -232,12 +236,10 @@ public class LobbyUIController : MonoBehaviour
         if (roomNameInput != null)
             roomNameInput.text = string.Empty;
         
-        // Auto-rellenar IP local y puerto — el usuario no necesita tocarlos
-        string localIp = GetLocalIpAddress();
+        // No auto-rellenar IP local según solicitud del usuario
         if (ipAddressInput != null)
         {
-            ipAddressInput.text = localIp;
-            Debug.Log($"[LOBBY_UI] IP local detectada: {localIp}");
+            ipAddressInput.text = string.Empty;
         }
         
         if (portInput != null)
@@ -286,28 +288,48 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
 
-        string roomName = roomNameInput.text.Trim();
+        string roomName = "";
+        if (roomNameInput != null)
+        {
+            roomName = roomNameInput.text.Trim();
+        }
+
         if (string.IsNullOrEmpty(roomName))
         {
             roomName = "Sala de " + SystemInfo.deviceName;
         }
 
         UpdateStatusLabel("Iniciando servidor...", statusWaitingColor);
-        hostButton.interactable = false;
-        joinButton.interactable = false;
+        if (hostButton != null) hostButton.interactable = false;
+        if (joinButton != null) joinButton.interactable = false;
+
+        if (connectionPanel != null) 
+            connectionPanel.SetActive(true); // Mostrar inmediatamente
+
 
         if (networkManager.StartHost(roomName))
         {
             Debug.Log("[LOBBY_UI] Servidor iniciado exitosamente");
             UpdateUIForHost();
             networkManager.StartRoomDiscovery();
+            
+            // Mostrar IP local en el campo IP o en la etiqueta (statusLabel) según se ha pedido
+            string localIp = GetLocalIpAddress();
+            if (ipAddressInput != null)
+            {
+                ipAddressInput.text = localIp;
+            }
+            UpdateStatusLabel($"Sala creada. IP: {localIp}", statusConnectedColor);
         }
         else
         {
             Debug.LogError("[LOBBY_UI] Error iniciando servidor");
             UpdateStatusLabel("Error al iniciar servidor", statusDisconnectedColor);
-            hostButton.interactable = true;
-            joinButton.interactable = true;
+            if (hostButton != null) hostButton.interactable = true;
+            if (joinButton != null) joinButton.interactable = true;
+            
+            if (connectionPanel != null)
+                connectionPanel.SetActive(false); // Ocultar si falla
         }
     }
 
@@ -326,7 +348,11 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
 
-        string ipText = ipAddressInput.text.Trim();
+        string ipText = "";
+        if (ipAddressInput != null)
+        {
+            ipText = ipAddressInput.text.Trim();
+        }
 
         if (string.IsNullOrEmpty(ipText))
         {
@@ -354,8 +380,11 @@ public class LobbyUIController : MonoBehaviour
         }
 
         UpdateStatusLabel($"Conectando a {ip}:{port}...", statusWaitingColor);
-        hostButton.interactable = false;
-        joinButton.interactable = false;
+        if (hostButton != null) hostButton.interactable = false;
+        if (joinButton != null) joinButton.interactable = false;
+
+        if (connectionPanel != null) 
+            connectionPanel.SetActive(true); // Mostrar inmediatamente
 
         // Usar coroutine asíncrona: no bloquea Unity mientras espera la conexión
         StartCoroutine(JoinServerCoroutine(ip, port));
@@ -383,8 +412,11 @@ public class LobbyUIController : MonoBehaviour
         {
             Debug.LogError("[LOBBY_UI] No se pudo conectar al servidor");
             // HandleConnectionFailed ya actualizó el statusLabel con el mensaje de error
-            hostButton.interactable = true;
-            joinButton.interactable = true;
+            if (hostButton != null) hostButton.interactable = true;
+            if (joinButton != null) joinButton.interactable = true;
+            
+            if (connectionPanel != null)
+                connectionPanel.SetActive(false); // Ocultar si falla
         }
     }
 
@@ -442,7 +474,7 @@ public class LobbyUIController : MonoBehaviour
 
         Debug.Log("[LOBBY_UI] === Creando partida en Supabase ===");
         UpdateStatusLabel("Creando partida...", statusWaitingColor);
-        startGameButton.interactable = false;
+        if (startGameButton != null) startGameButton.interactable = false;
 
         // Crear partida en Supabase y luego cambiar de escena
         StartCoroutine(CreateGameAndStartScene());
@@ -570,8 +602,11 @@ public class LobbyUIController : MonoBehaviour
         Debug.LogError($"[LOBBY_UI] Error de conexion: {errorMessage}");
         UpdateStatusLabel($"Error: {errorMessage}", statusDisconnectedColor);
 
-        hostButton.interactable = true;
-        joinButton.interactable = true;
+        if (hostButton != null) hostButton.interactable = true;
+        if (joinButton != null) joinButton.interactable = true;
+        
+        if (connectionPanel != null)
+            connectionPanel.SetActive(false); // Ocultar si falla
     }
 
     /// <summary>
@@ -591,13 +626,17 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void UpdateUIForHost()
     {
-        hostButton.interactable = false;
-        joinButton.interactable = false;
-        roomNameInput.interactable = false;
-        ipAddressInput.interactable = false;
-        portInput.interactable = false;
+        if (hostButton != null) hostButton.interactable = false;
+        if (joinButton != null) joinButton.interactable = false;
+        
+        if (roomNameInput != null) roomNameInput.interactable = false;
+        if (ipAddressInput != null) ipAddressInput.interactable = false;
+        if (portInput != null) portInput.interactable = false;
 
-        startGameButton.gameObject.SetActive(true);
+        if (startGameButton != null) startGameButton.gameObject.SetActive(true);
+        
+        if (connectionPanel != null)
+            connectionPanel.SetActive(true); // Mostrar el panel exterior
 
         Debug.Log("[LOBBY_UI] UI actualizada para modo Host");
     }
@@ -607,13 +646,17 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void UpdateUIForClient()
     {
-        hostButton.interactable = false;
-        joinButton.interactable = false;
-        roomNameInput.interactable = false;
-        ipAddressInput.interactable = false;
-        portInput.interactable = false;
+        if (hostButton != null) hostButton.interactable = false;
+        if (joinButton != null) joinButton.interactable = false;
+        
+        if (roomNameInput != null) roomNameInput.interactable = false;
+        if (ipAddressInput != null) ipAddressInput.interactable = false;
+        if (portInput != null) portInput.interactable = false;
 
-        startGameButton.gameObject.SetActive(false);
+        if (startGameButton != null) startGameButton.gameObject.SetActive(false);
+        
+        if (connectionPanel != null)
+            connectionPanel.SetActive(true); // Mostrar el panel exterior
 
         Debug.Log("[LOBBY_UI] UI actualizada para modo Cliente");
     }
@@ -639,7 +682,24 @@ public class LobbyUIController : MonoBehaviour
         {
             var connectedPlayers = networkManager.GetConnectedPlayers();
 
-            string playersText = "[ JUGADORES CONECTADOS ]\n";
+            string playersText = "";
+
+            if (networkManager.IsConnected())
+            {
+                string idSala = "Desconocida";
+                if (networkManager.IsServer())
+                {
+                    idSala = NetworkLobbyManager.GetLocalIpAddress();
+                }
+                else if (ipAddressInput != null && !string.IsNullOrEmpty(ipAddressInput.text))
+                {
+                    idSala = ipAddressInput.text;
+                }
+
+                playersText += $"<color=green>[ ID SALA (IP): {idSala} ]</color>\n\n";
+            }
+
+            playersText += "[ JUGADORES CONECTADOS ]\n";
             playersText += "---\n";
 
             foreach (var kvp in connectedPlayers)
@@ -746,8 +806,10 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log($"[LOBBY_UI] Sala seleccionada: {roomData.RoomName}");
 
-        ipAddressInput.text = $"{roomData.IpAddress}:{roomData.Port}";
-        portInput.text = roomData.Port.ToString();
+        if (ipAddressInput != null)
+            ipAddressInput.text = $"{roomData.IpAddress}:{roomData.Port}";
+        if (portInput != null)
+            portInput.text = roomData.Port.ToString();
 
         OnJoinButtonPressed();
     }

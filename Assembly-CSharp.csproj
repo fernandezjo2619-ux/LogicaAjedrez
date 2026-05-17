@@ -70,6 +70,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
+    <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\Sacar datos\IniciarSesion.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\Scripts\AjedrezVisual\CrearPiezas.cs" />
     <Compile Include="Assets\Scripts\AjedrezLogica\Base de datos\DatabaseScripts\Scripts_CSharp\Authentication\UI\ForgotPasswordPanel.cs" />

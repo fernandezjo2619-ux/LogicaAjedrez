@@ -2413,13 +2413,14 @@ MonoBehaviour:
   joinButton: {fileID: 1478660079}
   startGameButton: {fileID: 0}
   backButton: {fileID: 0}
-  roomNameInput: {fileID: 2022383854}
-  ipAddressInput: {fileID: 0}
+  roomNameInput: {fileID: 0}
+  ipAddressInput: {fileID: 2022383854}
   portInput: {fileID: 0}
   idJugador1Input: {fileID: 0}
   idJugador2Input: {fileID: 0}
   statusLabel: {fileID: 1416230000}
   connectedPlayersLabel: {fileID: 1250515028}
+  connectionPanel: {fileID: 1323218960}
   roomListContainer: {fileID: 2033042764}
   roomListButtonPrefab: {fileID: 6781887439005976306, guid: 2a79dd77abb12dc4bbb87705df7c45e1, type: 3}
   gameSceneName: PartidaTablero
