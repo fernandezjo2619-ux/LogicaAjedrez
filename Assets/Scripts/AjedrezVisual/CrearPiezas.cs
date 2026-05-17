@@ -319,10 +319,10 @@ public class CrearPiezas : MonoBehaviour
         Debug.LogWarning($"[CrearPiezas] Aplicando movimiento remoto: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
 
         // Comprobar si hay una pieza enemiga en la casilla destino para eliminarla visualmente
-        Pieza piezaEnDestino = juego.Tablero[move.XFin, move.YFin];
-        if (piezaEnDestino != null)
+        var casillaDestino = juego.Tablero.Grid[move.XFin, move.YFin];
+        if (casillaDestino != null && casillaDestino.Pieza != null)
         {
-            EliminarPiezaVisual(piezaEnDestino);
+            EliminarPiezaVisual(casillaDestino.Pieza);
         }
 
         // Ejecutar el movimiento en la lógica del juego
