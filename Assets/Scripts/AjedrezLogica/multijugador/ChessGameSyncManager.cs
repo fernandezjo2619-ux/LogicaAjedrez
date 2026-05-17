@@ -65,7 +65,11 @@ public class ChessGameSyncManager : MonoBehaviour
     {
         if (instance == this)
         {
-            // Cleanup
+            // Desuscribirse del evento de movimientos remotos
+            if (networkManager != null)
+            {
+                networkManager.OnChessMoveReceived -= HandleRemoteChessMove;
+            }
         }
     }
 
@@ -88,10 +92,12 @@ public class ChessGameSyncManager : MonoBehaviour
             return;
         }
 
+        // Suscribirse al evento de movimientos remotos recibidos por TCP
+        networkManager.OnChessMoveReceived += HandleRemoteChessMove;
+
         if (idPartida <= 0 || idJugadorLocal <= 0)
         {
-            Debug.LogError("[CHESS_SYNC] Datos de partida inválidos");
-            return;
+            Debug.LogWarning("[CHESS_SYNC] Datos de partida inválidos (puede ser normal si aún no se ha iniciado la partida)");
         }
 
         Debug.Log("[CHESS_SYNC] === ChessGameSyncManager inicializado ===");
@@ -159,6 +165,18 @@ public class ChessGameSyncManager : MonoBehaviour
             ));
         }
 
+        // === ENVIAR POR TCP AL OPONENTE ===
+        if (networkManager != null && networkManager.IsConnected())
+        {
+            string tcpMessage = "CHESS_MOVE|" + SerializeMove(move);
+            networkManager.SendMessage(tcpMessage);
+            Debug.Log($"[CHESS_SYNC] Movimiento enviado por TCP: ({xOrigen},{yOrigen}) -> ({xFin},{yFin})");
+        }
+        else
+        {
+            Debug.LogWarning("[CHESS_SYNC] No hay conexión de red, el movimiento solo se guardó en Supabase");
+        }
+
         Debug.Log($"[CHESS_SYNC] Movimiento sincronizado: ({xOrigen},{yOrigen}) -> ({xFin},{yFin})");
     }
 
@@ -202,5 +220,100 @@ public class ChessGameSyncManager : MonoBehaviour
         movesHistory.Clear();
         lastReceivedMove = null;
         Debug.Log("[CHESS_SYNC] Historial de movimientos limpiado");
+    }
+
+    // ====== SINCRONIZACIÓN TCP ======
+
+    /// <summary>
+    /// Maneja un movimiento recibido del oponente por TCP.
+    /// Deserializa los datos, actualiza el historial y dispara el evento OnMoveReceived
+    /// para que el tablero visual aplique el movimiento.
+    /// </summary>
+    private void HandleRemoteChessMove(string moveData)
+    {
+        ChessMoveSync move = DeserializeMove(moveData);
+        if (move == null)
+        {
+            Debug.LogError("[CHESS_SYNC] Error al deserializar movimiento remoto");
+            return;
+        }
+
+        // Ignorar movimientos propios (el host hace relay, podría recibirlo de vuelta)
+        if (move.IdJugador == idJugadorLocal)
+        {
+            Debug.Log("[CHESS_SYNC] Movimiento propio ignorado (relay)");
+            return;
+        }
+
+        // Agregar al historial
+        if (movesHistory.Count >= maxMovesHistory)
+        {
+            movesHistory.RemoveAt(0);
+        }
+        movesHistory.Add(move);
+        lastReceivedMove = move;
+
+        Debug.LogWarning($"[CHESS_SYNC] Movimiento remoto recibido del Jugador {move.IdJugador}: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
+
+        // Disparar evento para que el tablero visual aplique el movimiento
+        OnMoveReceived?.Invoke(move);
+    }
+
+    /// <summary>
+    /// Serializa un ChessMoveSync a string para envío TCP.
+    /// Formato: idPartida|idJugador|xOrig|yOrig|xFin|yFin|timestamp|idHab|idPiezaEmp|xOrigEmp|yOrigEmp|xFinEmp|yFinEmp
+    /// Los campos opcionales (nullable) usan -1 cuando no aplican.
+    /// </summary>
+    private string SerializeMove(ChessMoveSync move)
+    {
+        return $"{move.IdPartida}|{move.IdJugador}|{move.XOrigen}|{move.YOrigen}|{move.XFin}|{move.YFin}|" +
+               $"{move.Timestamp}|{move.IdHabilidadUsada ?? -1}|{move.IdPiezaEmpujada ?? -1}|" +
+               $"{move.XOrigenEmpujada ?? -1}|{move.YOrigenEmpujada ?? -1}|{move.XFinEmpujada ?? -1}|{move.YFinEmpujada ?? -1}";
+    }
+
+    /// <summary>
+    /// Deserializa un string TCP a un objeto ChessMoveSync.
+    /// Formato esperado: idPartida|idJugador|xOrig|yOrig|xFin|yFin|timestamp|idHab|idPiezaEmp|xOrigEmp|yOrigEmp|xFinEmp|yFinEmp
+    /// </summary>
+    private ChessMoveSync DeserializeMove(string data)
+    {
+        try
+        {
+            string[] parts = data.Split('|');
+            if (parts.Length < 13)
+            {
+                Debug.LogError($"[CHESS_SYNC] Datos de movimiento inválidos ({parts.Length} campos, se esperan 13): {data}");
+                return null;
+            }
+
+            int idHab = int.Parse(parts[7]);
+            int idPiezaEmp = int.Parse(parts[8]);
+            int xOrigEmp = int.Parse(parts[9]);
+            int yOrigEmp = int.Parse(parts[10]);
+            int xFinEmp = int.Parse(parts[11]);
+            int yFinEmp = int.Parse(parts[12]);
+
+            return new ChessMoveSync
+            {
+                IdPartida = int.Parse(parts[0]),
+                IdJugador = int.Parse(parts[1]),
+                XOrigen = int.Parse(parts[2]),
+                YOrigen = int.Parse(parts[3]),
+                XFin = int.Parse(parts[4]),
+                YFin = int.Parse(parts[5]),
+                Timestamp = long.Parse(parts[6]),
+                IdHabilidadUsada = idHab >= 0 ? idHab : (int?)null,
+                IdPiezaEmpujada = idPiezaEmp >= 0 ? idPiezaEmp : (int?)null,
+                XOrigenEmpujada = xOrigEmp >= 0 ? xOrigEmp : (int?)null,
+                YOrigenEmpujada = yOrigEmp >= 0 ? yOrigEmp : (int?)null,
+                XFinEmpujada = xFinEmp >= 0 ? xFinEmp : (int?)null,
+                YFinEmpujada = yFinEmp >= 0 ? yFinEmp : (int?)null
+            };
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[CHESS_SYNC] Error deserializando movimiento: {ex.Message}");
+            return null;
+        }
     }
 }
