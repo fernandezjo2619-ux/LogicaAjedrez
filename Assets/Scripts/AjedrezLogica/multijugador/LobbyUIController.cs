@@ -277,22 +277,31 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnHostButtonPressed()
     {
-        Debug.Log("[LOBBY_UI] Boton Host presionado");
+        //Debug.Log("[LOBBY_UI] Boton Host presionado");
 
-        if (networkManager == null)
-        {
-            Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
-            UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
-            return;
-        }
+        //if (networkManager == null)
+        //{
+        //    Debug.LogError("[LOBBY_UI] networkManager es null. Verifica que NetworkLobbyManager existe en la escena.");
+        //    UpdateStatusLabel("ERROR: NetworkLobbyManager no encontrado en la escena", statusDisconnectedColor);
+        //    return;
+        //}
+
+        //string roomName = roomNameInput.text.Trim();
+        //if (string.IsNullOrEmpty(roomName))
+        //{
+        //    roomName = "Sala de " + SystemInfo.deviceName;
+        //}
+
+        //UpdateStatusLabel("Iniciando servidor...", statusWaitingColor);
 
         string roomName = roomNameInput.text.Trim();
-        if (string.IsNullOrEmpty(roomName))
-        {
-            roomName = "Sala de " + SystemInfo.deviceName;
-        }
+        if (string.IsNullOrEmpty(roomName)) roomName = "Sala de " + SystemInfo.deviceName;
 
-        UpdateStatusLabel("Iniciando servidor...", statusWaitingColor);
+        // IP local detectada automáticamente, sin campo de texto
+        string localIp = GetLocalIpAddress();
+        Debug.Log($"[LOBBY_UI] Creando sala en IP: {localIp}:{BASE_PORT}");
+
+        UpdateStatusLabel("Creando sala...", statusWaitingColor);
         hostButton.interactable = false;
         joinButton.interactable = false;
 
@@ -301,6 +310,7 @@ public class LobbyUIController : MonoBehaviour
             Debug.Log("[LOBBY_UI] Servidor iniciado exitosamente");
             UpdateUIForHost();
             networkManager.StartRoomDiscovery();
+            UpdateStatusLabel($"Sala creada — esperando jugadores...", statusWaitingColor);
         }
         else
         {
@@ -746,9 +756,15 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log($"[LOBBY_UI] Sala seleccionada: {roomData.RoomName}");
 
-        ipAddressInput.text = $"{roomData.IpAddress}:{roomData.Port}";
-        portInput.text = roomData.Port.ToString();
+        //ipAddressInput.text = $"{roomData.IpAddress}:{roomData.Port}";
+        //portInput.text = roomData.Port.ToString();
 
-        OnJoinButtonPressed();
+        //OnJoinButtonPressed();
+        UpdateStatusLabel($"Conectando a {roomData.RoomName}...", statusWaitingColor);
+        hostButton.interactable = false;
+        joinButton.interactable = false;
+
+        // Conectar directamente sin necesidad de campos de texto
+        StartCoroutine(JoinServerCoroutine(roomData.IpAddress, roomData.Port));
     }
 }
