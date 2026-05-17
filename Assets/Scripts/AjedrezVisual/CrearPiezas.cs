@@ -145,7 +145,7 @@ public class CrearPiezas : MonoBehaviour
             List<DatosHabilidadUsuario> habilidades = HabilidadesUsuarioBD.ObtenerListaHabilidadesUsuario();
             usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro, habilidades, idUsuario2);
         }
-    }}
+    }
 
     private IEnumerator BucleConEspera()
     {
