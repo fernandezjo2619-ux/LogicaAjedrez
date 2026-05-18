@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PartidaTablero.unity
     guid: 747643d425b94fb4aad47467f4ab1958
+  - enabled: 1
+    path: Assets/Scenes/Menu_Habilidades.unity
+    guid: e4adf802ae47e1a4e86e5d03283cd2e1
   m_configObjects: {}
