@@ -79,7 +79,7 @@ public class ChessGameSyncManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (instance == this)
+        if (_instance == this)
         {
             // Desuscribirse del evento TCP
             if (networkManager != null)
