@@ -41,16 +41,32 @@ public class ChessGameSyncManager : MonoBehaviour
     public delegate void OnMoveReceivedDelegate(ChessMoveSync move);
     public event OnMoveReceivedDelegate OnMoveReceived;
 
-    private static ChessGameSyncManager instance;
+    private static ChessGameSyncManager _instance;
+    public static ChessGameSyncManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<ChessGameSyncManager>(true);
+                if (_instance == null)
+                {
+                    GameObject go = new GameObject("ChessGameSyncManager");
+                    _instance = go.AddComponent<ChessGameSyncManager>();
+                }
+            }
+            return _instance;
+        }
+    }
 
     private void Awake()
     {
-        if (instance == null)
+        if (_instance == null)
         {
-            instance = this;
+            _instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (_instance != this)
         {
             Destroy(gameObject);
         }

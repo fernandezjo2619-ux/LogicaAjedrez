@@ -288,7 +288,7 @@ public class CrearPiezas : MonoBehaviour
         }
         
         // --- Suscribirse a movimientos remotos TCP ---
-        chessSyncManager = FindObjectOfType<ChessGameSyncManager>(true);
+        chessSyncManager = ChessGameSyncManager.Instance;
         if (chessSyncManager != null)
         {
             chessSyncManager.OnMoveReceived += AplicarMovimientoRemoto;
