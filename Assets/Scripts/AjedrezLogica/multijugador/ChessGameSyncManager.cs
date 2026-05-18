@@ -104,22 +104,6 @@ public class ChessGameSyncManager : MonoBehaviour
         Debug.Log($"[CHESS_SYNC] Partida: {idPartida}, Jugador Local: {idJugadorLocal}");
     }
 
-    private void RefreshGameDataIfInvalid()
-    {
-        if (idJugadorLocal <= 0)
-        {
-            NetworkLobbyManager.GetGameDataFromPrefs(out int j1, out int j2, out int partida);
-            idPartida = partida;
-            idJugadorLocal = NetworkLobbyManager.GetLocalPlayerIdFromPrefs();
-            
-            if (networkManager == null)
-                networkManager = FindObjectOfType<NetworkLobbyManager>();
-            
-            if (registrarMovimientoDb == null)
-                registrarMovimientoDb = FindObjectOfType<RegistrarMovimiento>();
-        }
-    }
-
     /// <summary>
     /// Registra y sincroniza un movimiento de pieza.
     /// Guarda en Supabase Y envía por TCP al oponente.
@@ -129,7 +113,14 @@ public class ChessGameSyncManager : MonoBehaviour
         int? xOrigenEmpujada = null, int? yOrigenEmpujada = null,
         int? xFinEmpujada = null, int? yFinEmpujada = null)
     {
-        RefreshGameDataIfInvalid();
+        if (networkManager == null)
+            networkManager = FindObjectOfType<NetworkLobbyManager>();
+
+        if (networkManager != null)
+        {
+            idJugadorLocal = networkManager.GetLocalPlayerId();
+            idPartida = networkManager.GetGameId();
+        }
 
         if (idJugadorLocal <= 0)
         {
@@ -244,7 +235,13 @@ public class ChessGameSyncManager : MonoBehaviour
     /// </summary>
     private void HandleRemoteChessMove(string moveData)
     {
-        RefreshGameDataIfInvalid();
+        if (networkManager == null)
+            networkManager = FindObjectOfType<NetworkLobbyManager>();
+
+        if (networkManager != null)
+        {
+            idJugadorLocal = networkManager.GetLocalPlayerId();
+        }
 
         ChessMoveSync move = DeserializeMove(moveData);
         if (move == null)
