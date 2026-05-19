@@ -98,7 +98,8 @@ public class CrearPiezas : MonoBehaviour
 
         StartCoroutine(BucleConEspera());
     }
-    IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
+
+    IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
     {
         // Inicializar usuarios si no existen
         if (usuario1 == null) usuario1 = new Usuario();
