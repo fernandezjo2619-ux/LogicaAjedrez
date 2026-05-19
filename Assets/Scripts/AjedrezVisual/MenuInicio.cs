@@ -30,6 +30,11 @@ public class MenuInicio : MonoBehaviour
         //UnityEngine.SceneManagement.SceneManager.LoadScene("PartidaTablero");
     }
 
+    public void MenuHabilidades()
+    {
+        SceneManager.LoadScene("Menu_Habilidades");
+    }
+
     public void VolverMenu()
     {
         SceneManager.LoadScene("Menu_Inicio");
