@@ -53,28 +53,14 @@ public class SupabaseRPC : MonoBehaviour
     /// </summary>
     /// <param name="idJugador1">ID del primer jugador</param>
     /// <param name="idJugador2">ID del segundo jugador</param>
-    /// <param name="estado">Estado de la partida (EN_CURSO o FINALIZADA). Por defecto: EN_CURSO</param>
-    /// <param name="idGanador">ID del ganador (opcional, NULL si no hay ganador)</param>
-    public IEnumerator GuardarPartida(int idJugador1, int idJugador2, System.Action<int> onCompletado, string estado = "EN_CURSO", int? idGanador = null)
+    public IEnumerator GuardarPartida(int idJugador1, int idJugador2, System.Action<int> onCompletado)
     {
         string url = baseUrl + "/guardar_partida";
 
         // Construir JSON con los parametros de la funcion SQL
         string jsonBody = "{" +
             "\"p_id_jugador_1\": " + idJugador1 + ", " +
-            "\"p_id_jugador_2\": " + idJugador2 + ", " +
-            "\"p_estado\": \"" + estado + "\"";
-
-        if (idGanador.HasValue)
-        {
-            jsonBody += ", \"p_id_ganador\": " + idGanador.Value;
-        }
-        else
-        {
-            jsonBody += ", \"p_id_ganador\": null";
-        }
-
-        jsonBody += "}";
+            "\"p_id_jugador_2\": " + idJugador2 + "}";
 
         UnityWebRequest request = new UnityWebRequest(url, "POST");
 
@@ -112,21 +98,13 @@ public class SupabaseRPC : MonoBehaviour
     /// Útil cuando se llama desde otros MonoBehaviours.
     /// </summary>
     public static IEnumerator GuardarPartidaEstatico(MonoBehaviour caller, int idJugador1, int idJugador2, 
-        System.Action<int> onCompletado, string estado = "EN_CURSO", int? idGanador = null)
+        System.Action<int> onCompletado)
     {
         string url = BaseUrl + "/guardar_partida";
 
         string jsonBody = "{" +
             "\"p_id_jugador_1\": " + idJugador1 + ", " +
-            "\"p_id_jugador_2\": " + idJugador2 + ", " +
-            "\"p_estado\": \"" + estado + "\"";
-
-        if (idGanador.HasValue)
-            jsonBody += ", \"p_id_ganador\": " + idGanador.Value;
-        else
-            jsonBody += ", \"p_id_ganador\": null";
-
-        jsonBody += "}";
+            "\"p_id_jugador_2\": " + idJugador2 + "}";
 
         UnityWebRequest request = new UnityWebRequest(url, "POST");
 
@@ -153,6 +131,44 @@ public class SupabaseRPC : MonoBehaviour
         {
             Debug.LogError("Error al guardar partida: " + request.error);
             onCompletado?.Invoke(-1);
+        }
+    }
+
+    /// <summary>
+    /// Actualiza el estado y el ganador de una partida existente.
+    /// Requiere que exista la función SQL `actualizar_partida(p_id_partida, p_estado, p_id_ganador)` en Supabase.
+    /// </summary>
+    public static IEnumerator ActualizarPartida(int idPartida, string estado, int idGanador, System.Action<bool> onCompletado = null)
+    {
+        string url = BaseUrl + "/actualizar_partida";
+
+        string jsonBody = "{" +
+            "\"p_id_partida\": " + idPartida + ", " +
+            "\"p_estado\": \"" + estado + "\", " +
+            "\"p_id_ganador\": " + idGanador + "}";
+
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
+
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("apikey", ApiKey);
+        request.SetRequestHeader("Authorization", "Bearer " + ApiKey);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log($"Partida {idPartida} actualizada a {estado}. Ganador: {idGanador}");
+            onCompletado?.Invoke(true);
+        }
+        else
+        {
+            Debug.LogError($"Error al actualizar partida {idPartida}: " + request.error);
+            Debug.LogError(request.downloadHandler.text);
+            onCompletado?.Invoke(false);
         }
     }
 }

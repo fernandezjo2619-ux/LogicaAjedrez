@@ -18,6 +18,8 @@ public class LoginUIController : MonoBehaviour
 
     private void Start()
     {
+        scriptIniciarSesion = GetComponent<IniciarSesion>() ?? gameObject.AddComponent<IniciarSesion>();
+
         txtMensajeError.text = "";
         txtMensajeErrorEmail.text = "Escribe tu email.";
         txtMensajeErrorPassword.text = "Escribe tu contraseña.";

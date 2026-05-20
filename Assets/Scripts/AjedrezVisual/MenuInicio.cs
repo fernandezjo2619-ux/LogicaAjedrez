@@ -17,7 +17,6 @@ public class MenuInicio : MonoBehaviour
     public void JugarVsJugador()
     {
         // Limpiar datos de partidas anteriores para que no interfieran
-        PlayerPrefs.DeleteKey("LocalPlayerId");
         PlayerPrefs.DeleteKey("IdJugador1");
         PlayerPrefs.DeleteKey("IdJugador2");
         PlayerPrefs.DeleteKey("IdPartida");

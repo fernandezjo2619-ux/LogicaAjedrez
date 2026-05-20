@@ -105,15 +105,29 @@ public class SeleccionarPieza : MonoBehaviour
         bool exito = juego.RealizarMovimiento(xOrigen, yOrigen, xDestino, yDestino);
         if (exito)
         {
+            // Registrar los datos del movimiento en CrearPiezas antes de terminar el turno
+            CrearPiezas.Instance.RegistrarMovimientoUsuario(new Estructuras {
+                p_id_pieza = piezaSeleccionada.piezaLogica.Id,
+                p_x_origen = xOrigen,
+                p_y_origen = yOrigen,
+                p_x_fin = xDestino,
+                p_y_fin = yDestino,
+                p_id_habilidad_usada = piezaSeleccionada.piezaLogica.Habilidad != null ? (int?)piezaSeleccionada.piezaLogica.Habilidad.TipoHabilidad : null
+            });
+
             CrearPiezas.Instance.NotificarMovimientoUsuario();
             
             // Enviar movimiento por TCP al oponente
-            var syncManager = FindObjectOfType<ChessGameSyncManager>();
+            var syncManager = ChessGameSyncManager.Instance;
             if (syncManager != null)
             {
                 syncManager.SyncChessMove(xOrigen, yOrigen, xDestino, yDestino);
             }
         }
+        else
+        {
+        }
+        
         //CrearPiezas.Instance.MoverVisual(piezaSeleccionada.piezaLogica);
         CrearPiezas.Instance.SincronizarVisual();
         //CrearPiezas.Instance.IntentarMovimientoIA();

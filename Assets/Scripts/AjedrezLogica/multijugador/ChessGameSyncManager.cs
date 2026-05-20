@@ -168,29 +168,6 @@ public class ChessGameSyncManager : MonoBehaviour
         }
         movesHistory.Add(move);
 
-        // Registrar en la base de datos
-        if (registrarMovimientoDb != null)
-        {
-            StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
-                move.IdPartida,
-                move.IdJugador,
-                0,  // ID pieza (se obtendría del contexto de CrearPiezas)
-                movesHistory.Count,  // Número de turno
-                move.XOrigen,
-                move.YOrigen,
-                move.XFin,
-                move.YFin,
-                move.IdHabilidadUsada,
-                move.IdPiezaEmpujada,
-                move.XOrigenEmpujada,
-                move.YOrigenEmpujada,
-                move.XFinEmpujada,
-                move.YFinEmpujada,
-                (id) => Debug.Log($"[CHESS_SYNC] Movimiento registrado con ID: {id}"),
-                (error) => Debug.LogError($"[CHESS_SYNC] Error registrando: {error}")
-            ));
-        }
-
         // === ENVIAR POR TCP AL OPONENTE ===
         if (networkManager != null && networkManager.IsConnected())
         {
