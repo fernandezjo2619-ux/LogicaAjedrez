@@ -163,6 +163,7 @@ public class CrearPiezas : MonoBehaviour
 
             if (iaActual != null)
             {
+                yield return new WaitForSeconds(1);
                 // ── TURNO DE IA ──
                 accionIa = iaActual.ElegirMovimiento(juego, turno);
 
@@ -210,7 +211,7 @@ public class CrearPiezas : MonoBehaviour
                 };
 
                 Debug.Log("Pieza movida por IA: " + accionIa.Pieza.Tipo);
-                yield return new WaitForSeconds(2);
+                
             }
             else
             {
