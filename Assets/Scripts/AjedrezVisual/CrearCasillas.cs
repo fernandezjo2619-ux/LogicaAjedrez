@@ -28,7 +28,7 @@ public class CrearCasillas : MonoBehaviour
         {
             for (int j = 0; j < alto; j++)
             {
-                GameObject casilla = Instantiate(casillasPrefab, new Vector3(i, 0, j), Quaternion.identity);
+                GameObject casilla = Instantiate(casillasPrefab, new Vector3(i, 0.4f , j), Quaternion.identity);
 
                 //Agregar materiales por posición
                 Material matAsignado = (i + j) % 2 == 0 ? color1 : color2;

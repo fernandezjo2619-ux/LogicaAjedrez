@@ -62,13 +62,23 @@ public class CrearPiezas : MonoBehaviour
     private SupabaseRPC GuardarPartidaBD;
     private ObtenerHabilidadesUsuario HabilidadesUsuarioBD;
     private RegistrarMovimiento registrarMovimientoDb;
-
     private bool movimientoUsuarioRealizado = false;
+
+    // Almacena temporalmente los datos del movimiento del usuario o remoto para guardarlos al final del turno
+    public Estructuras ultimoMovimientoUsuarioDatos = null;
     private ChessGameSyncManager chessSyncManager;
 
     public void NotificarMovimientoUsuario()
     {
         movimientoUsuarioRealizado = true;
+    }
+
+    /// <summary>
+    /// Guarda los datos del movimiento antes de que termine el turno para agregarlos a mapaRegistroMovimiento
+    /// </summary>
+    public void RegistrarMovimientoUsuario(Estructuras datos)
+    {
+        ultimoMovimientoUsuarioDatos = datos;
     }
 
     void Awake()
@@ -105,7 +115,7 @@ public class CrearPiezas : MonoBehaviour
         if (usuario1 == null) usuario1 = new Usuario();
         if (usuario2 == null) usuario2 = new Usuario();
 
-        bool esMultijugador = PlayerPrefs.HasKey("LocalPlayerId") && PlayerPrefs.GetInt("LocalPlayerId", 0) > 0;
+        bool esMultijugador = !ConfigPartida.vsIA;
 
         if (!esMultijugador && idUsuario1 <= 4)
         {
@@ -224,30 +234,98 @@ public class CrearPiezas : MonoBehaviour
                 SincronizarVisual();
 
                 int idUsuario = turno == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-                //mapaRegistroMovimiento[NumeroDeTurno] = new Estructuras
-                //{
-                //    p_id_partida = juego.IdPartida,
-                //    p_id_usuario = idUsuario,
-                //    p_id_pieza = accionIa.Pieza.Id,
-                //    p_turno_numero = NumeroDeTurno,
-                //    p_x_origen = xOrigen,
-                //    p_y_origen = yOrigen,
-                //    p_x_fin = accionIa.XFin,
-                //    p_y_fin = accionIa.YFin,
-                //    p_id_habilidad_usada = (int)accionIa.Pieza.Habilidad.TipoHabilidad,
-                //    p_id_pieza_empujada = accionIa.PiezaEmpujada?.Id,
-                //    p_x_origen_empujada = accionIa.PiezaEmpujada?.Posicion.X,
-                //    p_y_origen_empujada = accionIa.PiezaEmpujada?.Posicion.Y,
-                //    p_x_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.XFin : null,
-                //    p_y_fin_empujada = accionIa.PiezaEmpujada?.Id != null ? accionIa.YFin : null
-                //};
+                
+                if (ultimoMovimientoUsuarioDatos != null)
+                {
+                    ultimoMovimientoUsuarioDatos.p_id_partida = juego.IdPartida;
+                    ultimoMovimientoUsuarioDatos.p_id_usuario = idUsuario;
+                    ultimoMovimientoUsuarioDatos.p_turno_numero = NumeroDeTurno;
+                    mapaRegistroMovimiento[NumeroDeTurno] = ultimoMovimientoUsuarioDatos;
+                    ultimoMovimientoUsuarioDatos = null;
+                }
 
                 Debug.Log("Movimiento del usuario completado");
             }
             NumeroDeTurno++;
+
+            // --- COMPROBAR CONDICIÓN DE VICTORIA (REY CAPTURADO) ---
+            bool reyBlancoVivo = false;
+            bool reyNegroVivo = false;
+            foreach (var p in juego.ListaPiezas)
+            {
+                if (p == null) continue;
+
+                if (p.Tipo == TipoPieza.Rey)
+                {
+                    if (p.Color == ColorPieza.Blanco) reyBlancoVivo = true;
+                    if (p.Color == ColorPieza.Negro) reyNegroVivo = true;
+                }
+            }
+
+            if (!reyBlancoVivo || !reyNegroVivo)
+            {
+                int idGanador = !reyBlancoVivo ? juego.IdUsuario2 : juego.IdUsuario1;
+                Debug.Log($"[PARTIDA] ¡El Rey ha sido capturado! Ganador: Jugador {idGanador}");
+                
+                // Guardar el ID del ganador para la siguiente escena
+                PlayerPrefs.SetInt("IdGanador", idGanador);
+                PlayerPrefs.Save();
+                
+                // Iniciar proceso de guardado y carga de la escena de victoria
+                StartCoroutine(FinalizarYGuardarPartida(idGanador));
+                break;
+            }
+        }
+    }
+
+    private IEnumerator FinalizarYGuardarPartida(int idGanador)
+    {
+        Debug.Log("[PARTIDA] Enviando movimientos a Supabase...");
+        
+        // 1. Enviar cada movimiento secuencialmente
+        foreach (var kvp in mapaRegistroMovimiento)
+        {
+            var mov = kvp.Value;
+            bool movimientoGuardado = false;
+            
+            yield return StartCoroutine(registrarMovimientoDb.PostRegistrarMovimiento(
+                p_id_partida: mov.p_id_partida,
+                p_id_usuario: mov.p_id_usuario,
+                p_id_pieza: mov.p_id_pieza,
+                p_turno_numero: mov.p_turno_numero,
+                p_x_origen: mov.p_x_origen,
+                p_y_origen: mov.p_y_origen,
+                p_x_fin: mov.p_x_fin,
+                p_y_fin: mov.p_y_fin,
+                p_id_habilidad_usada: mov.p_id_habilidad_usada,
+                p_id_pieza_empujada: mov.p_id_pieza_empujada,
+                p_x_origen_empujada: mov.p_x_origen_empujada,
+                p_y_origen_empujada: mov.p_y_origen_empujada,
+                p_x_fin_empujada: mov.p_x_fin_empujada,
+                p_y_fin_empujada: mov.p_y_fin_empujada,
+                onSuccess: (id) => movimientoGuardado = true,
+                onError: (err) => movimientoGuardado = true // Si falla, continuamos para no bloquear
+            ));
+            
+            // Wait until this move is processed
+            yield return new WaitUntil(() => movimientoGuardado);
         }
 
-        // Registrar resultado final en BD, mostrar mensaje de victoria, registrar movimientos realizados tipo dicionario etc.
+        Debug.Log("[PARTIDA] Todos los movimientos enviados. Actualizando estado de la partida...");
+
+        // 2. Actualizar estado de la partida a FINALIZADA
+        bool partidaActualizada = false;
+        yield return StartCoroutine(SupabaseRPC.ActualizarPartida(juego.IdPartida, "FINALIZADA", idGanador, (exito) => 
+        {
+            partidaActualizada = true;
+        }));
+        
+        yield return new WaitUntil(() => partidaActualizada);
+
+        Debug.Log("[PARTIDA] Proceso completado. Cargando escena Victoria.");
+        
+        // 3. Cargar la escena de victoria
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Victoria");
     }
 
     void Start()
@@ -256,8 +334,7 @@ public class CrearPiezas : MonoBehaviour
         int idN = 0;
 
         // --- DETECTAR SI VENIMOS DEL LOBBY MULTIJUGADOR ---
-        // El Lobby guarda estos datos antes de cambiar de escena
-        bool esMultijugador = PlayerPrefs.HasKey("LocalPlayerId") && PlayerPrefs.GetInt("LocalPlayerId", 0) > 0;
+        bool esMultijugador = !ConfigPartida.vsIA;
 
         if (esMultijugador)
         {
@@ -324,6 +401,11 @@ public class CrearPiezas : MonoBehaviour
 
         Debug.LogWarning($"[CrearPiezas] Aplicando movimiento remoto: ({move.XOrigen},{move.YOrigen}) -> ({move.XFin},{move.YFin})");
 
+        // Identificar la pieza antes de que se mueva
+        Pieza piezaRemota = juego.ListaPiezas.Find(p => p != null && p.Posicion.X == move.XOrigen && p.Posicion.Y == move.YOrigen);
+        int idPiezaRemota = piezaRemota != null ? piezaRemota.Id : 0;
+        int? idHabilidad = piezaRemota?.Habilidad != null ? (int?)piezaRemota.Habilidad.TipoHabilidad : null;
+
         // Ejecutar el movimiento en la lógica del juego
         bool exito = juego.RealizarMovimiento(move.XOrigen, move.YOrigen, move.XFin, move.YFin);
 
@@ -331,19 +413,15 @@ public class CrearPiezas : MonoBehaviour
         {
             Debug.Log($"[CrearPiezas] Movimiento remoto aplicado exitosamente");
             
-            // Eliminar piezas visuales que ya no existen en la lógica (capturadas)
-            List<Pieza> piezasAEliminar = new List<Pieza>();
-            foreach (var kvp in mapaPiezas)
-            {
-                if (!juego.ListaPiezas.Contains(kvp.Key))
-                {
-                    piezasAEliminar.Add(kvp.Key);
-                }
-            }
-            foreach (var pieza in piezasAEliminar)
-            {
-                EliminarPiezaVisual(pieza);
-            }
+            // Guardar datos para registro
+            RegistrarMovimientoUsuario(new Estructuras {
+                p_id_pieza = idPiezaRemota,
+                p_x_origen = move.XOrigen,
+                p_y_origen = move.YOrigen,
+                p_x_fin = move.XFin,
+                p_y_fin = move.YFin,
+                p_id_habilidad_usada = idHabilidad
+            });
 
             // Notificar que el turno del oponente (remoto) ha terminado
             NotificarMovimientoUsuario();
@@ -405,66 +483,69 @@ public class CrearPiezas : MonoBehaviour
 
     public void EliminarPiezaVisual(Pieza pieza)
     {
+        Debug.Log("pieza eliminada");
+
         if (mapaPiezas.TryGetValue(pieza, out var go))
         {
-            Destroy(go);
+            Destroy(go.gameObject); // ¡Importante! Destroy(go) solo borraba el script, Destroy(go.gameObject) borra el modelo 3D entero.
             mapaPiezas.Remove(pieza);
         }
     }
 
-    //public void IntentarMovimientoIA()
-    //{
-    //    if (!jugarContraIA) return;
-
-    //    if (juego.TurnoActual != colorIA || ejecutandoIA) return;
-
-    //    StartCoroutine(EjecutarIA());
-    //}
-
-    //IEnumerator EjecutarIA()
-    //{
-    //    ejecutandoIA = true;
-
-    //    yield return new WaitForSeconds(0.5f);
-
-    //    var accion = ia.ElegirMovimiento(juego, juego.TurnoActual);
-
-    //    if (accion.Tipo == TipoAccion.Movimiento)
-    //    {
-    //        juego.RealizarMovimiento(
-    //            accion.Pieza.Posicion.X,
-    //            accion.Pieza.Posicion.Y,
-    //            accion.XFin,
-    //            accion.YFin
-    //        );
-    //    }
-    //    else if (accion.Tipo == TipoAccion.Empujon)
-    //    {
-    //        juego.EjecutarEmpujon(
-    //            accion.Pieza,
-    //            accion.PiezaEmpujada,
-    //            accion.XFin,
-    //            accion.YFin
-    //        );
-    //    }
-
-    //    SincronizarVisual();
-
-    //    ejecutandoIA = false;
-
-    //    // Por si hay m�s turnos IA
-    //    IntentarMovimientoIA();
-    //}
 
     public void SincronizarVisual()
     {
+        // 1. Identificar piezas que ya no existen en la lógica o superpuestas
+        List<Pieza> piezasAEliminar = new List<Pieza>();
+        
+        // 1.5. Hack de superposición: si dos piezas están en la misma coordenada, una debe morir
+        Dictionary<string, Pieza> casillasOcupadas = new Dictionary<string, Pieza>();
+
         foreach (var kvp in mapaPiezas)
         {
-            var pieza = kvp.Key;
-            var view = kvp.Value;
+            Pieza p = kvp.Key;
+            
+            // Si la lógica la borró de ListaPiezas, la eliminamos
+            if (!juego.ListaPiezas.Contains(p) || kvp.Value == null)
+            {
+                piezasAEliminar.Add(p);
+                continue;
+            }
 
-            view.transform.position =
-                new Vector3(pieza.Posicion.X, 0.5f, pieza.Posicion.Y);
+            // Detección de colisión visual (dos piezas en el mismo sitio)
+            string coords = $"{p.Posicion.X},{p.Posicion.Y}";
+            if (casillasOcupadas.ContainsKey(coords))
+            {
+                Pieza otra = casillasOcupadas[coords];
+                // La pieza capturada será la del color contrario al turno actual
+                if (p.Color != juego.TurnoActual)
+                {
+                    piezasAEliminar.Add(p);
+                }
+                else
+                {
+                    piezasAEliminar.Add(otra);
+                    casillasOcupadas[coords] = p;
+                }
+            }
+            else
+            {
+                casillasOcupadas[coords] = p;
+            }
+        }
+
+        foreach (var pieza in piezasAEliminar)
+        {
+            EliminarPiezaVisual(pieza);
+        }
+
+        // 2. Reposicionar las piezas restantes
+        foreach (var kvp in mapaPiezas)
+        {
+            if (kvp.Value != null && !piezasAEliminar.Contains(kvp.Key))
+            {
+                kvp.Value.transform.position = new Vector3(kvp.Key.Posicion.X, 0.5f, kvp.Key.Posicion.Y);
+            }
         }
     }
 }
