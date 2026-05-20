@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 using LogicProject;
 using LogicProject.IA;
@@ -27,17 +26,6 @@ public class Estructuras
     public int? p_x_fin_empujada { get; set; } = null;
     public int? p_y_fin_empujada { get; set; } = null;
 }
-=======
-using AjedrezLogica;
-using AjedrezLogica.IA;
-using AjedrezLogica.IA.Estructuras;
-using AjedrezLogica.Recursos;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static MenuInicio;
->>>>>>> origin/Raquel
 
 public class CrearPiezas : MonoBehaviour
 {
@@ -55,7 +43,6 @@ public class CrearPiezas : MonoBehaviour
     public Usuario usuario2;
     public IMotorIA iaB;
     public IMotorIA iaN;
-<<<<<<< HEAD
     public IMotorIA iaActual;
 
     public System.Random random = new System.Random();
@@ -64,19 +51,11 @@ public class CrearPiezas : MonoBehaviour
     //public bool jugarContraIA = false;
     //public ColorPieza colorIA = ColorPieza.Negro;
     //private bool ejecutandoIA = false;
-=======
-
-    //Activar IA
-    public bool jugarContraIA = false;
-    public ColorPieza colorIA = ColorPieza.Negro;
-    private bool ejecutandoIA = false;
->>>>>>> origin/Raquel
 
     //Guardar pieza y posicion
     //public static GameObject[,] piezasVisuales = new GameObject[8, 8];
 
     public Dictionary<Pieza, PiezasPrefab> mapaPiezas = new();
-<<<<<<< HEAD
     public Dictionary<int, Estructuras> mapaRegistroMovimiento = new();
 
     // Instancias de MonoBehaviour para acceso a mÃ©todos coroutine
@@ -101,17 +80,10 @@ public class CrearPiezas : MonoBehaviour
     {
         ultimoMovimientoUsuarioDatos = datos;
     }
-=======
-
-    private SupabaseRPC GuardarPartidaBD = new();
-    private ObtenerHabilidadesUsuario HabilidadesUsuarioBD = new();
-    private RegistrarMovimiento registrarMovimientoDb = new();
->>>>>>> origin/Raquel
 
     void Awake()
     {
         Instance = this;
-<<<<<<< HEAD
 
         // Obtener o crear componentes necesarios
         GuardarPartidaBD = GetComponent<SupabaseRPC>() ?? gameObject.AddComponent<SupabaseRPC>();
@@ -123,14 +95,6 @@ public class CrearPiezas : MonoBehaviour
     {
         // 1. Guardar partida en BD y obtener el ID
         int idPartida = idPartidaExistente > 0 ? idPartidaExistente : 0;
-=======
-    }
-
-    private IEnumerator IniciarPartida(int idUsuario1, int idUsuario2)
-    {
-        // 1. Guardar partida en BD y obtener el ID
-        int idPartida = 0;
->>>>>>> origin/Raquel
         yield return StartCoroutine(GuardarPartidaBD.GuardarPartida(idUsuario1, idUsuario2,
             resultado => idPartida = resultado));
 
@@ -147,7 +111,6 @@ public class CrearPiezas : MonoBehaviour
 
     IEnumerator IniciarJuegoConHabilidades(BaseJuego juego, int idUsuario1, int idUsuario2)
     {
-<<<<<<< HEAD
         // Inicializar usuarios si no existen
         if (usuario1 == null) usuario1 = new Usuario();
         if (usuario2 == null) usuario2 = new Usuario();
@@ -155,9 +118,6 @@ public class CrearPiezas : MonoBehaviour
         bool esMultijugador = !ConfigPartida.vsIA;
 
         if (!esMultijugador && idUsuario1 <= 4)
-=======
-        if (idUsuario1 <= 4)
->>>>>>> origin/Raquel
         {
             switch (idUsuario1)
             {
@@ -177,11 +137,7 @@ public class CrearPiezas : MonoBehaviour
             usuario1.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, habilidades, idUsuario1);
         }
 
-<<<<<<< HEAD
         if (!esMultijugador && idUsuario2 <= 4)
-=======
-        if (idUsuario2 <= 4)
->>>>>>> origin/Raquel
         {
             switch (idUsuario2)
             {
@@ -198,19 +154,12 @@ public class CrearPiezas : MonoBehaviour
             yield return StartCoroutine(HabilidadesUsuarioBD.GetHabilidadesUsuario(idUsuario2));
 
             List<DatosHabilidadUsuario> habilidades = HabilidadesUsuarioBD.ObtenerListaHabilidadesUsuario();
-<<<<<<< HEAD
             usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro, habilidades, idUsuario2);
         }
-=======
-            usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, habilidades, idUsuario2);
-        }
-
->>>>>>> origin/Raquel
     }
 
     private IEnumerator BucleConEspera()
     {
-<<<<<<< HEAD
         int NumeroDeTurno = 1;
         ColorPieza turno;
         Accion accionIa;
@@ -482,67 +431,10 @@ public class CrearPiezas : MonoBehaviour
         }
 
         SincronizarVisual();
-=======
-        int idUsuario;
-        while (true)
-        {
-            // Tu código aquí
-            Accion accionIa = iaB.ElegirMovimiento(juego, juego.TurnoActual);
-            if (accionIa.Tipo == TipoAccion.Empujon)
-            {
-                juego.EjecutarEmpujon(accionIa.Pieza, accionIa.PiezaEmpujada, accionIa.XFin, accionIa.YFin);
-            }
-            else
-            {
-                juego.RealizarMovimiento(accionIa.Pieza.Posicion.X, accionIa.Pieza.Posicion.Y, accionIa.XFin, accionIa.YFin);
-            }
-            // forma de conseguir la pieza
-            MoverVisual(accionIa.Pieza);
-            // idUsuario = juego.TurnoActual == ColorPieza.Blanco ? juego.IdUsuario1 : juego.IdUsuario2;
-            // registrarMovimientoDb.PostRegistrarMovimiento(juego.IdPartida, idUsuario, pieza.Id, xOrigen, yOrigen, xFin, yFin, piezaEmpujada.Id, xOrigenEmpujada, yOrigenEmpujada, xFinEmpujada, yFinEmpujada);
-
-            Debug.Log("pieza movida por la ia " + accionIa.Pieza);
-            yield return new WaitForSeconds(5); 
-        }
-    }
-
-    void Start()
-    {
-
-        // IDs 1 al 4, Reservados para la IA
-        StartCoroutine(IniciarPartida(1,2));
-        //jugarContraIA = ConfigPartida.vsIA;
-
-        //// Inicializa la lógica
-        //juego = new BaseJuego();
-
-        //usuario1 = new Usuario();
-        //usuario2 = new Usuario();
-
-
-        //if (jugarContraIA)
-        //{
-        //    usuario1.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, 1);
-
-        //    // Inicializar piezas de IA
-        //    ia = new IAAleatoria();
-        //    ia.InicializarPiezasDeIA(juego, ColorPieza.Negro);
-        //}
-        //else
-        //{
-        //    // Inicializar piezas de usuarios
-        //    usuario1.InicializarPiezasDeUsuario(juego, ColorPieza.Blanco, 1);
-        //    usuario2.InicializarPiezasDeUsuario(juego, ColorPieza.Negro, 2);
-        //}
-
-        //// Crear prefabs visuales
-        //CrearPrefabs();
->>>>>>> origin/Raquel
     }
 
     void CrearPrefabs()
     {
-<<<<<<< HEAD
         Debug.Log($"[DEBUG_PIEZAS] Instanciando {juego.ListaPiezas.Count} prefabs...");
 
         if (peonPrefab == null) Debug.LogError("[DEBUG_PIEZAS] ERROR: peonPrefab no estÃ¡ asignado en el Inspector.");
@@ -558,12 +450,6 @@ public class CrearPiezas : MonoBehaviour
 
             GameObject piezaObj = Instantiate(prefab);
             // ... (resto igual)
-=======
-        foreach (var piezaLogica in juego.ListaPiezas)
-        {
-            GameObject prefab = ObtenerPrefab(piezaLogica.Tipo, piezaLogica.Color);
-            GameObject piezaObj = Instantiate(prefab);
->>>>>>> origin/Raquel
 
             PiezasPrefab view = piezaObj.GetComponent<PiezasPrefab>();
             view.Inicializar(piezaLogica);
@@ -594,7 +480,6 @@ public class CrearPiezas : MonoBehaviour
         }
     }
 
-<<<<<<< HEAD
     public void EliminarPiezaVisual(Pieza pieza)
     {
         Debug.Log("pieza eliminada");
@@ -660,61 +545,6 @@ public class CrearPiezas : MonoBehaviour
             {
                 kvp.Value.transform.position = new Vector3(kvp.Key.Posicion.X, 0.5f, kvp.Key.Posicion.Y);
             }
-=======
-    //public void IntentarMovimientoIA()
-    //{
-    //    if (!jugarContraIA) return;
-
-    //    if (juego.TurnoActual != colorIA || ejecutandoIA) return;
-
-    //    StartCoroutine(EjecutarIA());
-    //}
-
-    //IEnumerator EjecutarIA()
-    //{
-    //    ejecutandoIA = true;
-
-    //    yield return new WaitForSeconds(0.5f);
-
-    //    var accion = ia.ElegirMovimiento(juego, juego.TurnoActual);
-
-    //    if (accion.Tipo == TipoAccion.Movimiento)
-    //    {
-    //        juego.RealizarMovimiento(
-    //            accion.Pieza.Posicion.X,
-    //            accion.Pieza.Posicion.Y,
-    //            accion.XFin,
-    //            accion.YFin
-    //        );
-    //    }
-    //    else if (accion.Tipo == TipoAccion.Empujon)
-    //    {
-    //        juego.EjecutarEmpujon(
-    //            accion.Pieza,
-    //            accion.PiezaEmpujada,
-    //            accion.XFin,
-    //            accion.YFin
-    //        );
-    //    }
-
-    //    SincronizarVisual();
-
-    //    ejecutandoIA = false;
-
-    //    // Por si hay más turnos IA
-    //    IntentarMovimientoIA();
-    //}
-
-    public void SincronizarVisual()
-    {
-        foreach (var kvp in mapaPiezas)
-        {
-            var pieza = kvp.Key;
-            var view = kvp.Value;
-
-            view.transform.position =
-                new Vector3(pieza.Posicion.X, 0.5f, pieza.Posicion.Y);
->>>>>>> origin/Raquel
         }
     }
 }
